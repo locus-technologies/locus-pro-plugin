@@ -6,7 +6,7 @@ data and API lookups, and thousands of metered provider endpoints billed to one
 prepaid workspace credit balance.
 
 One repo, one plugin, many agents. The same plugin installs into Claude Code,
-Codex, Cursor, OpenClaw, and any client that speaks the
+Codex, Cursor, Grok, OpenClaw, and any client that speaks the
 [Agent Plugins](https://agent-plugins.org) or
 [Agent Skills](https://agentskills.io) open standards.
 
@@ -69,8 +69,8 @@ Cursor's OAuth flow completes in the browser on first use.
 grok plugin install locus-technologies/locus-plugin
 ```
 
-Grok discovers the server's OAuth automatically and opens the browser flow
-on first use.
+Confirm the trust prompt (or pass `--trust` to skip it). Grok discovers the
+server's OAuth automatically and opens the browser flow on first use.
 
 ### OpenClaw
 
@@ -93,9 +93,10 @@ plugin changes.
 npx skills add locus-technologies/locus-plugin
 ```
 
-Installs the `locus` skill into whichever agents you have. The skill includes
-the connection instructions; add the MCP server in your client's settings to
-make the tools available.
+Discovers both Locus skills (usage and setup) and installs your selection
+into whichever agents you have. The skills include the connection
+instructions; add the MCP server in your client's settings to make the
+tools available.
 
 ### Any Agent Plugins client
 
@@ -120,7 +121,8 @@ configuration; those are server-side service credentials.
 
 ## Costs and safety
 
-Calls are live and billed to your workspace credit balance. The skill instructs
+Paid provider calls are live and billed to your workspace credit balance;
+catalog discovery, quotes, and balance checks are free. The skill instructs
 agents to pass idempotency keys so retries never double-charge, to quote
 significant calls with `estimate_cost` first, and to confirm with you before
 unusually large spends. Spend limits and approvals are configured per workspace

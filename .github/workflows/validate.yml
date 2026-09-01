@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Grok CLI
         run: |
-          curl -fsSL https://x.ai/cli/install.sh | bash
+          curl -fsSL https://x.ai/cli/install.sh | bash -s 1.0.13
           echo "$GROK_BIN_DIR" >> "$GITHUB_PATH"
 
       - name: Validate Grok plugin manifest

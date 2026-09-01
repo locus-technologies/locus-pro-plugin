@@ -99,18 +99,20 @@ if (openPluginMcp && openPluginMcp.$schema !== "https://agent-plugins.org/schema
 // contract only allows a string pointer when it resolves to root .mcp.json,
 // and Codex reads http_headers, not headers).
 const codexServers = manifests[".codex-plugin/plugin.json"]?.mcpServers;
-if (typeof codexServers !== "object" || Array.isArray(codexServers)) {
+if (typeof codexServers !== "object" || Array.isArray(codexServers) || codexServers === null) {
   errors.push(".codex-plugin/plugin.json: mcpServers must be an inline object");
 } else {
-  const server = codexServers[EXPECTED_NAME];
-  if (!server) errors.push(`.codex-plugin/plugin.json: mcpServers must define exactly "${EXPECTED_NAME}"`);
-  else {
+  const keys = Object.keys(codexServers);
+  if (keys.length !== 1 || keys[0] !== EXPECTED_NAME) {
+    errors.push(`.codex-plugin/plugin.json: mcpServers keys [${keys.join(", ")}], expected exactly ["${EXPECTED_NAME}"]`);
+  } else {
+    const server = codexServers[EXPECTED_NAME];
     if (server.url !== EXPECTED_URL) errors.push(`.codex-plugin/plugin.json: url "${server.url}" != "${EXPECTED_URL}"`);
-    if (server.http_headers?.["X-Source-Name"] !== "codex-plugin") {
-      errors.push('.codex-plugin/plugin.json: http_headers must carry X-Source-Name "codex-plugin"');
-    }
-    for (const key of [...Object.keys(server.http_headers ?? {}), ...Object.keys(server.headers ?? {})]) {
-      if (key.toLowerCase() === "authorization") errors.push(".codex-plugin/plugin.json: must not ship an Authorization header");
+    if (server.type !== "http") errors.push(`.codex-plugin/plugin.json: type "${server.type}", expected "http"`);
+    if ("headers" in server) errors.push('.codex-plugin/plugin.json: use http_headers (Codex silently drops "headers")');
+    const httpHeaders = Object.keys(server.http_headers ?? {});
+    if (httpHeaders.length !== 1 || server.http_headers?.["X-Source-Name"] !== "codex-plugin") {
+      errors.push('.codex-plugin/plugin.json: http_headers must be exactly {"X-Source-Name": "codex-plugin"}');
     }
   }
 }
