@@ -36,7 +36,8 @@ keeps the tokens.
   `locus-setup` skill covers full self-serve onboarding, including
   agent-owned accounts and funding.
 - Optional URL query switches: `?compact=1` returns compact text results;
-  `?tool=provider/endpoint` pins one typed direct tool for that endpoint.
+  `?tool=provider/endpoint` (repeatable, or `?tools=a,b`) pins up to 20
+  typed direct tools.
 
 ## Tools
 
@@ -63,8 +64,8 @@ keeps the tokens.
   ceiling. Routine calls go straight to `execute`.
 - Check `get_balance()` before large or repeated spends. Use `list_apis` to
   browse what the workspace has enabled.
-- Omit `stream` in call args (or set it `false`); streaming is rejected and
-  each call returns one bounded result.
+- Omit `stream` in call args (or set it `false`); each call returns one
+  bounded result, and streaming-only request shapes are rejected.
 
 ## Billing discipline
 
@@ -92,8 +93,9 @@ body. `max_charge_credits` sets a hard ceiling; exact quotes reject any
 price movement. If the price moved, `execute` fails with
 `MCP_APPROVAL_REAPPROVAL_REQUIRED` before dispatch or charge: call
 `estimate_cost` again and reconfirm before retrying. Quotes expire (default
-120 seconds; `expires_in_seconds` accepts 30 to 600). Call
-`cancel_cost_approval` on a quote you decide not to use.
+120 seconds; `expires_in_seconds` accepts 30 to 600, and out-of-range
+values clamp to that range). Call `cancel_cost_approval` on a quote you
+decide not to use.
 
 Charges and balances appear in every billed result: `structuredContent`
 carries `data`, `credits_charged`, and `credits_balance` (plus
@@ -101,9 +103,10 @@ carries `data`, `credits_charged`, and `credits_balance` (plus
 (`locus/apiCallId`) and `locus/creditsCharged`. Surface notable charges to
 the user rather than spending silently.
 
-Oversized results return `truncated: true` with a `preview`, the
-`api_call_id`, and a ready-made continuation. Page the remainder with
-`get_call_result(api_call_id, offset, max_characters)`.
+Oversized results replace `data` with `{truncated: true, preview,
+api_call_id, continuation}`. Page the remainder with
+`get_call_result(api_call_id, offset, max_characters)` as the continuation
+describes.
 
 ## Errors
 

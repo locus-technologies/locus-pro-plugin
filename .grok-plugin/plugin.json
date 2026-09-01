@@ -1,0 +1,22 @@
+{
+  "name": "locus",
+  "version": "0.1.0",
+  "description": "Pay-per-use APIs for agents: cited web research, paid data and API lookups, and thousands of metered provider endpoints billed to one workspace credit balance through the Locus MCP server.",
+  "author": {
+    "name": "Locus",
+    "url": "https://paywithlocus.com"
+  },
+  "repository": "https://github.com/locus-technologies/locus-plugin",
+  "license": "MIT",
+  "keywords": [
+    "locus",
+    "payments",
+    "credits",
+    "pay-per-use",
+    "apis",
+    "web-research",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./agents/grok/mcp.json"
+}

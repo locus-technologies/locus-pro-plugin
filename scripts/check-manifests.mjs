@@ -25,6 +25,7 @@ const manifests = {
   ".claude-plugin/plugin.json": json(".claude-plugin/plugin.json"),
   ".cursor-plugin/plugin.json": json(".cursor-plugin/plugin.json"),
   ".codex-plugin/plugin.json": json(".codex-plugin/plugin.json"),
+  ".grok-plugin/plugin.json": json(".grok-plugin/plugin.json"),
   "plugin.json": json("plugin.json"),
 };
 
@@ -61,6 +62,7 @@ const mcpConfigs = [
   { path: "agents/claude/.mcp.json", wrapped: true, type: "http", source: "claude-code-plugin" },
   { path: "agents/cursor/mcp.json", wrapped: true, type: "http", source: "cursor-plugin" },
   { path: "agents/codex/.mcp.json", wrapped: false, type: "http", source: "codex-plugin" },
+  { path: "agents/grok/mcp.json", wrapped: true, type: "http", source: "grok-plugin" },
   { path: "mcp.json", wrapped: true, type: "streamable-http", source: "open-plugin" },
 ];
 

@@ -62,7 +62,10 @@ Authorization: Bearer $LOCUS_AGENT_CREDENTIAL
 ```
 
 If the request succeeds, skip to step 4. If the credential is missing,
-revoked, or belongs to another environment, continue with signup.
+revoked, or belongs to another environment, continue with signup. A `403`
+means the credential is valid but not agent-owned (for example issued from
+the dashboard): treat that as "no agent account" and continue with signup
+too.
 
 ## 2. Choose an identity path
 
@@ -112,8 +115,8 @@ Content-Type: application/json
 A `202` response means only a short-lived pending registration exists; no
 tenant, credential, or credits have been created yet.
 
-Fetch the returned `registration.authorizationUrl` while retaining its HTTP
-cookie. Extract the 22-character AgentID request ID, sign the exact approval
+Fetch the returned `account.registration.authorizationUrl` while retaining
+its HTTP cookie. Extract the 22-character AgentID request ID, sign the exact approval
 payload described in `https://paywithlocus.com/agent/auth.md`, and submit it
 to AgentID. After the approval returns `204`, fetch
 `https://auth.agentid.com/v0/authorize/continue?jti=<request-id>` with the
@@ -128,14 +131,14 @@ calls below, then clear the temporary registration token and any response
 file containing the credential. This compatibility credential is not the MCP
 credential.
 
-If registration says too many pending signups exist, finish an existing
-signup or wait for its 15-minute expiry. Do not rotate tokens to evade the
-limit.
+If registration reports too many unverified signups from this network (the
+limit is 3 concurrent pending signups), finish an existing signup or wait
+for its 15-minute expiry. Do not rotate tokens to evade the limit.
 
 ## 4. Authenticate the connection
 
 The plugin has already configured the server (`locus`, streamable HTTP,
-`https://api.paywithlocus.com/api/credits/mcp`, no static headers). Start
+`https://api.paywithlocus.com/api/credits/mcp`, no static credentials). Start
 your client's standard MCP authentication for it and confirm it discovers
 Locus OAuth and opens the authorization URL.
 
@@ -143,9 +146,9 @@ Locus OAuth and opens the authorization URL.
   includes account creation. Locus returns short-lived access and rotating
   refresh tokens to the client. Let the runtime keep them in its native OAuth
   store; do not copy them into an environment file.
-- Agent-owned account: choose **Continue with AgentID** and approve with the
-  same identity used for signup, resolving the request over HTTP per
-  `https://paywithlocus.com/agent/mcp.md`.
+- Agent-owned account: on the sign-in page, choose **Continue with AgentID**
+  and approve with the same identity used for signup, resolving the request
+  over HTTP per `https://paywithlocus.com/agent/mcp.md`.
 - Headless host: keep the login process and any loopback listener alive. For
   a human-owned account, the user approves on another device, Locus shows the
   complete loopback callback URL, and the user copies it back for you to
@@ -230,8 +233,9 @@ On a human-owned account, the user confirms balance and capabilities in
 their dashboard.
 
 For later credential rotation, generate a new 24-byte base64url token and
-call `POST /credits/agent/credential/rotate` with the current Locus
-credential. Move the replacement into the secret store atomically; the old
-credential stops working immediately.
+call `POST https://api.paywithlocus.com/api/credits/agent/credential/rotate`
+with body `{"registrationToken": "<new token>"}`, authorized with the
+current Locus credential. Move the replacement into the secret store
+atomically; the old credential stops working immediately.
 
 Day-to-day usage after setup is covered by the `locus` skill.
