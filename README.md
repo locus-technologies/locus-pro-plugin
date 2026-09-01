@@ -66,10 +66,11 @@ Cursor's OAuth flow completes in the browser on first use.
 ### Grok
 
 ```
-grok plugin install locus-technologies/locus-plugin
+grok plugin install locus-technologies/locus-plugin --trust
 ```
 
-Confirm the trust prompt (or pass `--trust` to skip it). Grok discovers the
+Grok requires explicit trust to install plugins (they can run MCP servers
+and skills); review the repo, then pass `--trust`. Grok discovers the
 server's OAuth automatically and opens the browser flow on first use.
 
 ### OpenClaw
