@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.paywithlocus/locus",
+  "title": "Locus",
+  "description": "Pay-per-use APIs for agents: web research, data lookups, and metered endpoints billed to credits.",
+  "version": "0.1.0",
+  "websiteUrl": "https://paywithlocus.com",
+  "repository": {
+    "url": "https://github.com/locus-technologies/locus-pro-plugin",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.paywithlocus.com/api/credits/mcp"
+    }
+  ]
+}
