@@ -1,0 +1,27 @@
+{
+  "name": "locus",
+  "owner": {
+    "name": "Locus",
+    "url": "https://github.com/locus-technologies"
+  },
+  "description": "Official Locus plugins for coding agents",
+  "plugins": [
+    {
+      "name": "locus",
+      "displayName": "Locus",
+      "description": "Pay-per-use APIs for agents: cited web research, paid data and API lookups, and thousands of metered provider endpoints billed to one workspace credit balance through the Locus MCP server.",
+      "category": "development",
+      "keywords": [
+        "locus",
+        "payments",
+        "credits",
+        "pay-per-use",
+        "apis",
+        "web-research",
+        "mcp"
+      ],
+      "source": "./",
+      "homepage": "https://docs.paywithlocus.com"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "locus": {
+    "type": "http",
+    "url": "https://api.paywithlocus.com/api/credits/mcp",
+    "headers": {
+      "X-Source-Name": "codex-plugin"
+    }
+  }
+}

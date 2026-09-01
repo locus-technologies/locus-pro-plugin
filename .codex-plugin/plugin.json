@@ -1,0 +1,40 @@
+{
+  "name": "locus",
+  "version": "0.1.0",
+  "description": "Pay-per-use APIs for agents: cited web research, paid data and API lookups, and thousands of metered provider endpoints billed to one workspace credit balance through the Locus MCP server.",
+  "author": {
+    "name": "Locus",
+    "url": "https://paywithlocus.com"
+  },
+  "homepage": "https://paywithlocus.com",
+  "repository": "https://github.com/locus-technologies/locus-plugin",
+  "license": "MIT",
+  "keywords": [
+    "locus",
+    "payments",
+    "credits",
+    "pay-per-use",
+    "apis",
+    "web-research",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./agents/codex/.mcp.json",
+  "interface": {
+    "displayName": "Locus",
+    "shortDescription": "Pay-per-use APIs and web research billed to workspace credits",
+    "longDescription": "Official Locus plugin. Connects the Locus MCP server for pay-per-use API access: cited web research, paid data and API lookups, and thousands of metered provider endpoints billed to one workspace credit balance, with idempotent billing and cost quotes.",
+    "developerName": "Locus",
+    "category": "Productivity",
+    "websiteURL": "https://paywithlocus.com",
+    "privacyPolicyURL": "https://paywithlocus.com/privacy",
+    "termsOfServiceURL": "https://paywithlocus.com/terms",
+    "brandColor": "#4101F6",
+    "logo": "./assets/logo.svg",
+    "defaultPrompt": [
+      "Research this topic with cited sources using Locus web research.",
+      "Find an API for company enrichment with Locus and quote its cost before running it.",
+      "Check my Locus credit balance before running a paid lookup."
+    ]
+  }
+}
