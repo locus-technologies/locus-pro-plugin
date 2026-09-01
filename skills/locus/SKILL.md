@@ -1,9 +1,9 @@
 ---
 name: locus
 description: Pay-per-use APIs through the Locus MCP server. Cited web research, paid data and API lookups, and metered provider endpoints billed to workspace credits.
-homepage: https://docs.paywithlocus.com
 metadata:
   author: locus
+  homepage: https://docs.paywithlocus.com
 ---
 
 # Locus
@@ -65,7 +65,8 @@ keeps the tokens.
 
 ## Billing discipline
 
-Calls are live and billed. Follow these contracts exactly.
+Paid provider executions are live and billed; discovery, quotes, and balance
+checks are free. Follow these contracts exactly.
 
 Always pass `idempotency_key` on `execute`: a stable unique string per
 logical call, for example `taskid-step`. The same key never double-charges.

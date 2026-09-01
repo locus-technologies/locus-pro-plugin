@@ -125,9 +125,16 @@ if (!fm) {
   const descLine = fm[1].match(/^description:\s*(.+)$/m);
   if (!descLine) errors.push("SKILL.md: missing description");
   else if (descLine[1].trim().length > 160) errors.push(`SKILL.md: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
+  // Dep-free approximation of "metadata values must be strings": rejects
+  // nested block mappings, inline objects/arrays, and bare bool/number values.
   const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
-  if (metaBlock && /^\s{2,}\S[^:\n]*:\s*$/m.test(metaBlock[1])) {
-    errors.push("SKILL.md: metadata values must be flat strings (Agent Skills spec) — no nested blocks");
+  if (metaBlock) {
+    if (/^\s{2,}\S[^:\n]*:\s*$/m.test(metaBlock[1])) {
+      errors.push("SKILL.md: metadata values must be flat strings (Agent Skills spec) — no nested blocks");
+    }
+    if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(metaBlock[1])) {
+      errors.push("SKILL.md: metadata values must be strings — no inline objects, arrays, booleans, or numbers");
+    }
   }
 }
 if (OTHER_VENDOR_WORDS.test(skill)) {
