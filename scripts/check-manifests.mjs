@@ -45,11 +45,13 @@ for (const [path, m] of Object.entries(manifests)) {
 const manifestVersion = [...versions][0];
 if (versions.size > 1) errors.push(`plugin manifests disagree on version: ${[...versions].join(", ")}`);
 
+if (!manifestVersion) errors.push("no plugin manifest carries a version");
 for (const [path, expected] of [
   ["version.txt", read("version.txt").trim()],
   [".release-please-manifest.json", json(".release-please-manifest.json")?.["."]],
 ]) {
-  if (manifestVersion && expected && expected !== manifestVersion) {
+  if (!expected) errors.push(`${path}: missing version entry`);
+  else if (manifestVersion && expected !== manifestVersion) {
     errors.push(`${path}: version ${expected} != manifest version ${manifestVersion}`);
   }
 }
@@ -83,8 +85,13 @@ for (const { path, wrapped, type, source } of mcpConfigs) {
     errors.push(`${path}: X-Source-Name "${headers["X-Source-Name"]}", expected "${source}"`);
   }
   for (const h of Object.keys(headers)) {
-    if (h.toLowerCase() === "authorization") errors.push(`${path}: must not ship an Authorization header`);
+    if (h !== "X-Source-Name") errors.push(`${path}: unexpected header "${h}" — only X-Source-Name is allowed`);
   }
+}
+
+const openPluginMcp = json("mcp.json");
+if (openPluginMcp && openPluginMcp.$schema !== "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json") {
+  errors.push("mcp.json: missing or wrong Agent Plugins $schema");
 }
 
 // --- Marketplace manifests --------------------------------------------------
@@ -102,6 +109,9 @@ if (codexMarket) {
   if (entry?.name !== EXPECTED_NAME || entry?.source?.path !== "./") {
     errors.push(`.agents/plugins/marketplace.json: first plugin must be name "${EXPECTED_NAME}" with source.path "./"`);
   }
+  if (!codexMarket.interface?.displayName) {
+    errors.push(".agents/plugins/marketplace.json: missing interface.displayName");
+  }
 }
 
 // --- Skill: neutral wording, bounded description, no secrets ----------------
@@ -115,6 +125,10 @@ if (!fm) {
   const descLine = fm[1].match(/^description:\s*(.+)$/m);
   if (!descLine) errors.push("SKILL.md: missing description");
   else if (descLine[1].trim().length > 160) errors.push(`SKILL.md: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
+  const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
+  if (metaBlock && /^\s{2,}\S[^:\n]*:\s*$/m.test(metaBlock[1])) {
+    errors.push("SKILL.md: metadata values must be flat strings (Agent Skills spec) — no nested blocks");
+  }
 }
 if (OTHER_VENDOR_WORDS.test(skill)) {
   errors.push("SKILL.md: names a specific vendor's agent — keep the skill provider-neutral");

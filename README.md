@@ -60,14 +60,14 @@ Cursor's OAuth flow completes in the browser on first use.
 
 ### OpenClaw
 
-OpenClaw installs this repo as a plugin bundle:
+Install the plugin from this repo as a marketplace source, then add the MCP
+server explicitly:
 
 ```
-openclaw plugins install https://github.com/locus-technologies/locus-plugin
+openclaw plugins install locus --marketplace locus-technologies/locus-plugin
+openclaw mcp add locus --url https://api.paywithlocus.com/api/credits/mcp --transport streamable-http --auth oauth
+openclaw mcp login locus
 ```
-
-The MCP server merges into your OpenClaw settings; run `openclaw mcp login locus`
-to authenticate.
 
 ### Skill only (77+ agents)
 
