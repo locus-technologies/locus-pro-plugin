@@ -30,7 +30,7 @@ setup skill walks agents through the rest: [platform.paywithlocus.com](https://p
 ### Claude Code
 
 ```
-/plugin marketplace add locus-technologies/locus-plugin
+/plugin marketplace add locus-technologies/locus-pro-plugin
 /plugin install locus@locus
 ```
 
@@ -43,7 +43,7 @@ Then run `/mcp`, select `locus`, and authenticate.
 ### Codex
 
 ```
-codex plugin marketplace add locus-technologies/locus-plugin
+codex plugin marketplace add locus-technologies/locus-pro-plugin
 codex plugin add locus@locus
 codex mcp login locus
 ```
@@ -66,7 +66,7 @@ Cursor's OAuth flow completes in the browser on first use.
 ### Grok
 
 ```
-grok plugin install locus-technologies/locus-plugin --trust
+grok plugin install locus-technologies/locus-pro-plugin --trust
 ```
 
 Grok requires explicit trust to install plugins (they can run MCP servers
@@ -79,7 +79,7 @@ Install the plugin from this repo as a marketplace source, then add the MCP
 server explicitly:
 
 ```
-openclaw plugins install locus --marketplace locus-technologies/locus-plugin
+openclaw plugins install locus --marketplace locus-technologies/locus-pro-plugin
 openclaw mcp add locus --url https://api.paywithlocus.com/api/credits/mcp --transport streamable-http --auth oauth
 openclaw mcp login locus
 ```
@@ -91,7 +91,7 @@ plugin changes.
 ### Skill only (77+ agents)
 
 ```
-npx skills add locus-technologies/locus-plugin
+npx skills add locus-technologies/locus-pro-plugin
 ```
 
 Discovers both Locus skills (usage and setup) and installs your selection
@@ -102,7 +102,7 @@ tools available.
 ### Any Agent Plugins client
 
 ```
-npx plugins add locus-technologies/locus-plugin
+npx plugins add locus-technologies/locus-pro-plugin
 ```
 
 ### Plain MCP (no plugin)
