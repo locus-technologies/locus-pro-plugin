@@ -32,6 +32,9 @@ keeps the tokens.
 - If Locus tools are not listed, the server is not connected. Tell the user
   to add the URL above in their client's MCP settings and authenticate;
   consent completes in a browser.
+- No account yet? The OAuth sign-in page includes account creation, and the
+  `locus-setup` skill covers full self-serve onboarding, including
+  agent-owned accounts and funding.
 - Optional URL query switches: `?compact=1` returns compact text results;
   `?tool=provider/endpoint` pins one typed direct tool for that endpoint.
 

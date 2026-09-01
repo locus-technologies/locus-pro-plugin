@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Consistency checks across the per-agent manifests. CI fails on any drift.
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -114,31 +114,46 @@ if (codexMarket) {
   }
 }
 
-// --- Skill: neutral wording, bounded description, no secrets ----------------
-const skill = read("skills/locus/SKILL.md");
-const fm = skill.match(/^---\n([\s\S]*?)\n---/);
-if (!fm) {
-  errors.push("skills/locus/SKILL.md: missing YAML frontmatter");
-} else {
-  const nameLine = fm[1].match(/^name:\s*(.+)$/m);
-  if (nameLine?.[1].trim() !== EXPECTED_NAME) errors.push(`SKILL.md: frontmatter name "${nameLine?.[1]}"`);
-  const descLine = fm[1].match(/^description:\s*(.+)$/m);
-  if (!descLine) errors.push("SKILL.md: missing description");
-  else if (descLine[1].trim().length > 160) errors.push(`SKILL.md: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
-  // Dep-free approximation of "metadata values must be strings": rejects
-  // nested block mappings, inline objects/arrays, and bare bool/number values.
-  const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
-  if (metaBlock) {
-    if (/^\s{2,}\S[^:\n]*:\s*$/m.test(metaBlock[1])) {
-      errors.push("SKILL.md: metadata values must be flat strings (Agent Skills spec) — no nested blocks");
+// --- Skills: neutral wording, bounded descriptions, spec-clean frontmatter --
+const skillPaths = readdirSync(resolve(root, "skills"), { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .map((d) => ({ name: d.name, path: `skills/${d.name}/SKILL.md` }));
+if (skillPaths.length === 0) errors.push("skills/: no skills found");
+
+for (const { name, path } of skillPaths) {
+  if (!existsSync(resolve(root, path))) {
+    errors.push(`${path}: missing SKILL.md`);
+    continue;
+  }
+  const skill = read(path);
+  const fm = skill.match(/^---\n([\s\S]*?)\n---/);
+  if (!fm) {
+    errors.push(`${path}: missing YAML frontmatter`);
+  } else {
+    const nameLine = fm[1].match(/^name:\s*(.+)$/m);
+    if (nameLine?.[1].trim() !== name) {
+      errors.push(`${path}: frontmatter name "${nameLine?.[1]?.trim()}" != directory name "${name}"`);
     }
-    if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(metaBlock[1])) {
-      errors.push("SKILL.md: metadata values must be strings — no inline objects, arrays, booleans, or numbers");
+    const descLine = fm[1].match(/^description:\s*(.+)$/m);
+    if (!descLine) errors.push(`${path}: missing description`);
+    else if (descLine[1].trim().length > 160) {
+      errors.push(`${path}: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
+    }
+    // Dep-free approximation of "metadata values must be strings": rejects
+    // nested block mappings, inline objects/arrays, and bare bool/number values.
+    const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
+    if (metaBlock) {
+      if (/^\s{2,}\S[^:\n]*:\s*$/m.test(metaBlock[1])) {
+        errors.push(`${path}: metadata values must be flat strings (Agent Skills spec) — no nested blocks`);
+      }
+      if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(metaBlock[1])) {
+        errors.push(`${path}: metadata values must be strings — no inline objects, arrays, booleans, or numbers`);
+      }
     }
   }
-}
-if (OTHER_VENDOR_WORDS.test(skill)) {
-  errors.push("SKILL.md: names a specific vendor's agent — keep the skill provider-neutral");
+  if (OTHER_VENDOR_WORDS.test(skill)) {
+    errors.push(`${path}: names a specific vendor's agent — keep the skill provider-neutral`);
+  }
 }
 
 // --- Secret scan over every checked file ------------------------------------
@@ -147,7 +162,7 @@ const scanned = [
   ...mcpConfigs.map((c) => c.path),
   ".claude-plugin/marketplace.json",
   ".agents/plugins/marketplace.json",
-  "skills/locus/SKILL.md",
+  ...skillPaths.filter((s) => existsSync(resolve(root, s.path))).map((s) => s.path),
   "README.md",
 ];
 const SECRET = /\b(?:lcr|lcac|lcrsb|lcrpk|sk_live|sk_test)_[A-Za-z0-9]{8,}/;

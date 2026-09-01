@@ -17,8 +17,13 @@ Codex, Cursor, OpenClaw, and any client that speaks the
   in configuration.
 - **The `locus` skill**: operating instructions for the agent covering tool
   routing, cost quotes, idempotent billing, error recovery, and spend safety.
+- **The `locus-setup` skill**: full self-serve onboarding — account creation
+  (human sign-up through the OAuth page, or agent-owned accounts via
+  AgentID), capability selection, and a user-requested Stripe funding
+  handoff — so the whole product works from inside the plugin.
 
-You need a Locus workspace with credits: [platform.paywithlocus.com](https://platform.paywithlocus.com).
+No account yet? The OAuth sign-in page includes account creation, and the
+setup skill walks agents through the rest: [platform.paywithlocus.com](https://platform.paywithlocus.com).
 
 ## Install
 
@@ -117,7 +122,7 @@ in the [dashboard](https://platform.paywithlocus.com).
 | `.cursor-plugin/` | Cursor |
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |
 | `agents/<client>/` | Per-client MCP server config |
-| `skills/locus/` | The shared skill (Agent Skills standard) |
+| `skills/` | The shared skills (Agent Skills standard): `locus` usage, `locus-setup` onboarding |
 
 ## Links
 
