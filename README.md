@@ -50,8 +50,8 @@ codex mcp login locus
 
 ### Cursor
 
-Cursor Marketplace listing is in review. Until then, add the MCP server
-directly in `~/.cursor/mcp.json`:
+Until the Cursor Marketplace listing is live, add the MCP server directly in
+`~/.cursor/mcp.json`:
 
 ```json
 {
@@ -63,6 +63,15 @@ directly in `~/.cursor/mcp.json`:
 
 Cursor's OAuth flow completes in the browser on first use.
 
+### Grok
+
+```
+grok plugin install locus-technologies/locus-plugin
+```
+
+Grok discovers the server's OAuth automatically and opens the browser flow
+on first use.
+
 ### OpenClaw
 
 Install the plugin from this repo as a marketplace source, then add the MCP
@@ -73,6 +82,10 @@ openclaw plugins install locus --marketplace locus-technologies/locus-plugin
 openclaw mcp add locus --url https://api.paywithlocus.com/api/credits/mcp --transport streamable-http --auth oauth
 openclaw mcp login locus
 ```
+
+A new marketplace source triggers a one-time trust prompt (pass `--force`
+for non-interactive installs), and `openclaw gateway restart` applies
+plugin changes.
 
 ### Skill only (77+ agents)
 
@@ -120,6 +133,7 @@ in the [dashboard](https://platform.paywithlocus.com).
 | `.claude-plugin/` | Claude Code (plugin + marketplace manifest) |
 | `.codex-plugin/`, `.agents/plugins/` | Codex (plugin + marketplace manifest) |
 | `.cursor-plugin/` | Cursor |
+| `.grok-plugin/` | Grok |
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |
 | `agents/<client>/` | Per-client MCP server config |
 | `skills/` | The shared skills (Agent Skills standard): `locus` usage, `locus-setup` onboarding |

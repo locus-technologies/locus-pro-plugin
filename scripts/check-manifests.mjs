@@ -61,7 +61,6 @@ for (const [path, expected] of [
 const mcpConfigs = [
   { path: "agents/claude/.mcp.json", wrapped: true, type: "http", source: "claude-code-plugin" },
   { path: "agents/cursor/mcp.json", wrapped: true, type: "http", source: "cursor-plugin" },
-  { path: "agents/codex/.mcp.json", wrapped: false, type: "http", source: "codex-plugin" },
   { path: "agents/grok/mcp.json", wrapped: true, type: "http", source: "grok-plugin" },
   { path: "mcp.json", wrapped: true, type: "streamable-http", source: "open-plugin" },
 ];
@@ -94,6 +93,29 @@ for (const { path, wrapped, type, source } of mcpConfigs) {
 const openPluginMcp = json("mcp.json");
 if (openPluginMcp && openPluginMcp.$schema !== "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json") {
   errors.push("mcp.json: missing or wrong Agent Plugins $schema");
+}
+
+// Codex uses an inline mcpServers object in its manifest (its ingestion
+// contract only allows a string pointer when it resolves to root .mcp.json,
+// and Codex reads http_headers, not headers).
+const codexServers = manifests[".codex-plugin/plugin.json"]?.mcpServers;
+if (typeof codexServers !== "object" || Array.isArray(codexServers)) {
+  errors.push(".codex-plugin/plugin.json: mcpServers must be an inline object");
+} else {
+  const server = codexServers[EXPECTED_NAME];
+  if (!server) errors.push(`.codex-plugin/plugin.json: mcpServers must define exactly "${EXPECTED_NAME}"`);
+  else {
+    if (server.url !== EXPECTED_URL) errors.push(`.codex-plugin/plugin.json: url "${server.url}" != "${EXPECTED_URL}"`);
+    if (server.http_headers?.["X-Source-Name"] !== "codex-plugin") {
+      errors.push('.codex-plugin/plugin.json: http_headers must carry X-Source-Name "codex-plugin"');
+    }
+    for (const key of [...Object.keys(server.http_headers ?? {}), ...Object.keys(server.headers ?? {})]) {
+      if (key.toLowerCase() === "authorization") errors.push(".codex-plugin/plugin.json: must not ship an Authorization header");
+    }
+  }
+}
+if (manifests[".codex-plugin/plugin.json"] && !Array.isArray(manifests[".codex-plugin/plugin.json"].interface?.capabilities)) {
+  errors.push(".codex-plugin/plugin.json: interface.capabilities array is required by the Codex validation contract");
 }
 
 // --- Marketplace manifests --------------------------------------------------

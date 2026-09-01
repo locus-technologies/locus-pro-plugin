@@ -6,7 +6,6 @@
   "plugins": [
     {
       "name": "locus",
-      "description": "Pay-per-use APIs for agents: cited web research, paid data and API lookups, and metered provider endpoints billed to one workspace credit balance through the Locus MCP server.",
       "category": "Productivity",
       "source": {
         "source": "local",

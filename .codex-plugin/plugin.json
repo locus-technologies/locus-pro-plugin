@@ -19,10 +19,19 @@
     "mcp"
   ],
   "skills": "./skills/",
-  "mcpServers": "./agents/codex/.mcp.json",
+  "mcpServers": {
+    "locus": {
+      "type": "http",
+      "url": "https://api.paywithlocus.com/api/credits/mcp",
+      "http_headers": {
+        "X-Source-Name": "codex-plugin"
+      }
+    }
+  },
   "interface": {
     "displayName": "Locus",
     "shortDescription": "Pay-per-use APIs and web research billed to workspace credits",
+    "capabilities": ["Interactive", "Read", "Write"],
     "longDescription": "Official Locus plugin. Connects the Locus MCP server for pay-per-use API access: cited web research, paid data and API lookups, and thousands of metered provider endpoints billed to one workspace credit balance, with idempotent billing and cost quotes.",
     "developerName": "Locus",
     "category": "Productivity",
