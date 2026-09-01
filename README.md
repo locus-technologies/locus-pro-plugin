@@ -1,5 +1,7 @@
 # Locus plugin
 
+[![skills.sh installs](https://skills.sh/b/locus-technologies/locus-pro-plugin)](https://skills.sh/locus-technologies/locus-pro-plugin)
+
 Pay-per-use APIs for coding agents. This plugin connects the [Locus](https://paywithlocus.com)
 MCP server and teaches your agent how to use it well: cited web research, paid
 data and API lookups, and thousands of metered provider endpoints billed to one
