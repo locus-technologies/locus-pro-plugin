@@ -201,14 +201,29 @@ for (const { name, path } of skillPaths) {
     else if (descLine[1].trim().length > 160) {
       errors.push(`${path}: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
     }
-    // Dep-free approximation of "metadata values must be strings": rejects
-    // nested block mappings, inline objects/arrays, and bare bool/number values.
+    // Metadata stays a flat string map for cross-registry portability, with
+    // one sanctioned exception: the `openclaw:` block, which ClawHub requires
+    // for env/runtime declarations (undeclared env vars are a moderation
+    // flag there). Strip that block, then apply the flat-string rules.
     const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
     if (metaBlock) {
-      if (/^\s{2,}\S[^:\n]*:\s*$/m.test(metaBlock[1])) {
-        errors.push(`${path}: metadata values must be flat strings (Agent Skills spec) — no nested blocks`);
+      const lines = metaBlock[1].split("\n");
+      const kept = [];
+      let inOpenclaw = false;
+      for (const line of lines) {
+        if (/^ {2}openclaw:\s*$/.test(line)) {
+          inOpenclaw = true;
+          continue;
+        }
+        if (inOpenclaw && (/^ {4,}/.test(line) || line.trim() === "")) continue;
+        inOpenclaw = false;
+        kept.push(line);
       }
-      if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(metaBlock[1])) {
+      const flat = kept.join("\n");
+      if (/^\s{2,}\S[^:\n]*:\s*$/m.test(flat)) {
+        errors.push(`${path}: metadata values must be flat strings outside the openclaw block — no other nested blocks`);
+      }
+      if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(flat)) {
         errors.push(`${path}: metadata values must be strings — no inline objects, arrays, booleans, or numbers`);
       }
     }

@@ -52,7 +52,11 @@ codex mcp login locus
 
 ### Cursor
 
-Until the Cursor Marketplace listing is live, add the MCP server directly in
+Install from the Cursor Marketplace: open **Customize → Plugins**, search
+for "Locus", and install — or type `/add-plugin locus` in chat. Cursor's
+OAuth flow completes in the browser on first use.
+
+Prefer to skip the plugin? Add the MCP server directly in
 `~/.cursor/mcp.json`:
 
 ```json
@@ -62,8 +66,6 @@ Until the Cursor Marketplace listing is live, add the MCP server directly in
   }
 }
 ```
-
-Cursor's OAuth flow completes in the browser on first use.
 
 ### Grok
 
@@ -113,6 +115,14 @@ npx plugins add locus-technologies/locus-pro-plugin
 claude mcp add --transport http locus https://api.paywithlocus.com/api/credits/mcp
 codex mcp add locus --url https://api.paywithlocus.com/api/credits/mcp
 ```
+
+## Data handling
+
+The plugin's MCP configs send one static request header,
+`X-Source-Name` (for example `cursor-plugin`), used only as anonymous
+per-surface adoption telemetry. Tool calls carry whatever arguments the
+agent sends to the Locus API, billed to the authenticated workspace; the
+plugin itself stores nothing and never sees credentials or payment details.
 
 ## Authentication
 

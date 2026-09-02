@@ -1,7 +1,7 @@
 {
   "name": "locus",
   "version": "0.1.0",
-  "description": "Pay-per-use APIs for agents: cited web research, paid data and API lookups, and thousands of metered provider endpoints billed to one workspace credit balance through the Locus MCP server.",
+  "description": "Pay-per-use APIs for agents: cited web research, paid data lookups, and metered provider endpoints billed to workspace credits via the Locus MCP server.",
   "author": {
     "name": "Locus",
     "url": "https://paywithlocus.com"
@@ -11,11 +11,11 @@
   "license": "MIT",
   "keywords": [
     "locus",
-    "payments",
-    "credits",
+    "locus-mcp",
     "pay-per-use",
     "apis",
     "web-research",
+    "data",
     "mcp"
   ],
   "skills": "./skills/",
@@ -30,9 +30,9 @@
   },
   "interface": {
     "displayName": "Locus",
-    "shortDescription": "Pay-per-use APIs and web research billed to workspace credits",
+    "shortDescription": "Pay-per-use APIs for agents",
     "capabilities": ["Interactive", "Read", "Write"],
-    "longDescription": "Official Locus plugin. Connects the Locus MCP server for pay-per-use API access: cited web research, paid data and API lookups, and thousands of metered provider endpoints billed to one workspace credit balance, with idempotent billing and cost quotes.",
+    "longDescription": "Official Locus plugin. One prepaid credit balance for an agent's paid work: cited web research, data and API lookups from Locus's contracted provider catalog, executable cost quotes, idempotent billing that never double-charges a retry, and workspace spend controls.",
     "developerName": "Locus",
     "category": "Productivity",
     "websiteURL": "https://paywithlocus.com",
@@ -40,10 +40,11 @@
     "termsOfServiceURL": "https://paywithlocus.com/terms",
     "brandColor": "#4101F6",
     "logo": "./assets/logo.svg",
+    "composerIcon": "./assets/logo.svg",
     "defaultPrompt": [
-      "Research this topic with cited sources using Locus web research.",
-      "Find an API for company enrichment with Locus and quote its cost before running it.",
-      "Check my Locus credit balance before running a paid lookup."
+      "Research this topic with cited sources using Locus web research",
+      "Find an API for company enrichment with Locus and quote its cost first",
+      "Check my Locus credit balance before running a paid lookup"
     ]
   }
 }
