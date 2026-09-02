@@ -18,6 +18,9 @@ const json = (p) => {
 
 const EXPECTED_NAME = "locus";
 const EXPECTED_URL = "https://api.paywithlocus.com/api/credits/mcp";
+const REPO_SLUG = "locus-technologies/locus-pro-plugin";
+const REPO_URL = `https://github.com/${REPO_SLUG}`;
+const OLD_REPO_SLUG = "locus-technologies/locus-plugin";
 const OTHER_VENDOR_WORDS = /\b(Claude|Codex|Cursor|ChatGPT|OpenClaw|Gemini|Copilot|Grok|Kimi)\b/;
 
 // --- Plugin manifests: same name, same version everywhere -------------------
@@ -37,6 +40,9 @@ for (const [path, m] of Object.entries(manifests)) {
   else versions.add(m.version);
   if (m.description && OTHER_VENDOR_WORDS.test(m.description)) {
     errors.push(`${path}: description names another vendor's agent — keep it provider-neutral`);
+  }
+  if ("repository" in m && m.repository !== REPO_URL) {
+    errors.push(`${path}: repository "${m.repository}" != "${REPO_URL}"`);
   }
   for (const ref of [m.skills, m.mcpServers, m.logo, m.interface?.logo].flat().filter((v) => typeof v === "string")) {
     if (ref.startsWith("http")) continue;
@@ -93,6 +99,36 @@ for (const { path, wrapped, type, source } of mcpConfigs) {
 const openPluginMcp = json("mcp.json");
 if (openPluginMcp && openPluginMcp.$schema !== "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json") {
   errors.push("mcp.json: missing or wrong Agent Plugins $schema");
+}
+
+// MCP Registry manifest: the registry pins immutable versions, so this file
+// must move in lockstep with the plugin manifests (release-please bumps it).
+const registryServer = json("server.json");
+if (registryServer) {
+  if (registryServer.name !== "com.paywithlocus/locus") {
+    errors.push(`server.json: name "${registryServer.name}" != "com.paywithlocus/locus"`);
+  }
+  if (manifestVersion && registryServer.version !== manifestVersion) {
+    errors.push(`server.json: version ${registryServer.version} != manifest version ${manifestVersion}`);
+  }
+  const remote = registryServer.remotes?.[0];
+  if (remote?.url !== EXPECTED_URL || remote?.type !== "streamable-http") {
+    errors.push('server.json: remotes[0] must be {type: "streamable-http", url: <the MCP endpoint>}');
+  }
+  if (registryServer.repository?.url !== REPO_URL) {
+    errors.push(`server.json: repository.url "${registryServer.repository?.url}" != "${REPO_URL}"`);
+  }
+}
+
+const glama = json("glama.json");
+if (glama) {
+  if (glama.$schema !== "https://glama.ai/mcp/schemas/server.json") {
+    errors.push("glama.json: missing or wrong $schema");
+  }
+  const maintainers = glama.maintainers;
+  if (!Array.isArray(maintainers) || maintainers.length === 0 || !maintainers.every((entry) => typeof entry === "string" && entry.length > 0)) {
+    errors.push("glama.json: maintainers must be a nonempty array of GitHub usernames");
+  }
 }
 
 // Codex uses an inline mcpServers object in its manifest (its ingestion
@@ -188,12 +224,18 @@ const scanned = [
   ...mcpConfigs.map((c) => c.path),
   ".claude-plugin/marketplace.json",
   ".agents/plugins/marketplace.json",
+  "server.json",
+  "glama.json",
   ...skillPaths.filter((s) => existsSync(resolve(root, s.path))).map((s) => s.path),
   "README.md",
 ];
 const SECRET = /\b(?:lcr|lcac|lcrsb|lcrpk|sk_live|sk_test)_[A-Za-z0-9]{8,}/;
 for (const path of scanned) {
-  if (SECRET.test(read(path))) errors.push(`${path}: contains what looks like a real credential`);
+  const content = read(path);
+  if (SECRET.test(content)) errors.push(`${path}: contains what looks like a real credential`);
+  if (content.includes(OLD_REPO_SLUG)) {
+    errors.push(`${path}: references the retired repo slug "${OLD_REPO_SLUG}"`);
+  }
 }
 
 if (errors.length) {
