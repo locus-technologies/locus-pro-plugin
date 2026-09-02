@@ -37,11 +37,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Grok CLI
-        env:
-          GROK_INSTALLER_SHA256: e11ef1692ece18489a450ee918bdb7dd0b229d001c08d9c2b1387fffd78a0aa9
+        # The installer script itself revs upstream too often to digest-pin
+        # (it changed within a day of pinning); the CLI version is pinned
+        # instead, the fetch is TLS to x.ai, and it runs only in this
+        # disposable runner.
         run: |
           curl -fsSL https://x.ai/cli/install.sh -o grok-install.sh
-          echo "$GROK_INSTALLER_SHA256  grok-install.sh" | shasum -a 256 -c -
           bash grok-install.sh 1.0.13
           echo "$GROK_BIN_DIR" >> "$GITHUB_PATH"
 

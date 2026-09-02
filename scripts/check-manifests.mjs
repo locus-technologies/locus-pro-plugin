@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Consistency checks across the per-agent manifests. CI fails on any drift.
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -181,6 +182,7 @@ const skillPaths = readdirSync(resolve(root, "skills"), { withFileTypes: true })
   .filter((d) => d.isDirectory())
   .map((d) => ({ name: d.name, path: `skills/${d.name}/SKILL.md` }));
 if (skillPaths.length === 0) errors.push("skills/: no skills found");
+const declaredEnvVars = new Map();
 
 for (const { name, path } of skillPaths) {
   if (!existsSync(resolve(root, path))) {
@@ -201,16 +203,104 @@ for (const { name, path } of skillPaths) {
     else if (descLine[1].trim().length > 160) {
       errors.push(`${path}: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
     }
-    // Dep-free approximation of "metadata values must be strings": rejects
-    // nested block mappings, inline objects/arrays, and bare bool/number values.
-    const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
-    if (metaBlock) {
-      if (/^\s{2,}\S[^:\n]*:\s*$/m.test(metaBlock[1])) {
-        errors.push(`${path}: metadata values must be flat strings (Agent Skills spec) — no nested blocks`);
+    // Metadata stays a flat string map for cross-registry portability, with
+    // one sanctioned exception: the `openclaw:` block, which ClawHub requires
+    // for env/runtime declarations (undeclared env vars are a moderation
+    // flag there). Strip that block, then apply the flat-string rules.
+    const versionLine = fm[1].match(/^version:\s*["']?(\S+?)["']?\s*$/m);
+    if (!versionLine || !/^\d+\.\d+\.\d+$/.test(versionLine[1])) {
+      errors.push(`${path}: frontmatter needs a semver version (registry publishes require one)`);
+    }
+    // Imperative metadata extraction: a regex capture stops at the first
+    // blank line, which would let everything after it escape these checks.
+    const fmLines = fm[1].split("\n");
+    if (fmLines.filter((line) => /^metadata:\s*$/.test(line)).length > 1) {
+      errors.push(`${path}: duplicate metadata keys in frontmatter`);
+    }
+    if (fmLines.filter((line) => /^ {2}openclaw:\s*$/.test(line)).length > 1) {
+      errors.push(`${path}: duplicate openclaw blocks in metadata`);
+    }
+    const metaStart = fmLines.findIndex((line) => /^metadata:\s*$/.test(line));
+    if (metaStart !== -1) {
+      const metaLines = [];
+      for (let i = metaStart + 1; i < fmLines.length; i++) {
+        const line = fmLines[i];
+        if (/^ {2,}/.test(line) || line.trim() === "" || /^\s*#/.test(line)) {
+          metaLines.push(line);
+          continue;
+        }
+        break;
       }
-      if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(metaBlock[1])) {
+      const kept = [];
+      const openclawLines = [];
+      let inOpenclaw = false;
+      for (const line of metaLines) {
+        if (/^ {2}openclaw:\s*$/.test(line)) {
+          inOpenclaw = true;
+          continue;
+        }
+        if (inOpenclaw && (/^ {4,}/.test(line) || line.trim() === "" || /^\s*#/.test(line))) {
+          openclawLines.push(line);
+          continue;
+        }
+        inOpenclaw = false;
+        kept.push(line);
+      }
+      const flat = kept.filter((line) => line.trim() !== "" && !/^\s*#/.test(line)).join("\n");
+      if (/^\s*- /m.test(flat)) {
+        errors.push(`${path}: metadata top level must be a mapping — sequences belong under openclaw.envVars only`);
+      }
+      if (/^\s{2,}\S[^:\n]*:\s*$/m.test(flat)) {
+        errors.push(`${path}: metadata values must be flat strings outside the openclaw block — no other nested blocks`);
+      }
+      if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(flat)) {
         errors.push(`${path}: metadata values must be strings — no inline objects, arrays, booleans, or numbers`);
       }
+      if (openclawLines.filter((line) => /^ {4}envVars:\s*$/.test(line)).length > 1) {
+        errors.push(`${path}: duplicate envVars blocks under openclaw`);
+      }
+      const OPENCLAW_KEYS = new Set([
+        "homepage",
+        "emoji",
+        "primaryEnv",
+        "envVars",
+        "requires",
+        "anyBins",
+        "os",
+        "always",
+        "install",
+        "skillKey",
+      ]);
+      let inEnvVars = false;
+      const declaredEnvNames = [];
+      let primaryEnv;
+      for (const line of openclawLines) {
+        if (line.trim() === "" || /^\s*#/.test(line)) continue;
+        const topKey = line.match(/^ {4}([A-Za-z][A-Za-z0-9]*):\s*(.*)$/);
+        if (topKey) {
+          if (!OPENCLAW_KEYS.has(topKey[1])) {
+            errors.push(`${path}: unexpected openclaw key "${topKey[1]}"`);
+          }
+          inEnvVars = topKey[1] === "envVars";
+          if (topKey[1] === "primaryEnv") primaryEnv = topKey[2].trim();
+          continue;
+        }
+        const item = line.match(/^ {6,}- name:\s*(\S+)\s*$/);
+        if (item && inEnvVars) {
+          declaredEnvNames.push(item[1]);
+          continue;
+        }
+        if (/^\s*- /.test(line) && !inEnvVars) {
+          errors.push(`${path}: sequence items in openclaw are only allowed under envVars`);
+        }
+      }
+      if (primaryEnv && !declaredEnvNames.includes(primaryEnv)) {
+        errors.push(`${path}: openclaw.primaryEnv "${primaryEnv}" is not declared under envVars`);
+      }
+      const skillDeclared = declaredEnvVars.get(name) ?? new Set();
+      for (const envName of declaredEnvNames) skillDeclared.add(envName);
+      if (primaryEnv) skillDeclared.add(primaryEnv);
+      declaredEnvVars.set(name, skillDeclared);
     }
   }
   if (OTHER_VENDOR_WORDS.test(skill)) {
@@ -219,6 +309,10 @@ for (const { name, path } of skillPaths) {
 }
 
 // --- Secret scan over every checked file ------------------------------------
+const skillFiles = readdirSync(resolve(root, "skills"), { recursive: true, withFileTypes: true })
+  .filter((entry) => entry.isFile())
+  .map((entry) => `skills/${resolve(entry.parentPath ?? entry.path, entry.name).slice(resolve(root, "skills").length + 1)}`);
+
 const scanned = [
   ...Object.keys(manifests),
   ...mcpConfigs.map((c) => c.path),
@@ -226,15 +320,55 @@ const scanned = [
   ".agents/plugins/marketplace.json",
   "server.json",
   "glama.json",
-  ...skillPaths.filter((s) => existsSync(resolve(root, s.path))).map((s) => s.path),
+  ...skillFiles,
   "README.md",
 ];
 const SECRET = /\b(?:lcr|lcac|lcrsb|lcrpk|sk_live|sk_test)_[A-Za-z0-9]{8,}/;
+const ENV_TOKEN =
+  /\b(?:(?:LOCUS|AGENTMAIL|HERMES|OKIBI)_[A-Z0-9_]+|[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:KEY|TOKEN|SECRET|CREDENTIAL|PASSWORD|HOME))\b/g;
 for (const path of scanned) {
   const content = read(path);
   if (SECRET.test(content)) errors.push(`${path}: contains what looks like a real credential`);
   if (content.includes(OLD_REPO_SLUG)) {
     errors.push(`${path}: references the retired repo slug "${OLD_REPO_SLUG}"`);
+  }
+  if (path.startsWith("skills/")) {
+    const owningSkill = path.split("/")[1];
+    const skillDeclared = declaredEnvVars.get(owningSkill) ?? new Set();
+    const referenced = new Set([...content.matchAll(ENV_TOKEN)].map((m) => m[0]));
+    // Explicit env-access syntax counts regardless of naming convention.
+    for (const m of content.matchAll(/\$\{?([A-Z][A-Z0-9_]{3,})\}?|process\.env\.([A-Za-z_][A-Za-z0-9_]*)/g)) {
+      referenced.add(m[1] ?? m[2]);
+    }
+    for (const match of referenced) {
+      if (!skillDeclared.has(match)) {
+        errors.push(`${path}: env-style token ${match} is not declared under this skill's openclaw.envVars`);
+      }
+    }
+  }
+}
+
+// Mirrored reference excerpts carry a content digest in their provenance
+// header; a drifted or tampered mirror fails here instead of at a registry.
+for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
+  const raw = read(path);
+  // The provenance header must open the file and close before the body:
+  // an unanchored header would let prepended content go unhashed, and a
+  // missing terminator would hash empty content and "pass".
+  if (!raw.startsWith("<!-- Scoped excerpt of https://")) {
+    errors.push(`${path}: mirror must begin with its provenance header`);
+    continue;
+  }
+  const digest = raw.match(/content-sha256:\s*([0-9a-f]{64})/);
+  const headerEnd = raw.indexOf("-->\n");
+  if (!digest || headerEnd === -1 || raw.indexOf("content-sha256:") > headerEnd) {
+    errors.push(`${path}: mirror provenance header needs a terminated comment carrying content-sha256`);
+    continue;
+  }
+  const body = raw.slice(headerEnd + 4).replace(/^\n+/, "");
+  const actual = createHash("sha256").update(body).digest("hex");
+  if (actual !== digest[1]) {
+    errors.push(`${path}: content does not match its recorded sha256 — refresh the mirror and its digest together`);
   }
 }
 
