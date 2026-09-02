@@ -217,6 +217,9 @@ for (const { name, path } of skillPaths) {
     if (fmLines.filter((line) => /^metadata:\s*$/.test(line)).length > 1) {
       errors.push(`${path}: duplicate metadata keys in frontmatter`);
     }
+    if (fmLines.filter((line) => /^ {2}openclaw:\s*$/.test(line)).length > 1) {
+      errors.push(`${path}: duplicate openclaw blocks in metadata`);
+    }
     const metaStart = fmLines.findIndex((line) => /^metadata:\s*$/.test(line));
     if (metaStart !== -1) {
       const metaLines = [];
@@ -252,6 +255,9 @@ for (const { name, path } of skillPaths) {
       }
       if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(flat)) {
         errors.push(`${path}: metadata values must be strings — no inline objects, arrays, booleans, or numbers`);
+      }
+      if (openclawLines.filter((line) => /^ {4}envVars:\s*$/.test(line)).length > 1) {
+        errors.push(`${path}: duplicate envVars blocks under openclaw`);
       }
       const OPENCLAW_KEYS = new Set([
         "homepage",
@@ -329,7 +335,12 @@ for (const path of scanned) {
   if (path.startsWith("skills/")) {
     const owningSkill = path.split("/")[1];
     const skillDeclared = declaredEnvVars.get(owningSkill) ?? new Set();
-    for (const match of new Set([...content.matchAll(ENV_TOKEN)].map((m) => m[0]))) {
+    const referenced = new Set([...content.matchAll(ENV_TOKEN)].map((m) => m[0]));
+    // Explicit env-access syntax counts regardless of naming convention.
+    for (const m of content.matchAll(/\$\{?([A-Z][A-Z0-9_]{3,})\}?|process\.env\.([A-Za-z_][A-Za-z0-9_]*)/g)) {
+      referenced.add(m[1] ?? m[2]);
+    }
+    for (const match of referenced) {
       if (!skillDeclared.has(match)) {
         errors.push(`${path}: env-style token ${match} is not declared under this skill's openclaw.envVars`);
       }
@@ -341,15 +352,20 @@ for (const path of scanned) {
 // header; a drifted or tampered mirror fails here instead of at a registry.
 for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
   const raw = read(path);
-  const digest = raw.match(/content-sha256:\s*([0-9a-f]{64})/);
-  if (!digest) {
-    errors.push(`${path}: mirror lacks a content-sha256 provenance digest`);
+  // The provenance header must open the file and close before the body:
+  // an unanchored header would let prepended content go unhashed, and a
+  // missing terminator would hash empty content and "pass".
+  if (!raw.startsWith("<!-- Scoped excerpt of https://")) {
+    errors.push(`${path}: mirror must begin with its provenance header`);
     continue;
   }
-  // Slice from the first header terminator to EOF: split(sep, 2) truncates,
-  // which would leave content after a second "-->" unhashed.
+  const digest = raw.match(/content-sha256:\s*([0-9a-f]{64})/);
   const headerEnd = raw.indexOf("-->\n");
-  const body = headerEnd === -1 ? "" : raw.slice(headerEnd + 4).replace(/^\n+/, "");
+  if (!digest || headerEnd === -1 || raw.indexOf("content-sha256:") > headerEnd) {
+    errors.push(`${path}: mirror provenance header needs a terminated comment carrying content-sha256`);
+    continue;
+  }
+  const body = raw.slice(headerEnd + 4).replace(/^\n+/, "");
   const actual = createHash("sha256").update(body).digest("hex");
   if (actual !== digest[1]) {
     errors.push(`${path}: content does not match its recorded sha256 — refresh the mirror and its digest together`);
