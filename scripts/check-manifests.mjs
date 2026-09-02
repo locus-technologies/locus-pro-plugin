@@ -182,7 +182,7 @@ const skillPaths = readdirSync(resolve(root, "skills"), { withFileTypes: true })
   .filter((d) => d.isDirectory())
   .map((d) => ({ name: d.name, path: `skills/${d.name}/SKILL.md` }));
 if (skillPaths.length === 0) errors.push("skills/: no skills found");
-const declaredEnvVars = [];
+const declaredEnvVars = new Map();
 
 for (const { name, path } of skillPaths) {
   if (!existsSync(resolve(root, path))) {
@@ -211,19 +211,31 @@ for (const { name, path } of skillPaths) {
     if (!versionLine || !/^\d+\.\d+\.\d+$/.test(versionLine[1])) {
       errors.push(`${path}: frontmatter needs a semver version (registry publishes require one)`);
     }
-    const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
-    if (metaBlock) {
-      const lines = metaBlock[1].split("\n");
+    // Imperative metadata extraction: a regex capture stops at the first
+    // blank line, which would let everything after it escape these checks.
+    const fmLines = fm[1].split("\n");
+    if (fmLines.filter((line) => /^metadata:\s*$/.test(line)).length > 1) {
+      errors.push(`${path}: duplicate metadata keys in frontmatter`);
+    }
+    const metaStart = fmLines.findIndex((line) => /^metadata:\s*$/.test(line));
+    if (metaStart !== -1) {
+      const metaLines = [];
+      for (let i = metaStart + 1; i < fmLines.length; i++) {
+        const line = fmLines[i];
+        if (/^ {2,}/.test(line) || line.trim() === "" || /^\s*#/.test(line)) {
+          metaLines.push(line);
+          continue;
+        }
+        break;
+      }
       const kept = [];
       const openclawLines = [];
       let inOpenclaw = false;
-      for (const line of lines) {
+      for (const line of metaLines) {
         if (/^ {2}openclaw:\s*$/.test(line)) {
           inOpenclaw = true;
           continue;
         }
-        // Blank and comment lines never terminate the openclaw block, so a
-        // bypass cannot hide flat-map violations behind them.
         if (inOpenclaw && (/^ {4,}/.test(line) || line.trim() === "" || /^\s*#/.test(line))) {
           openclawLines.push(line);
           continue;
@@ -231,7 +243,7 @@ for (const { name, path } of skillPaths) {
         inOpenclaw = false;
         kept.push(line);
       }
-      const flat = kept.join("\n");
+      const flat = kept.filter((line) => line.trim() !== "" && !/^\s*#/.test(line)).join("\n");
       if (/^\s*- /m.test(flat)) {
         errors.push(`${path}: metadata top level must be a mapping — sequences belong under openclaw.envVars only`);
       }
@@ -241,14 +253,48 @@ for (const { name, path } of skillPaths) {
       if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(flat)) {
         errors.push(`${path}: metadata values must be strings — no inline objects, arrays, booleans, or numbers`);
       }
-      const openclaw = openclawLines.join("\n");
-      const primaryEnv = openclaw.match(/^\s*primaryEnv:\s*(\S+)\s*$/m)?.[1];
-      const declaredEnvNames = [...openclaw.matchAll(/^\s*- name:\s*(\S+)\s*$/gm)].map((m) => m[1]);
+      const OPENCLAW_KEYS = new Set([
+        "homepage",
+        "emoji",
+        "primaryEnv",
+        "envVars",
+        "requires",
+        "anyBins",
+        "os",
+        "always",
+        "install",
+        "skillKey",
+      ]);
+      let inEnvVars = false;
+      const declaredEnvNames = [];
+      let primaryEnv;
+      for (const line of openclawLines) {
+        if (line.trim() === "" || /^\s*#/.test(line)) continue;
+        const topKey = line.match(/^ {4}([A-Za-z][A-Za-z0-9]*):\s*(.*)$/);
+        if (topKey) {
+          if (!OPENCLAW_KEYS.has(topKey[1])) {
+            errors.push(`${path}: unexpected openclaw key "${topKey[1]}"`);
+          }
+          inEnvVars = topKey[1] === "envVars";
+          if (topKey[1] === "primaryEnv") primaryEnv = topKey[2].trim();
+          continue;
+        }
+        const item = line.match(/^ {6,}- name:\s*(\S+)\s*$/);
+        if (item && inEnvVars) {
+          declaredEnvNames.push(item[1]);
+          continue;
+        }
+        if (/^\s*- /.test(line) && !inEnvVars) {
+          errors.push(`${path}: sequence items in openclaw are only allowed under envVars`);
+        }
+      }
       if (primaryEnv && !declaredEnvNames.includes(primaryEnv)) {
         errors.push(`${path}: openclaw.primaryEnv "${primaryEnv}" is not declared under envVars`);
       }
-      declaredEnvVars.push(...declaredEnvNames);
-      if (primaryEnv) declaredEnvVars.push(primaryEnv);
+      const skillDeclared = declaredEnvVars.get(name) ?? new Set();
+      for (const envName of declaredEnvNames) skillDeclared.add(envName);
+      if (primaryEnv) skillDeclared.add(primaryEnv);
+      declaredEnvVars.set(name, skillDeclared);
     }
   }
   if (OTHER_VENDOR_WORDS.test(skill)) {
@@ -272,7 +318,8 @@ const scanned = [
   "README.md",
 ];
 const SECRET = /\b(?:lcr|lcac|lcrsb|lcrpk|sk_live|sk_test)_[A-Za-z0-9]{8,}/;
-const ENV_TOKEN = /\b(?:LOCUS|AGENTMAIL|HERMES|OKIBI)_[A-Z0-9_]+\b/g;
+const ENV_TOKEN =
+  /\b(?:(?:LOCUS|AGENTMAIL|HERMES|OKIBI)_[A-Z0-9_]+|[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:KEY|TOKEN|SECRET|CREDENTIAL|PASSWORD|HOME))\b/g;
 for (const path of scanned) {
   const content = read(path);
   if (SECRET.test(content)) errors.push(`${path}: contains what looks like a real credential`);
@@ -280,9 +327,11 @@ for (const path of scanned) {
     errors.push(`${path}: references the retired repo slug "${OLD_REPO_SLUG}"`);
   }
   if (path.startsWith("skills/")) {
+    const owningSkill = path.split("/")[1];
+    const skillDeclared = declaredEnvVars.get(owningSkill) ?? new Set();
     for (const match of new Set([...content.matchAll(ENV_TOKEN)].map((m) => m[0]))) {
-      if (!declaredEnvVars.includes(match)) {
-        errors.push(`${path}: env-style token ${match} is not declared under any skill's openclaw.envVars`);
+      if (!skillDeclared.has(match)) {
+        errors.push(`${path}: env-style token ${match} is not declared under this skill's openclaw.envVars`);
       }
     }
   }
@@ -297,7 +346,10 @@ for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
     errors.push(`${path}: mirror lacks a content-sha256 provenance digest`);
     continue;
   }
-  const body = raw.split("-->\n", 2)[1]?.replace(/^\n+/, "") ?? "";
+  // Slice from the first header terminator to EOF: split(sep, 2) truncates,
+  // which would leave content after a second "-->" unhashed.
+  const headerEnd = raw.indexOf("-->\n");
+  const body = headerEnd === -1 ? "" : raw.slice(headerEnd + 4).replace(/^\n+/, "");
   const actual = createHash("sha256").update(body).digest("hex");
   if (actual !== digest[1]) {
     errors.push(`${path}: content does not match its recorded sha256 — refresh the mirror and its digest together`);

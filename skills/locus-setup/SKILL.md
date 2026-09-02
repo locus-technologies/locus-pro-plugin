@@ -23,8 +23,8 @@ metadata:
 
 Use this when Locus tools are wanted but no funded account exists yet.
 Installed as the full plugin, the Locus MCP server is already configured;
-installed as a skill alone, first add the server URL from the Connection
-section below in the client's MCP settings. This skill covers everything
+installed as a skill alone, first add the server URL shown in step 4 in the
+client's MCP settings. This skill covers everything
 around the connection: creating the account, authenticating, choosing paid
 capabilities, and funding. The flow branches by account owner. On an
 agent-owned account, complete the identity, capability, and connection steps
@@ -163,9 +163,10 @@ for its 15-minute expiry. Do not rotate tokens to evade the limit.
 The connection is the server `locus` — streamable HTTP,
 `https://api.paywithlocus.com/api/credits/mcp`, no static credentials. The
 plugin configures it automatically; on a skill-only install, add that URL in
-the client's MCP settings first. Start your client's standard MCP
-authentication for it and confirm it discovers Locus OAuth and opens the
-authorization URL.
+the client's MCP settings first. If the `locus` server is already
+authenticated and lists tools, keep that connection and skip this step.
+Otherwise start your client's standard MCP authentication for it and confirm
+it discovers Locus OAuth and opens the authorization URL.
 
 - Human-owned account: send the user the printed authorization URL; the page
   includes account creation. Locus returns short-lived access and rotating
