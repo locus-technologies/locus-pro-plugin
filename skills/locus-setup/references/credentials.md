@@ -1,4 +1,4 @@
-<!-- Mirrored from https://paywithlocus.com/agent/credentials.md on 2026-09-02 so registry scanners can review the full guidance in-repo. The canonical version at that URL prevails; refresh this mirror when it changes (release checklist). -->
+<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-02 so registry scanners can review the exact contract this skill uses in-repo. The runtime-specific section for a third-party host referencing its own environment layout is intentionally omitted. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: ee7d16653b16e8db3be9a173ed5e896a3bf77a379fe6afea7ecbd05828835629 -->
 
 # Store Locus agent authentication
 
@@ -40,19 +40,6 @@ tokens to OpenClaw's native connection store.
 Never use a workspace `.env`: workspace files can be committed, read by tools,
 or supplied by an untrusted checkout. Run `openclaw doctor` after changing
 permissions.
-
-## Hermes Agent
-
-Use an external vault injected into the Hermes process when one is available.
-Otherwise, store the value in `~/.hermes/.env` (or `$HERMES_HOME/.env`) using a
-no-echo input method or a trusted local editor, and keep the file at mode
-`0600`. The Hermes MCP entry should specify OAuth and no static header. Hermes
-stores the resulting OAuth tokens separately from this compatibility value.
-
-Do not pass the credential as a `hermes config set ... <value>` command-line
-argument: command arguments can be retained in shell history, process listings,
-or the agent transcript. Do not print the resolved MCP server configuration
-into the conversation or transcript.
 
 ## Hosted runtimes and proprietary vaults
 

@@ -11,13 +11,21 @@ metadata:
       - name: LOCUS_AGENT_CREDENTIAL
         required: false
         description: Agent-owned setup credential (lcac_) from agent-native signup, kept in the runtime's secret store. Human-owned accounts never set it.
+      - name: AGENTMAIL_API_KEY
+        required: false
+        description: AgentMail key used once in the bundled AgentID contract to register the signing key with AgentMail's own API. Only the no-identity agent-owned path touches it.
+      - name: LOCUS_SECRET_KEY
+        required: false
+        description: Mentioned in the bundled credential guidance as a credential class to protect. This skill never reads or sets it and it never belongs in MCP configuration.
 ---
 
 # Locus setup
 
-Use this when Locus tools are wanted but no funded account exists yet. This
-plugin already configures the Locus MCP server; this skill covers everything
-around it: creating the account, authenticating the connection, choosing paid
+Use this when Locus tools are wanted but no funded account exists yet.
+Installed as the full plugin, the Locus MCP server is already configured;
+installed as a skill alone, first add the server URL from the Connection
+section below in the client's MCP settings. This skill covers everything
+around the connection: creating the account, authenticating, choosing paid
 capabilities, and funding. The flow branches by account owner. On an
 agent-owned account, complete the identity, capability, and connection steps
 yourself, involving the user only for explicit approvals, the AgentMail
@@ -152,10 +160,12 @@ for its 15-minute expiry. Do not rotate tokens to evade the limit.
 
 ## 4. Authenticate the connection
 
-The plugin has already configured the server (`locus`, streamable HTTP,
-`https://api.paywithlocus.com/api/credits/mcp`, no static credentials). Start
-your client's standard MCP authentication for it and confirm it discovers
-Locus OAuth and opens the authorization URL.
+The connection is the server `locus` — streamable HTTP,
+`https://api.paywithlocus.com/api/credits/mcp`, no static credentials. The
+plugin configures it automatically; on a skill-only install, add that URL in
+the client's MCP settings first. Start your client's standard MCP
+authentication for it and confirm it discovers Locus OAuth and opens the
+authorization URL.
 
 - Human-owned account: send the user the printed authorization URL; the page
   includes account creation. Locus returns short-lived access and rotating
@@ -163,7 +173,9 @@ Locus OAuth and opens the authorization URL.
   store; do not copy them into an environment file.
 - Agent-owned account: on the sign-in page, choose **Continue with AgentID**
   and approve with the same identity used for signup, resolving the request
-  over HTTP per `https://paywithlocus.com/agent/mcp.md`.
+  over HTTP with the bundled approval contract in
+  `./references/agentid-auth.md` (the same cookie-preserving procedure as
+  signup approval).
 - Headless host: keep the login process and any loopback listener alive. For
   a human-owned account, the user approves on another device, Locus shows the
   complete loopback callback URL, and the user copies it back for you to
@@ -171,8 +183,8 @@ Locus OAuth and opens the authorization URL.
   Authorization, prefer it: it prints a short user code and verification
   link while the client polls, and the browser never receives tokens.
 
-Runtime-specific configuration examples live at
-`https://paywithlocus.com/agent/mcp.md`.
+Client-specific configuration snippets (settings-file examples only, no
+procedures) live at `https://paywithlocus.com/agent/mcp.md`.
 
 ## 5. Select capabilities (agent-owned accounts)
 

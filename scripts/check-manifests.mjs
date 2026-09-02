@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Consistency checks across the per-agent manifests. CI fails on any drift.
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -181,6 +182,7 @@ const skillPaths = readdirSync(resolve(root, "skills"), { withFileTypes: true })
   .filter((d) => d.isDirectory())
   .map((d) => ({ name: d.name, path: `skills/${d.name}/SKILL.md` }));
 if (skillPaths.length === 0) errors.push("skills/: no skills found");
+const declaredEnvVars = [];
 
 for (const { name, path } of skillPaths) {
   if (!existsSync(resolve(root, path))) {
@@ -205,27 +207,48 @@ for (const { name, path } of skillPaths) {
     // one sanctioned exception: the `openclaw:` block, which ClawHub requires
     // for env/runtime declarations (undeclared env vars are a moderation
     // flag there). Strip that block, then apply the flat-string rules.
+    const versionLine = fm[1].match(/^version:\s*["']?(\S+?)["']?\s*$/m);
+    if (!versionLine || !/^\d+\.\d+\.\d+$/.test(versionLine[1])) {
+      errors.push(`${path}: frontmatter needs a semver version (registry publishes require one)`);
+    }
     const metaBlock = fm[1].match(/^metadata:\n((?:[ ]{2,}.*\n?)*)/m);
     if (metaBlock) {
       const lines = metaBlock[1].split("\n");
       const kept = [];
+      const openclawLines = [];
       let inOpenclaw = false;
       for (const line of lines) {
         if (/^ {2}openclaw:\s*$/.test(line)) {
           inOpenclaw = true;
           continue;
         }
-        if (inOpenclaw && (/^ {4,}/.test(line) || line.trim() === "")) continue;
+        // Blank and comment lines never terminate the openclaw block, so a
+        // bypass cannot hide flat-map violations behind them.
+        if (inOpenclaw && (/^ {4,}/.test(line) || line.trim() === "" || /^\s*#/.test(line))) {
+          openclawLines.push(line);
+          continue;
+        }
         inOpenclaw = false;
         kept.push(line);
       }
       const flat = kept.join("\n");
+      if (/^\s*- /m.test(flat)) {
+        errors.push(`${path}: metadata top level must be a mapping — sequences belong under openclaw.envVars only`);
+      }
       if (/^\s{2,}\S[^:\n]*:\s*$/m.test(flat)) {
         errors.push(`${path}: metadata values must be flat strings outside the openclaw block — no other nested blocks`);
       }
       if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(flat)) {
         errors.push(`${path}: metadata values must be strings — no inline objects, arrays, booleans, or numbers`);
       }
+      const openclaw = openclawLines.join("\n");
+      const primaryEnv = openclaw.match(/^\s*primaryEnv:\s*(\S+)\s*$/m)?.[1];
+      const declaredEnvNames = [...openclaw.matchAll(/^\s*- name:\s*(\S+)\s*$/gm)].map((m) => m[1]);
+      if (primaryEnv && !declaredEnvNames.includes(primaryEnv)) {
+        errors.push(`${path}: openclaw.primaryEnv "${primaryEnv}" is not declared under envVars`);
+      }
+      declaredEnvVars.push(...declaredEnvNames);
+      if (primaryEnv) declaredEnvVars.push(primaryEnv);
     }
   }
   if (OTHER_VENDOR_WORDS.test(skill)) {
@@ -234,6 +257,10 @@ for (const { name, path } of skillPaths) {
 }
 
 // --- Secret scan over every checked file ------------------------------------
+const skillFiles = readdirSync(resolve(root, "skills"), { recursive: true, withFileTypes: true })
+  .filter((entry) => entry.isFile())
+  .map((entry) => `skills/${resolve(entry.parentPath ?? entry.path, entry.name).slice(resolve(root, "skills").length + 1)}`);
+
 const scanned = [
   ...Object.keys(manifests),
   ...mcpConfigs.map((c) => c.path),
@@ -241,15 +268,39 @@ const scanned = [
   ".agents/plugins/marketplace.json",
   "server.json",
   "glama.json",
-  ...skillPaths.filter((s) => existsSync(resolve(root, s.path))).map((s) => s.path),
+  ...skillFiles,
   "README.md",
 ];
 const SECRET = /\b(?:lcr|lcac|lcrsb|lcrpk|sk_live|sk_test)_[A-Za-z0-9]{8,}/;
+const ENV_TOKEN = /\b(?:LOCUS|AGENTMAIL|HERMES|OKIBI)_[A-Z0-9_]+\b/g;
 for (const path of scanned) {
   const content = read(path);
   if (SECRET.test(content)) errors.push(`${path}: contains what looks like a real credential`);
   if (content.includes(OLD_REPO_SLUG)) {
     errors.push(`${path}: references the retired repo slug "${OLD_REPO_SLUG}"`);
+  }
+  if (path.startsWith("skills/")) {
+    for (const match of new Set([...content.matchAll(ENV_TOKEN)].map((m) => m[0]))) {
+      if (!declaredEnvVars.includes(match)) {
+        errors.push(`${path}: env-style token ${match} is not declared under any skill's openclaw.envVars`);
+      }
+    }
+  }
+}
+
+// Mirrored reference excerpts carry a content digest in their provenance
+// header; a drifted or tampered mirror fails here instead of at a registry.
+for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
+  const raw = read(path);
+  const digest = raw.match(/content-sha256:\s*([0-9a-f]{64})/);
+  if (!digest) {
+    errors.push(`${path}: mirror lacks a content-sha256 provenance digest`);
+    continue;
+  }
+  const body = raw.split("-->\n", 2)[1]?.replace(/^\n+/, "") ?? "";
+  const actual = createHash("sha256").update(body).digest("hex");
+  if (actual !== digest[1]) {
+    errors.push(`${path}: content does not match its recorded sha256 — refresh the mirror and its digest together`);
   }
 }
 
