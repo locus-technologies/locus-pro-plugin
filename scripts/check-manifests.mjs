@@ -156,6 +156,9 @@ if (typeof codexServers !== "object" || Array.isArray(codexServers) || codexServ
 if (manifests[".codex-plugin/plugin.json"] && !Array.isArray(manifests[".codex-plugin/plugin.json"].interface?.capabilities)) {
   errors.push(".codex-plugin/plugin.json: interface.capabilities array is required by the Codex validation contract");
 }
+if (manifests[".codex-plugin/plugin.json"] && !/^https:\/\/\S+$/.test(manifests[".codex-plugin/plugin.json"].interface?.supportURL ?? "")) {
+  errors.push(".codex-plugin/plugin.json: interface.supportURL must be a public https URL (OpenAI requires one for MCP-backed listings)");
+}
 
 // --- Marketplace manifests --------------------------------------------------
 const claudeMarket = json(".claude-plugin/marketplace.json");
