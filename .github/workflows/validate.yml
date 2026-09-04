@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     name: Validate plugin
@@ -21,11 +24,71 @@ jobs:
 
       - name: Validate Claude plugin and marketplace manifests
         run: |
-          npx -y @anthropic-ai/claude-code plugin validate . --strict
-          npx -y @anthropic-ai/claude-code plugin validate .claude-plugin/marketplace.json --strict
+          npx -y @anthropic-ai/claude-code@2.1.259 plugin validate . --strict
+          npx -y @anthropic-ai/claude-code@2.1.259 plugin validate .claude-plugin/marketplace.json --strict
+
+      - name: Validate portable Agent Skills
+        run: |
+          python3 -m venv "$RUNNER_TEMP/skills-ref"
+          "$RUNNER_TEMP/skills-ref/bin/pip" install \
+            'git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref'
+          "$RUNNER_TEMP/skills-ref/bin/skills-ref" validate skills/locus
+          "$RUNNER_TEMP/skills-ref/bin/skills-ref" validate skills/locus-setup
 
       - name: Check manifest consistency
         run: node scripts/check-manifests.mjs
+
+      - name: Smoke-test Codex marketplace installation
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex-home
+        run: |
+          mkdir -p "$CODEX_HOME"
+          npx -y @openai/codex@0.147.0 plugin marketplace add "$GITHUB_WORKSPACE" --json
+          npx -y @openai/codex@0.147.0 plugin add locus@locus --json
+          npx -y @openai/codex@0.147.0 plugin list --json
+          npx -y @openai/codex@0.147.0 mcp list --json > "$RUNNER_TEMP/codex-mcp.json"
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const servers = JSON.parse(readFileSync(process.argv[1], "utf8"));
+            const locus = servers.find((server) => server.name === "locus");
+            if (locus?.transport?.url !== "https://api.paywithlocus.com/api/credits/mcp") {
+              throw new Error("Codex did not install the production Locus MCP server");
+            }
+            const source = locus.transport.http_headers?.["X-Source-Name"];
+            if (!["codex-plugin", "open-plugin"].includes(source)) {
+              throw new Error(`Codex installed an unexpected source header: ${source}`);
+            }
+          ' "$RUNNER_TEMP/codex-mcp.json"
+
+      - name: Smoke-test native Codex bundle
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex-native-home
+          CODEX_FIXTURE: ${{ runner.temp }}/codex-native-fixture
+        run: |
+          mkdir -p "$CODEX_HOME" "$CODEX_FIXTURE/.codex-plugin" "$CODEX_FIXTURE/.agents/plugins"
+          cp .codex-plugin/plugin.json "$CODEX_FIXTURE/.codex-plugin/plugin.json"
+          cp .mcp.json "$CODEX_FIXTURE/.mcp.json"
+          cp .agents/plugins/marketplace.json "$CODEX_FIXTURE/.agents/plugins/marketplace.json"
+          cp -R assets "$CODEX_FIXTURE/assets"
+          cp -R skills "$CODEX_FIXTURE/skills"
+          npx -y @openai/codex@0.147.0 plugin marketplace add "$CODEX_FIXTURE" --json
+          npx -y @openai/codex@0.147.0 plugin add locus@locus --json
+          npx -y @openai/codex@0.147.0 mcp list --json > "$RUNNER_TEMP/codex-native-mcp.json"
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const servers = JSON.parse(readFileSync(process.argv[1], "utf8"));
+            const locus = servers.find((server) => server.name === "locus");
+            if (locus?.transport?.url !== "https://api.paywithlocus.com/api/credits/mcp") {
+              throw new Error("The native Codex bundle did not install the production Locus MCP server");
+            }
+            const source = locus.transport.http_headers?.["X-Source-Name"];
+            if (source !== "codex-plugin") {
+              throw new Error(`The native Codex bundle installed an unexpected source header: ${source}`);
+            }
+          ' "$RUNNER_TEMP/codex-native-mcp.json"
+
+      - name: Smoke-test production MCP discovery
+        run: node scripts/smoke-production.mjs
 
   validate-grok:
     name: Validate Grok plugin manifest
@@ -37,12 +100,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Grok CLI
-        # The installer script itself revs upstream too often to digest-pin
-        # (it changed within a day of pinning); the CLI version is pinned
-        # instead, the fetch is TLS to x.ai, and it runs only in this
-        # disposable runner.
         run: |
           curl -fsSL https://x.ai/cli/install.sh -o grok-install.sh
+          echo "7fd6fdc75d9418b2e58356726fcbf1ae849416f773925da07d0ccc7a60d3e791  grok-install.sh" | sha256sum -c -
           bash grok-install.sh 1.0.13
           echo "$GROK_BIN_DIR" >> "$GITHUB_PATH"
 
