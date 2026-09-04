@@ -66,13 +66,14 @@ for (const [path, expected] of [
 
 // --- MCP configs: same server key, same URL, expected attribution header ----
 const mcpConfigs = [
+  { path: ".mcp.json", wrapped: true, type: "http", source: "codex-plugin", headerField: "http_headers" },
   { path: "agents/claude/.mcp.json", wrapped: true, type: "http", source: "claude-code-plugin" },
   { path: "agents/cursor/mcp.json", wrapped: true, type: "http", source: "cursor-plugin" },
   { path: "agents/grok/mcp.json", wrapped: true, type: "http", source: "grok-plugin" },
   { path: "mcp.json", wrapped: true, type: "streamable-http", source: "open-plugin" },
 ];
 
-for (const { path, wrapped, type, source } of mcpConfigs) {
+for (const { path, wrapped, type, source, headerField = "headers" } of mcpConfigs) {
   const cfg = json(path);
   if (!cfg) continue;
   const servers = wrapped ? cfg.mcpServers : cfg;
@@ -88,7 +89,7 @@ for (const { path, wrapped, type, source } of mcpConfigs) {
   const server = servers[EXPECTED_NAME];
   if (server.url !== EXPECTED_URL) errors.push(`${path}: url "${server.url}" != "${EXPECTED_URL}"`);
   if (server.type !== type) errors.push(`${path}: type "${server.type}", expected "${type}"`);
-  const headers = server.headers ?? {};
+  const headers = server[headerField] ?? {};
   if (headers["X-Source-Name"] !== source) {
     errors.push(`${path}: X-Source-Name "${headers["X-Source-Name"]}", expected "${source}"`);
   }
@@ -132,32 +133,18 @@ if (glama) {
   }
 }
 
-// Codex uses an inline mcpServers object in its manifest (its ingestion
-// contract only allows a string pointer when it resolves to root .mcp.json,
-// and Codex reads http_headers, not headers).
+// Keep the Codex MCP definition in its native .mcp.json companion. A host that
+// intentionally detects this multi-format bundle as Agent Plugins may instead
+// select the portable mcp.json definition.
 const codexServers = manifests[".codex-plugin/plugin.json"]?.mcpServers;
-if (typeof codexServers !== "object" || Array.isArray(codexServers) || codexServers === null) {
-  errors.push(".codex-plugin/plugin.json: mcpServers must be an inline object");
-} else {
-  const keys = Object.keys(codexServers);
-  if (keys.length !== 1 || keys[0] !== EXPECTED_NAME) {
-    errors.push(`.codex-plugin/plugin.json: mcpServers keys [${keys.join(", ")}], expected exactly ["${EXPECTED_NAME}"]`);
-  } else {
-    const server = codexServers[EXPECTED_NAME];
-    if (server.url !== EXPECTED_URL) errors.push(`.codex-plugin/plugin.json: url "${server.url}" != "${EXPECTED_URL}"`);
-    if (server.type !== "http") errors.push(`.codex-plugin/plugin.json: type "${server.type}", expected "http"`);
-    if ("headers" in server) errors.push('.codex-plugin/plugin.json: use http_headers (Codex silently drops "headers")');
-    const httpHeaders = Object.keys(server.http_headers ?? {});
-    if (httpHeaders.length !== 1 || server.http_headers?.["X-Source-Name"] !== "codex-plugin") {
-      errors.push('.codex-plugin/plugin.json: http_headers must be exactly {"X-Source-Name": "codex-plugin"}');
-    }
-  }
+if (codexServers !== "./.mcp.json") {
+  errors.push('.codex-plugin/plugin.json: mcpServers must point to "./.mcp.json"');
 }
 if (manifests[".codex-plugin/plugin.json"] && !Array.isArray(manifests[".codex-plugin/plugin.json"].interface?.capabilities)) {
   errors.push(".codex-plugin/plugin.json: interface.capabilities array is required by the Codex validation contract");
 }
 if (manifests[".codex-plugin/plugin.json"] && !/^https:\/\/\S+$/.test(manifests[".codex-plugin/plugin.json"].interface?.supportURL ?? "")) {
-  errors.push(".codex-plugin/plugin.json: interface.supportURL must be a public https URL (OpenAI requires one for MCP-backed listings)");
+  errors.push(".codex-plugin/plugin.json: interface.supportURL must be a public https URL");
 }
 
 // --- Marketplace manifests --------------------------------------------------
@@ -206,13 +193,13 @@ for (const { name, path } of skillPaths) {
     else if (descLine[1].trim().length > 160) {
       errors.push(`${path}: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
     }
-    // Metadata stays a flat string map for cross-registry portability, with
-    // one sanctioned exception: the `openclaw:` block, which ClawHub requires
-    // for env/runtime declarations (undeclared env vars are a moderation
-    // flag there). Strip that block, then apply the flat-string rules.
-    const versionLine = fm[1].match(/^version:\s*["']?(\S+?)["']?\s*$/m);
-    if (!versionLine || !/^\d+\.\d+\.\d+$/.test(versionLine[1])) {
-      errors.push(`${path}: frontmatter needs a semver version (registry publishes require one)`);
+    // Agent Skills does not allow a top-level version. Keep it as a string in
+    // metadata instead. Metadata otherwise stays a flat string map, with one
+    // sanctioned extension: the `openclaw:` object required by OpenClaw for
+    // env/runtime declarations. Strip that object before applying the portable
+    // flat-string rules below.
+    if (/^version:\s*/m.test(fm[1])) {
+      errors.push(`${path}: top-level version is unsupported; use metadata.version`);
     }
     // Imperative metadata extraction: a regex capture stops at the first
     // blank line, which would let everything after it escape these checks.
@@ -224,7 +211,9 @@ for (const { name, path } of skillPaths) {
       errors.push(`${path}: duplicate openclaw blocks in metadata`);
     }
     const metaStart = fmLines.findIndex((line) => /^metadata:\s*$/.test(line));
-    if (metaStart !== -1) {
+    if (metaStart === -1) {
+      errors.push(`${path}: metadata.version must be a quoted semver string`);
+    } else {
       const metaLines = [];
       for (let i = metaStart + 1; i < fmLines.length; i++) {
         const line = fmLines[i];
@@ -250,6 +239,10 @@ for (const { name, path } of skillPaths) {
         kept.push(line);
       }
       const flat = kept.filter((line) => line.trim() !== "" && !/^\s*#/.test(line)).join("\n");
+      const versionLine = flat.match(/^ {2}version:\s*["'](\d+\.\d+\.\d+)["']\s*$/m);
+      if (!versionLine) {
+        errors.push(`${path}: metadata.version must be a quoted semver string`);
+      }
       if (/^\s*- /m.test(flat)) {
         errors.push(`${path}: metadata top level must be a mapping — sequences belong under openclaw.envVars only`);
       }
@@ -329,6 +322,9 @@ const scanned = [
 const SECRET = /\b(?:lcr|lcac|lcrsb|lcrpk|sk_live|sk_test)_[A-Za-z0-9]{8,}/;
 const ENV_TOKEN =
   /\b(?:(?:LOCUS|AGENTMAIL|HERMES|OKIBI)_[A-Z0-9_]+|[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:KEY|TOKEN|SECRET|CREDENTIAL|PASSWORD|HOME))\b/g;
+const AGENTMAIL_LIVE_SKILL = "https://agent.email/skill.md";
+const AGENTMAIL_MIRROR = "skills/locus-setup/references/agentmail-inbox.md";
+const AGENTMAIL_SOURCE_SHA256 = "3024d75cfaf6d1381f4d9012999bbd1ec3a5bd546ec83e112c3a7128a72ee819";
 for (const path of scanned) {
   const content = read(path);
   if (SECRET.test(content)) errors.push(`${path}: contains what looks like a real credential`);
@@ -336,6 +332,16 @@ for (const path of scanned) {
     errors.push(`${path}: references the retired repo slug "${OLD_REPO_SLUG}"`);
   }
   if (path.startsWith("skills/")) {
+    if (content.includes(AGENTMAIL_LIVE_SKILL)) {
+      const headerEnd = content.indexOf("-->\n");
+      const allowedOnlyInMirrorHeader =
+        path === AGENTMAIL_MIRROR &&
+        headerEnd !== -1 &&
+        !content.slice(headerEnd + 4).includes(AGENTMAIL_LIVE_SKILL);
+      if (!allowedOnlyInMirrorHeader) {
+        errors.push(`${path}: fetches or cites a live AgentMail skill; use the bundled reviewed mirror`);
+      }
+    }
     const owningSkill = path.split("/")[1];
     const skillDeclared = declaredEnvVars.get(owningSkill) ?? new Set();
     const referenced = new Set([...content.matchAll(ENV_TOKEN)].map((m) => m[0]));
@@ -363,6 +369,7 @@ for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
     continue;
   }
   const digest = raw.match(/content-sha256:\s*([0-9a-f]{64})/);
+  const sourceDigest = raw.match(/source-sha256:\s*([0-9a-f]{64})/);
   const headerEnd = raw.indexOf("-->\n");
   if (!digest || headerEnd === -1 || raw.indexOf("content-sha256:") > headerEnd) {
     errors.push(`${path}: mirror provenance header needs a terminated comment carrying content-sha256`);
@@ -372,6 +379,9 @@ for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
   const actual = createHash("sha256").update(body).digest("hex");
   if (actual !== digest[1]) {
     errors.push(`${path}: content does not match its recorded sha256 — refresh the mirror and its digest together`);
+  }
+  if (path === AGENTMAIL_MIRROR && sourceDigest?.[1] !== AGENTMAIL_SOURCE_SHA256) {
+    errors.push(`${path}: source-sha256 must identify the reviewed AgentMail source snapshot`);
   }
 }
 

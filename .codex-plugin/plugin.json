@@ -19,15 +19,7 @@
     "mcp"
   ],
   "skills": "./skills/",
-  "mcpServers": {
-    "locus": {
-      "type": "http",
-      "url": "https://api.paywithlocus.com/api/credits/mcp",
-      "http_headers": {
-        "X-Source-Name": "codex-plugin"
-      }
-    }
-  },
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Locus",
     "shortDescription": "Pay-per-use APIs for agents",
