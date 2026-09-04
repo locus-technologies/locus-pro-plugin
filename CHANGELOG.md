@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.1 (2026-09-04)
+
+- Grok manifest precedence fixed: the root `.mcp.json` (the file Grok
+  actually consumes while a root `plugin.json` exists) now uses Grok's
+  `headers` dialect with its own attribution; the Codex-native definition
+  moved to `agents/codex/.mcp.json` and the Codex manifest points there.
+- README documents every network endpoint and credential the optional
+  agent-owned setup path can touch, and the repository-layout table states
+  the real per-host manifest resolution.
+- The usage skill (v1.0.2) requires an estimate plus user confirmation
+  before the first billed call a task did not explicitly authorize, and
+  describes the tool surface scope-independently.
+
 ## 0.2.0 (2026-09-04)
 
 - Skills aligned with production behavior (v1.0.1): capability-tool guidance,

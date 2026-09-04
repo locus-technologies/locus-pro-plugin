@@ -121,22 +121,44 @@ codex mcp add locus --url https://api.paywithlocus.com/api/credits/mcp
 
 ## Data handling
 
-The plugin-managed MCP configs and the Cursor/OpenClaw examples above send one
-static request header, `X-Source-Name` (for example `cursor-plugin` or
-`open-plugin`). It identifies the configuration format a host selected and may
-be used solely for anonymous adoption telemetry; multi-format hosts can prefer
-the portable Agent Plugins definition. Plain MCP clients that cannot configure
-static headers still work without it. Tool calls carry whatever arguments the
-agent sends to the Locus API, billed to the authenticated workspace; the
-plugin itself stores nothing and never sees credentials or payment details.
+The plugin-managed MCP configs send one static request header,
+`X-Source-Name` (for example `cursor-plugin`). It identifies the
+configuration format a host selected and may be used solely for anonymous
+adoption telemetry; multi-format hosts can prefer a different bundled
+definition than their own overlay — OpenClaw's bundle loader, for example,
+honors the root `.mcp.json` and therefore reports `grok-plugin`. The header
+is cosmetic: plain MCP clients that cannot configure static headers still
+work without it.
 
-## Authentication
+The repository contains no credential values, and its MCP configurations
+store none. Tool calls send the arguments the agent provides to
+`https://api.paywithlocus.com` and are billed to the authenticated workspace.
+If the user explicitly chooses the optional agent-owned setup path, the setup
+skill also calls `https://api.agentmail.to` to create and verify an inbox and
+register a public signing key, `https://api.auth.agentid.com` to submit a
+signed approval, and `https://auth.agentid.com` to continue that
+authorization transaction. AgentMail receives only the user-approved email
+address and inbox name, the user-provided one-time code, and the public key;
+AgentID receives the inbox identity and a one-time signed assertion. The
+private signing key is generated locally and is never sent. Funding calls
+`https://api.paywithlocus.com` and returns a server-provided Stripe Checkout
+URL that the user opens in a browser; neither the plugin nor the agent
+handles card details.
 
-The server advertises OAuth 2.1 with dynamic client registration. Your client
-discovers it from the URL, opens a browser sign-in, and a consent screen in the
-Locus dashboard scopes the connection. Tokens live in your client's runtime,
-never in this repo's files. Never put `lcr_` or `lcac_` secret keys into MCP
-configuration; those are server-side service credentials.
+## Authentication and credentials
+
+Human-owned MCP connections use OAuth 2.1 with dynamic client registration:
+your client discovers it from the URL, opens a browser sign-in, and a consent
+screen in the Locus dashboard scopes the connection. Access and refresh
+tokens stay in the client's native OAuth store, never in this repo's files.
+
+The optional agent-owned setup path may create an `AGENTMAIL_API_KEY`, a
+locally generated P-256 signing key, and an `lcac_` value stored as
+`LOCUS_AGENT_CREDENTIAL`. Keep them only in the runtime's approved secret
+store; never put them in MCP configuration, chat, project files, source
+control, logs, or command arguments. `LOCUS_SECRET_KEY` is referenced only as
+a credential class to protect; the skills never read or set it, and neither
+`lcr_` nor `lcac_` values belong in MCP configuration.
 
 ## Costs and safety
 
@@ -153,9 +175,10 @@ in the [dashboard](https://platform.paywithlocus.com).
 | Path | Consumed by |
 | --- | --- |
 | `.claude-plugin/` | Claude Code (plugin + marketplace manifest) |
-| `.codex-plugin/`, `.mcp.json`, `.agents/plugins/` | Native Codex plugin, MCP fallback, and marketplace manifests |
+| `.codex-plugin/`, `agents/codex/.mcp.json`, `.agents/plugins/` | Native Codex plugin, MCP configuration, and marketplace manifest |
 | `.cursor-plugin/` | Cursor |
-| `.grok-plugin/` | Grok |
+| `.mcp.json`, `skills/` | Effective Grok components while the root `plugin.json` is present (Grok prefers the root manifest) |
+| `.grok-plugin/`, `agents/grok/` | Grok marketplace extraction and fallback configuration when no root manifest exists |
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |
 | `agents/<client>/` | Per-client MCP server config |
 | `skills/` | Shared Agent Skills-format instructions; `metadata.openclaw` is an intentional host extension for credential declarations |

@@ -66,7 +66,8 @@ for (const [path, expected] of [
 
 // --- MCP configs: same server key, same URL, expected attribution header ----
 const mcpConfigs = [
-  { path: ".mcp.json", wrapped: true, type: "http", source: "codex-plugin", headerField: "http_headers" },
+  { path: ".mcp.json", wrapped: true, type: "http", source: "grok-plugin" },
+  { path: "agents/codex/.mcp.json", wrapped: true, type: "http", source: "codex-plugin", headerField: "http_headers" },
   { path: "agents/claude/.mcp.json", wrapped: true, type: "http", source: "claude-code-plugin" },
   { path: "agents/cursor/mcp.json", wrapped: true, type: "http", source: "cursor-plugin" },
   { path: "agents/grok/mcp.json", wrapped: true, type: "http", source: "grok-plugin" },
@@ -137,8 +138,8 @@ if (glama) {
 // intentionally detects this multi-format bundle as Agent Plugins may instead
 // select the portable mcp.json definition.
 const codexServers = manifests[".codex-plugin/plugin.json"]?.mcpServers;
-if (codexServers !== "./.mcp.json") {
-  errors.push('.codex-plugin/plugin.json: mcpServers must point to "./.mcp.json"');
+if (codexServers !== "./agents/codex/.mcp.json") {
+  errors.push('.codex-plugin/plugin.json: mcpServers must point to "./agents/codex/.mcp.json"');
 }
 if (manifests[".codex-plugin/plugin.json"] && !Array.isArray(manifests[".codex-plugin/plugin.json"].interface?.capabilities)) {
   errors.push(".codex-plugin/plugin.json: interface.capabilities array is required by the Codex validation contract");
