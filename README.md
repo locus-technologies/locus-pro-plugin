@@ -121,12 +121,14 @@ codex mcp add locus --url https://api.paywithlocus.com/api/credits/mcp
 
 ## Data handling
 
-The plugin-managed MCP configs and the Cursor/OpenClaw examples above send one
-static request header, `X-Source-Name` (for example `cursor-plugin` or
-`open-plugin`). It identifies the configuration format a host selected and may
-be used solely for anonymous adoption telemetry; multi-format hosts can prefer
-the portable Agent Plugins definition. Plain MCP clients that cannot configure
-static headers still work without it.
+The plugin-managed MCP configs send one static request header,
+`X-Source-Name` (for example `cursor-plugin`). It identifies the
+configuration format a host selected and may be used solely for anonymous
+adoption telemetry; multi-format hosts can prefer a different bundled
+definition than their own overlay — OpenClaw's bundle loader, for example,
+honors the root `.mcp.json` and therefore reports `grok-plugin`. The header
+is cosmetic: plain MCP clients that cannot configure static headers still
+work without it.
 
 The repository contains no credential values, and its MCP configurations
 store none. Tool calls send the arguments the agent provides to

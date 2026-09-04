@@ -65,9 +65,9 @@ jobs:
           CODEX_HOME: ${{ runner.temp }}/codex-native-home
           CODEX_FIXTURE: ${{ runner.temp }}/codex-native-fixture
         run: |
-          mkdir -p "$CODEX_HOME" "$CODEX_FIXTURE/.codex-plugin" "$CODEX_FIXTURE/.agents/plugins"
+          mkdir -p "$CODEX_HOME" "$CODEX_FIXTURE/.codex-plugin" "$CODEX_FIXTURE/.agents/plugins" "$CODEX_FIXTURE/agents/codex"
           cp .codex-plugin/plugin.json "$CODEX_FIXTURE/.codex-plugin/plugin.json"
-          cp .mcp.json "$CODEX_FIXTURE/.mcp.json"
+          cp agents/codex/.mcp.json "$CODEX_FIXTURE/agents/codex/.mcp.json"
           cp .agents/plugins/marketplace.json "$CODEX_FIXTURE/.agents/plugins/marketplace.json"
           cp -R assets "$CODEX_FIXTURE/assets"
           cp -R skills "$CODEX_FIXTURE/skills"
