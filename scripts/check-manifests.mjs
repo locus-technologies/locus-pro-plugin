@@ -410,8 +410,9 @@ if (submission) {
   if ((submission.app_info?.description ?? "").length > 4000) {
     errors.push("chatgpt-app-submission.json: app_info.description exceeds the 4000-char schema cap");
   }
-  // The tool set and every annotation triplet mirror the production MCP
-  // server's declared hints; a server-side hint change must land here too.
+  // The tool set and every annotation triplet mirror what a full-scope
+  // production OAuth session exposes (eight meta-tools plus the enabled
+  // capability tools); a server-side change must land here too.
   const EXPECTED_SUBMISSION_TOOLS = {
     search_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     describe_api: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
@@ -421,11 +422,13 @@ if (submission) {
     estimate_cost: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
     cancel_cost_approval: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     execute: { readOnlyHint: false, openWorldHint: true, destructiveHint: true },
+    router_web_search: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
+    web_research: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
   };
   const submittedTools = Object.keys(submission.tools ?? {}).sort();
   const expectedTools = Object.keys(EXPECTED_SUBMISSION_TOOLS).sort();
   if (submittedTools.join(",") !== expectedTools.join(",")) {
-    errors.push(`chatgpt-app-submission.json: tools [${submittedTools.join(", ")}] != the eight production meta-tools`);
+    errors.push(`chatgpt-app-submission.json: tools [${submittedTools.join(", ")}] != the ten tools a full-scope production OAuth session exposes`);
   }
   for (const [name, tool] of Object.entries(submission.tools ?? {})) {
     const expected = EXPECTED_SUBMISSION_TOOLS[name];
