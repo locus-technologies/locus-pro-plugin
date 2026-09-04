@@ -57,7 +57,10 @@ Add the MCP server directly in `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "locus": { "url": "https://api.paywithlocus.com/api/credits/mcp" }
+    "locus": {
+      "url": "https://api.paywithlocus.com/api/credits/mcp",
+      "headers": { "X-Source-Name": "cursor-plugin" }
+    }
   }
 }
 ```
@@ -84,7 +87,7 @@ server explicitly:
 
 ```
 openclaw plugins install locus --marketplace locus-technologies/locus-pro-plugin
-openclaw mcp add locus --url https://api.paywithlocus.com/api/credits/mcp --transport streamable-http --auth oauth
+openclaw mcp set locus '{"url":"https://api.paywithlocus.com/api/credits/mcp","transport":"streamable-http","auth":"oauth","headers":{"X-Source-Name":"openclaw-plugin"}}'
 openclaw mcp login locus
 ```
 
@@ -118,9 +121,12 @@ codex mcp add locus --url https://api.paywithlocus.com/api/credits/mcp
 
 ## Data handling
 
-The plugin's MCP configs send one static request header, `X-Source-Name`
-(for example `cursor-plugin`). It identifies the install surface and may be
-used solely for anonymous adoption telemetry. Tool calls carry whatever arguments the
+The plugin-managed MCP configs and the Cursor/OpenClaw examples above send one
+static request header, `X-Source-Name` (for example `cursor-plugin` or
+`open-plugin`). It identifies the configuration format a host selected and may
+be used solely for anonymous adoption telemetry; multi-format hosts can prefer
+the portable Agent Plugins definition. Plain MCP clients that cannot configure
+static headers still work without it. Tool calls carry whatever arguments the
 agent sends to the Locus API, billed to the authenticated workspace; the
 plugin itself stores nothing and never sees credentials or payment details.
 
@@ -146,12 +152,12 @@ in the [dashboard](https://platform.paywithlocus.com).
 | Path | Consumed by |
 | --- | --- |
 | `.claude-plugin/` | Claude Code (plugin + marketplace manifest) |
-| `.codex-plugin/`, `.agents/plugins/` | Codex (plugin + marketplace manifest) |
+| `.codex-plugin/`, `.mcp.json`, `.agents/plugins/` | Native Codex plugin, MCP fallback, and marketplace manifests |
 | `.cursor-plugin/` | Cursor |
 | `.grok-plugin/` | Grok |
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |
 | `agents/<client>/` | Per-client MCP server config |
-| `skills/` | The shared skills (Agent Skills standard): `locus` usage, `locus-setup` onboarding |
+| `skills/` | Shared Agent Skills-format instructions; `metadata.openclaw` is an intentional host extension for credential declarations |
 
 ## Links
 
