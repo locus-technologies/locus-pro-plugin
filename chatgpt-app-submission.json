@@ -4,7 +4,7 @@
   "app_info": {
     "display_name": "Locus",
     "subtitle": "Pay-per-use APIs for agents",
-    "description": "Locus gives an agent one prepaid credit balance for its paid work: cited web research, data and API lookups from a contracted provider catalog, executable cost quotes, and idempotent billing that never double-charges a retry. The agent searches the catalog in plain English, inspects one endpoint's schema and price, optionally locks an exact quote, and executes by slug; every charge returns the exact credits debited and the remaining balance, and workspace owners control spend limits and approvals from the Locus dashboard.",
+    "description": "Locus gives an agent one prepaid credit balance for its paid work: cited web research, data and API lookups from a contracted provider catalog, executable cost quotes, and idempotent billing - a retry that reuses its idempotency key replays the stored outcome instead of charging again. The agent searches the catalog in plain English, inspects one endpoint's schema and price, optionally locks an exact quote, and executes by slug; every charge returns the exact credits debited and the remaining balance, and workspace owners control spend limits and approvals from the Locus dashboard.",
     "category": "PRODUCTIVITY"
   },
   "tools": {
@@ -75,34 +75,34 @@
   },
   "test_cases": [
     {
-      "description": "Discover a capability by outcome: the user asks for an API that can do a job, and the app searches the enabled catalog and returns ranked, priced matches.",
+      "description": "Discover a capability by outcome: the user asks for an API that can do a job, and the app searches the enabled catalog and returns ranked, priced matches. Fixture: the provided demo workspace (funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled) reached through the app's OAuth sign-in with the demo credentials.",
       "user_prompt": "Find me an API through Locus that can answer research questions with cited sources, and tell me what each option costs.",
       "tools_triggered": "search_apis",
-      "expected_output": "A short ranked list of catalog matches (for example exa/answer and brave/answers) with each endpoint's slug, one-line summary, and credit price."
+      "expected_output": "A short ranked list of catalog matches (including exa/answer and brave/answers) with each endpoint's slug, one-line summary, and credit price."
     },
     {
-      "description": "Inspect one endpoint before calling it: the user asks for the input schema and price of a specific slug.",
+      "description": "Inspect one endpoint before calling it: the user asks for the input schema and price of a specific slug. Fixture: the provided demo workspace with exa/answer enabled.",
       "user_prompt": "Show me the input schema, an example call, and the exact price for the exa/answer endpoint on Locus.",
       "tools_triggered": "describe_api",
-      "expected_output": "The endpoint's input schema (a required query string), an example invocation, its output shape, and the fixed price of about 8 credits (~$0.008)."
+      "expected_output": "The endpoint's input schema (a required query string), an example invocation, its output shape, and the fixed price of 8 credits (~$0.008)."
     },
     {
-      "description": "Check remaining prepaid credits: the user asks for the balance before doing paid work.",
+      "description": "Check remaining prepaid credits: the user asks for the balance before doing paid work. Fixture: the provided demo workspace; no charge is made.",
       "user_prompt": "How many Locus credits do I have left on this workspace?",
       "tools_triggered": "get_balance",
       "expected_output": "The current credit balance with its denomination (1 credit = $0.001) and active status, with no charge made."
     },
     {
-      "description": "Quote without spending: the user wants a binding price for a specific call but explicitly does not want it executed; the unused approval is then cancelled.",
-      "user_prompt": "Using Locus, quote exactly what it would cost to ask exa/answer 'what is the x402 payment protocol' - but do not run the call, and release the quote afterwards.",
-      "tools_triggered": "estimate_cost, cancel_cost_approval",
+      "description": "Quote without spending: the user names the endpoint and the exact request body, wants a binding price, explicitly does not want the call executed, and asks for the quote to be released. The app reads the schema, quotes those arguments, and cancels the unused approval. Fixture: the provided demo workspace with exa/answer enabled.",
+      "user_prompt": "On Locus, look up the exa/answer endpoint's schema, then quote exactly what a call with the body {\"query\": \"what is the x402 payment protocol\"} would cost. Do not run it, and cancel the quote when you have the number.",
+      "tools_triggered": "describe_api, estimate_cost, cancel_cost_approval",
       "expected_output": "A binding quote of 8 credits with an approval reference, followed by confirmation the approval was cancelled; the balance is unchanged."
     },
     {
-      "description": "End-to-end paid call: the user asks for a cited answer, and the app executes the catalog endpoint, reports the exact charge, and cites sources.",
-      "user_prompt": "Use Locus to answer with cited sources: what is the x402 payment protocol?",
-      "tools_triggered": "execute",
-      "expected_output": "A synthesized answer with source citations, plus the exact charge (8 credits) and the remaining balance from the response metadata."
+      "description": "End-to-end paid call with an explicit slug and arguments: the user names the endpoint, the app confirms it in the catalog and its price, executes it with the given query, cites the sources, and reports the exact charge and remaining balance. Fixture: the provided demo workspace, funded, with exa/answer enabled.",
+      "user_prompt": "On Locus, find the exa/answer endpoint, confirm its price, then run it with the query \"what is the x402 payment protocol\" and give me the cited answer plus exactly what it charged.",
+      "tools_triggered": "search_apis, describe_api, execute",
+      "expected_output": "A synthesized answer with source citations, the exact charge of 8 credits from the response metadata, and the remaining balance."
     }
   ],
   "negative_test_cases": [

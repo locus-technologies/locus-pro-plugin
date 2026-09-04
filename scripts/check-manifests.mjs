@@ -404,9 +404,49 @@ if (submission) {
   if ((submission.negative_test_cases?.length ?? 0) < 3) {
     errors.push("chatgpt-app-submission.json: at least 3 negative_test_cases required");
   }
+  if ((submission.app_info?.subtitle ?? "").length > 30) {
+    errors.push("chatgpt-app-submission.json: app_info.subtitle exceeds the 30-char schema cap");
+  }
+  if ((submission.app_info?.description ?? "").length > 4000) {
+    errors.push("chatgpt-app-submission.json: app_info.description exceeds the 4000-char schema cap");
+  }
+  // The tool set and every annotation triplet mirror the production MCP
+  // server's declared hints; a server-side hint change must land here too.
+  const EXPECTED_SUBMISSION_TOOLS = {
+    search_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    describe_api: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    list_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    get_balance: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    get_call_result: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    estimate_cost: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
+    cancel_cost_approval: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
+    execute: { readOnlyHint: false, openWorldHint: true, destructiveHint: true },
+  };
+  const submittedTools = Object.keys(submission.tools ?? {}).sort();
+  const expectedTools = Object.keys(EXPECTED_SUBMISSION_TOOLS).sort();
+  if (submittedTools.join(",") !== expectedTools.join(",")) {
+    errors.push(`chatgpt-app-submission.json: tools [${submittedTools.join(", ")}] != the eight production meta-tools`);
+  }
   for (const [name, tool] of Object.entries(submission.tools ?? {})) {
+    const expected = EXPECTED_SUBMISSION_TOOLS[name];
+    for (const hint of ["readOnlyHint", "openWorldHint", "destructiveHint"]) {
+      if (expected && tool?.annotations?.[hint] !== expected[hint]) {
+        errors.push(`chatgpt-app-submission.json: tools.${name}.annotations.${hint} != server-declared ${expected[hint]}`);
+      }
+    }
     for (const key of ["read_only_justification", "open_world_justification", "destructive_justification"]) {
       if (!tool?.justifications?.[key]) errors.push(`chatgpt-app-submission.json: tools.${name} missing ${key}`);
+    }
+  }
+  for (const [index, testCase] of (submission.test_cases ?? []).entries()) {
+    const triggered = (testCase.tools_triggered ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+    if (triggered.length === 0) {
+      errors.push(`chatgpt-app-submission.json: test_cases[${index}] has empty tools_triggered`);
+    }
+    for (const toolName of triggered) {
+      if (!(toolName in EXPECTED_SUBMISSION_TOOLS)) {
+        errors.push(`chatgpt-app-submission.json: test_cases[${index}] triggers unknown tool "${toolName}"`);
+      }
     }
   }
 }
