@@ -375,6 +375,32 @@ for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
   }
 }
 
+// --- OpenAI submission bundle -----------------------------------------------
+// The uploaded chatgpt-app-submission.json must stay parseable, keep its
+// review-facing identity aligned with the Codex manifest, and keep the
+// counts the portal requires (>=5 positive, >=3 negative test cases).
+const submission = json("chatgpt-app-submission.json");
+if (submission) {
+  if (submission.$schema !== "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json" || submission.schema_version !== 1) {
+    errors.push("chatgpt-app-submission.json: wrong $schema or schema_version");
+  }
+  const codexInterface2 = manifests[".codex-plugin/plugin.json"]?.interface;
+  if (codexInterface2 && submission.app_info?.subtitle !== codexInterface2.shortDescription) {
+    errors.push("chatgpt-app-submission.json: app_info.subtitle must equal the Codex manifest shortDescription");
+  }
+  if ((submission.test_cases?.length ?? 0) < 5) {
+    errors.push("chatgpt-app-submission.json: at least 5 positive test_cases required");
+  }
+  if ((submission.negative_test_cases?.length ?? 0) < 3) {
+    errors.push("chatgpt-app-submission.json: at least 3 negative_test_cases required");
+  }
+  for (const [name, tool] of Object.entries(submission.tools ?? {})) {
+    for (const key of ["read_only_justification", "open_world_justification", "destructive_justification"]) {
+      if (!tool?.justifications?.[key]) errors.push(`chatgpt-app-submission.json: tools.${name} missing ${key}`);
+    }
+  }
+}
+
 if (errors.length) {
   console.error(`check-manifests: ${errors.length} problem(s)\n` + errors.map((e) => `  - ${e}`).join("\n"));
   process.exit(1);

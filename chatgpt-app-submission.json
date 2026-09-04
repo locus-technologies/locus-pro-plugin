@@ -1,0 +1,122 @@
+{
+  "$schema": "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json",
+  "schema_version": 1,
+  "app_info": {
+    "display_name": "Locus",
+    "subtitle": "Pay-per-use APIs for agents",
+    "description": "Locus gives an agent one prepaid credit balance for its paid work: cited web research, data and API lookups from a contracted provider catalog, executable cost quotes, and idempotent billing that never double-charges a retry. The agent searches the catalog in plain English, inspects one endpoint's schema and price, optionally locks an exact quote, and executes by slug; every charge returns the exact credits debited and the remaining balance, and workspace owners control spend limits and approvals from the Locus dashboard.",
+    "category": "PRODUCTIVITY"
+  },
+  "tools": {
+    "search_apis": {
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "justifications": {
+        "read_only_justification": "Only queries the enabled catalog index and returns ranked matches with slugs and prices; it cannot execute, enable, or modify anything.",
+        "open_world_justification": "Searches Locus's own catalog index and contacts no external services.",
+        "destructive_justification": "Returns search results only and changes no state."
+      }
+    },
+    "describe_api": {
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "justifications": {
+        "read_only_justification": "Returns one endpoint's input schema, example, output shape, and price without invoking it.",
+        "open_world_justification": "Reads Locus catalog metadata only; no external calls.",
+        "destructive_justification": "Purely informational; changes no state."
+      }
+    },
+    "list_apis": {
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "justifications": {
+        "read_only_justification": "Returns a bounded page of the connection's enabled endpoints without invoking any of them.",
+        "open_world_justification": "Reads the Locus catalog only; no external calls.",
+        "destructive_justification": "Purely informational; changes no state."
+      }
+    },
+    "get_balance": {
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "justifications": {
+        "read_only_justification": "Reads the authenticated connection's remaining credit balance and status.",
+        "open_world_justification": "Reads Locus ledger state only; no external calls.",
+        "destructive_justification": "Reads a balance and changes no state."
+      }
+    },
+    "get_call_result": {
+      "annotations": { "readOnlyHint": true, "openWorldHint": false, "destructiveHint": false },
+      "justifications": {
+        "read_only_justification": "Re-reads a bounded chunk of a previously stored call result by its receipt ID without re-running the call.",
+        "open_world_justification": "Reads stored results from Locus only; no external calls.",
+        "destructive_justification": "Reads a stored result and never creates a new charge."
+      }
+    },
+    "estimate_cost": {
+      "annotations": { "readOnlyHint": false, "openWorldHint": true, "destructiveHint": false },
+      "justifications": {
+        "read_only_justification": "Creates a short-lived executable price approval on the server, so it is not purely a read, but it never charges credits.",
+        "open_world_justification": "May probe a live upstream quote to price a variable-cost endpoint exactly, without paying it.",
+        "destructive_justification": "Never charges or removes anything; an unused approval simply expires."
+      }
+    },
+    "cancel_cost_approval": {
+      "annotations": { "readOnlyHint": false, "openWorldHint": false, "destructiveHint": true },
+      "justifications": {
+        "read_only_justification": "Invalidates a stored price approval, which is a state change rather than a read.",
+        "open_world_justification": "Acts on Locus-stored approvals only; no external calls.",
+        "destructive_justification": "Permanently invalidates the referenced unused approval so it can no longer authorize an execution; no credits are involved."
+      }
+    },
+    "execute": {
+      "annotations": { "readOnlyHint": false, "openWorldHint": true, "destructiveHint": true },
+      "justifications": {
+        "read_only_justification": "Spends prepaid credits and runs the selected endpoint, so it is a billed action rather than a read.",
+        "open_world_justification": "Invokes external provider APIs from the Locus catalog and returns their responses.",
+        "destructive_justification": "Debits credits from the prepaid balance for each non-replayed call; retries with the same idempotency key replay the stored outcome instead of charging again."
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "description": "Discover a capability by outcome: the user asks for an API that can do a job, and the app searches the enabled catalog and returns ranked, priced matches.",
+      "user_prompt": "Find me an API through Locus that can answer research questions with cited sources, and tell me what each option costs.",
+      "tools_triggered": "search_apis",
+      "expected_output": "A short ranked list of catalog matches (for example exa/answer and brave/answers) with each endpoint's slug, one-line summary, and credit price."
+    },
+    {
+      "description": "Inspect one endpoint before calling it: the user asks for the input schema and price of a specific slug.",
+      "user_prompt": "Show me the input schema, an example call, and the exact price for the exa/answer endpoint on Locus.",
+      "tools_triggered": "describe_api",
+      "expected_output": "The endpoint's input schema (a required query string), an example invocation, its output shape, and the fixed price of about 8 credits (~$0.008)."
+    },
+    {
+      "description": "Check remaining prepaid credits: the user asks for the balance before doing paid work.",
+      "user_prompt": "How many Locus credits do I have left on this workspace?",
+      "tools_triggered": "get_balance",
+      "expected_output": "The current credit balance with its denomination (1 credit = $0.001) and active status, with no charge made."
+    },
+    {
+      "description": "Quote without spending: the user wants a binding price for a specific call but explicitly does not want it executed; the unused approval is then cancelled.",
+      "user_prompt": "Using Locus, quote exactly what it would cost to ask exa/answer 'what is the x402 payment protocol' - but do not run the call, and release the quote afterwards.",
+      "tools_triggered": "estimate_cost, cancel_cost_approval",
+      "expected_output": "A binding quote of 8 credits with an approval reference, followed by confirmation the approval was cancelled; the balance is unchanged."
+    },
+    {
+      "description": "End-to-end paid call: the user asks for a cited answer, and the app executes the catalog endpoint, reports the exact charge, and cites sources.",
+      "user_prompt": "Use Locus to answer with cited sources: what is the x402 payment protocol?",
+      "tools_triggered": "execute",
+      "expected_output": "A synthesized answer with source citations, plus the exact charge (8 credits) and the remaining balance from the response metadata."
+    }
+  ],
+  "negative_test_cases": [
+    {
+      "description": "A documentation question about the app itself should be answered from knowledge, not by invoking catalog tools or spending credits.",
+      "user_prompt": "Explain how the Locus app works and what its tools are for."
+    },
+    {
+      "description": "Account administration is not exposed through these tools; the app should direct the user to the Locus dashboard instead of attempting it.",
+      "user_prompt": "Change my Locus account password and update the billing email on my workspace."
+    },
+    {
+      "description": "Purchasing credits is not available through the app; the app should decline and point to the workspace dashboard rather than initiate any purchase or checkout flow.",
+      "user_prompt": "Buy $50 of Locus credits for me right now."
+    }
+  ]
+}
