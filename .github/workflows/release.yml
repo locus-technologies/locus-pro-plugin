@@ -14,10 +14,11 @@ jobs:
     # The GitHub Enterprise policy for this org forbids Actions from creating
     # or approving pull requests, so release-please cannot open its release
     # PR and every run fails (the API toggle returns 409 "Write permissions
-    # for workflows are disabled by the enterprise"). Until an owner either
-    # relaxes that enterprise setting or provisions a RELEASE_PLEASE_TOKEN
-    # PAT and flips the RELEASE_PLEASE_ENABLED repository variable to
-    # "true", releases are cut manually:
+    # for workflows are disabled by the enterprise"). To re-enable, first fix
+    # credentials - either relax that enterprise setting or provision a
+    # RELEASE_PLEASE_TOKEN PAT - and then, in both cases, set the
+    # RELEASE_PLEASE_ENABLED repository variable to "true". Until then,
+    # releases are cut manually:
     #
     #   1. Bump the version in all five plugin manifests, version.txt,
     #      .release-please-manifest.json, and server.json (check-manifests
