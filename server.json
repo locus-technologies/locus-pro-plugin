@@ -3,7 +3,7 @@
   "name": "com.paywithlocus/locus",
   "title": "Locus",
   "description": "Pay-per-use APIs for agents: web research, data lookups, and metered endpoints billed to credits.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "websiteUrl": "https://paywithlocus.com",
   "repository": {
     "url": "https://github.com/locus-technologies/locus-pro-plugin",

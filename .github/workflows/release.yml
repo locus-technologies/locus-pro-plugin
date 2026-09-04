@@ -11,10 +11,28 @@ permissions:
 
 jobs:
   release-please:
+    # The GitHub Enterprise policy for this org forbids Actions from creating
+    # or approving pull requests, so release-please cannot open its release
+    # PR and every run fails (the API toggle returns 409 "Write permissions
+    # for workflows are disabled by the enterprise"). To re-enable, first fix
+    # credentials - either relax that enterprise setting or provision a
+    # RELEASE_PLEASE_TOKEN PAT - and then, in both cases, set the
+    # RELEASE_PLEASE_ENABLED repository variable to "true". Until then,
+    # releases are cut manually:
+    #
+    #   1. Bump the version in all five plugin manifests, version.txt,
+    #      .release-please-manifest.json, and server.json (check-manifests
+    #      enforces lockstep), and add the CHANGELOG entry.
+    #   2. Tag: gh release create v<version> --target <merge SHA>.
+    #   3. Rebuild the locus-setup archive (SKILL.md at the zip root plus
+    #      every file under references/), attach it to the release, and
+    #      update the landing well-known digests in the AgentPay repo.
+    if: ${{ vars.RELEASE_PLEASE_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Run release-please
         uses: googleapis/release-please-action@v4
         with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json

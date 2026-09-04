@@ -82,18 +82,18 @@ server's OAuth automatically and opens the browser flow on first use.
 
 ### OpenClaw
 
-Install the plugin from this repo as a marketplace source, then add the MCP
-server explicitly:
+Install the plugin from this repo as a marketplace source; the bundle
+already maps the MCP server, so no manual server configuration is needed:
 
 ```
 openclaw plugins install locus --marketplace locus-technologies/locus-pro-plugin
-openclaw mcp set locus '{"url":"https://api.paywithlocus.com/api/credits/mcp","transport":"streamable-http","auth":"oauth","headers":{"X-Source-Name":"openclaw-plugin"}}'
+openclaw gateway restart
 openclaw mcp login locus
 ```
 
 A new marketplace source triggers a one-time trust prompt (pass `--force`
-for non-interactive installs), and `openclaw gateway restart` applies
-plugin changes.
+for non-interactive installs), and the gateway restart applies plugin
+changes.
 
 ### Skill only (77+ agents)
 
@@ -142,7 +142,8 @@ configuration; those are server-side service credentials.
 
 Paid provider calls are live and billed to your workspace credit balance;
 catalog discovery, quotes, and balance checks are free. The skill instructs
-agents to pass idempotency keys so retries never double-charge, to quote
+agents to pass idempotency keys so a retry reusing its key never
+double-charges, to quote
 significant calls with `estimate_cost` first, and to confirm with you before
 unusually large spends. Spend limits and approvals are configured per workspace
 in the [dashboard](https://platform.paywithlocus.com).

@@ -385,6 +385,75 @@ for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
   }
 }
 
+// --- OpenAI submission bundle -----------------------------------------------
+// The uploaded chatgpt-app-submission.json must stay parseable, keep its
+// review-facing identity aligned with the Codex manifest, and keep the
+// counts the portal requires (>=5 positive, >=3 negative test cases).
+const submission = json("chatgpt-app-submission.json");
+if (submission) {
+  if (submission.$schema !== "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json" || submission.schema_version !== 1) {
+    errors.push("chatgpt-app-submission.json: wrong $schema or schema_version");
+  }
+  const codexInterface2 = manifests[".codex-plugin/plugin.json"]?.interface;
+  if (codexInterface2 && submission.app_info?.subtitle !== codexInterface2.shortDescription) {
+    errors.push("chatgpt-app-submission.json: app_info.subtitle must equal the Codex manifest shortDescription");
+  }
+  if ((submission.test_cases?.length ?? 0) < 5) {
+    errors.push("chatgpt-app-submission.json: at least 5 positive test_cases required");
+  }
+  if ((submission.negative_test_cases?.length ?? 0) < 3) {
+    errors.push("chatgpt-app-submission.json: at least 3 negative_test_cases required");
+  }
+  if ((submission.app_info?.subtitle ?? "").length > 30) {
+    errors.push("chatgpt-app-submission.json: app_info.subtitle exceeds the 30-char schema cap");
+  }
+  if ((submission.app_info?.description ?? "").length > 4000) {
+    errors.push("chatgpt-app-submission.json: app_info.description exceeds the 4000-char schema cap");
+  }
+  // The tool set and every annotation triplet mirror what a full-scope
+  // production OAuth session exposes (eight meta-tools plus the enabled
+  // capability tools); a server-side change must land here too.
+  const EXPECTED_SUBMISSION_TOOLS = {
+    search_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    describe_api: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    list_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    get_balance: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    get_call_result: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    estimate_cost: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
+    cancel_cost_approval: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
+    execute: { readOnlyHint: false, openWorldHint: true, destructiveHint: true },
+    router_web_search: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
+    web_research: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
+  };
+  const submittedTools = Object.keys(submission.tools ?? {}).sort();
+  const expectedTools = Object.keys(EXPECTED_SUBMISSION_TOOLS).sort();
+  if (submittedTools.join(",") !== expectedTools.join(",")) {
+    errors.push(`chatgpt-app-submission.json: tools [${submittedTools.join(", ")}] != the ten tools a full-scope production OAuth session exposes`);
+  }
+  for (const [name, tool] of Object.entries(submission.tools ?? {})) {
+    const expected = EXPECTED_SUBMISSION_TOOLS[name];
+    for (const hint of ["readOnlyHint", "openWorldHint", "destructiveHint"]) {
+      if (expected && tool?.annotations?.[hint] !== expected[hint]) {
+        errors.push(`chatgpt-app-submission.json: tools.${name}.annotations.${hint} != server-declared ${expected[hint]}`);
+      }
+    }
+    for (const key of ["read_only_justification", "open_world_justification", "destructive_justification"]) {
+      if (!tool?.justifications?.[key]) errors.push(`chatgpt-app-submission.json: tools.${name} missing ${key}`);
+    }
+  }
+  for (const [index, testCase] of (submission.test_cases ?? []).entries()) {
+    const triggered = (testCase.tools_triggered ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+    if (triggered.length === 0) {
+      errors.push(`chatgpt-app-submission.json: test_cases[${index}] has empty tools_triggered`);
+    }
+    for (const toolName of triggered) {
+      if (!(toolName in EXPECTED_SUBMISSION_TOOLS)) {
+        errors.push(`chatgpt-app-submission.json: test_cases[${index}] triggers unknown tool "${toolName}"`);
+      }
+    }
+  }
+}
+
 if (errors.length) {
   console.error(`check-manifests: ${errors.length} problem(s)\n` + errors.map((e) => `  - ${e}`).join("\n"));
   process.exit(1);
