@@ -51,8 +51,9 @@ const resource = await resourceResponse.json();
 check(resource.resource === MCP_URL, "Protected-resource metadata identifies the wrong MCP URL");
 check(
   Array.isArray(resource.authorization_servers) &&
-    resource.authorization_servers.includes(AUTH_ISSUER),
-  "Protected-resource metadata omitted the production authorization issuer",
+    resource.authorization_servers.length === 1 &&
+    resource.authorization_servers[0] === AUTH_ISSUER,
+  "Protected-resource metadata did not identify exactly the production authorization issuer",
 );
 
 const authResponse = await get(AUTH_METADATA_URL);
