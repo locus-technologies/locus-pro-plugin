@@ -4,7 +4,7 @@ description: Pay-per-use APIs through the Locus MCP server. Cited web research, 
 license: MIT
 metadata:
   author: locus
-  version: "1.0.1"
+  version: "1.0.2"
   openclaw:
     homepage: https://docs.paywithlocus.com
 ---
@@ -13,7 +13,8 @@ metadata:
 
 Locus is pay-per-use API infrastructure. One MCP server fronts thousands of
 provider endpoints (search, enrichment, scraping, finance and market data,
-and more) behind eight compact tools. Paid provider calls bill the
+and more) behind a compact set of meta-tools, plus capability tools such as
+`web_research` on connections that enable them. Paid provider calls bill the
 workspace's single prepaid credit balance; discovery, quotes, and balance
 checks are free. No per-provider accounts, no per-provider keys.
 
@@ -175,10 +176,11 @@ workspace balance and user-configured spend controls are enforced
 server-side, and the user — never this skill — approves funding, limit
 changes, and any unusual spend.
 
-- Spend only in service of what the user asked for. If the task was not
-  explicitly about paid lookups, say that a call is billable before making
-  the first one.
-- Confirm with the user before an unusually large spend: a call priced far
+- Spend only in service of what the user asked for. If the task did not
+  explicitly authorize a billed Locus call, call `estimate_cost`, show the
+  maximum charge, and get the user's confirmation before the first billed
+  execution.
+- Confirm with the user before any unusually large spend: a call priced far
   above the session's typical cost, a large batch, or anything consuming a
   big share of the balance. Quote it with `estimate_cost` and show the
   number first.
