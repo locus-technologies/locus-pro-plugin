@@ -392,7 +392,7 @@ for (const path of skillFiles.filter((p) => p.includes("/references/"))) {
 // counts the portal requires (>=5 positive, >=3 negative test cases).
 const submission = json("chatgpt-app-submission.json");
 if (submission) {
-  if (submission.$schema !== "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json" || submission.schema_version !== 1) {
+  if (submission.$schema !== "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json" || submission.schema_version !== 1) {
     errors.push("chatgpt-app-submission.json: wrong $schema or schema_version");
   }
   const codexInterface2 = manifests[".codex-plugin/plugin.json"]?.interface;
