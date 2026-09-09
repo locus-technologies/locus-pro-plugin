@@ -54,14 +54,10 @@ const manifestVersion = [...versions][0];
 if (versions.size > 1) errors.push(`plugin manifests disagree on version: ${[...versions].join(", ")}`);
 
 if (!manifestVersion) errors.push("no plugin manifest carries a version");
-for (const [path, expected] of [
-  ["version.txt", read("version.txt").trim()],
-  [".release-please-manifest.json", json(".release-please-manifest.json")?.["."]],
-]) {
-  if (!expected) errors.push(`${path}: missing version entry`);
-  else if (manifestVersion && expected !== manifestVersion) {
-    errors.push(`${path}: version ${expected} != manifest version ${manifestVersion}`);
-  }
+const canonicalVersion = read("version.txt").trim();
+if (!canonicalVersion) errors.push("version.txt: missing version entry");
+else if (manifestVersion && canonicalVersion !== manifestVersion) {
+  errors.push(`version.txt: version ${canonicalVersion} != manifest version ${manifestVersion}`);
 }
 
 // --- MCP configs: same server key, same URL, expected attribution header ----
@@ -105,7 +101,7 @@ if (openPluginMcp && openPluginMcp.$schema !== "https://agent-plugins.org/schema
 }
 
 // MCP Registry manifest: the registry pins immutable versions, so this file
-// must move in lockstep with the plugin manifests (release-please bumps it).
+// must move in lockstep with the plugin manifests (version.mjs enforces it).
 const registryServer = json("server.json");
 if (registryServer) {
   if (registryServer.name !== "com.paywithlocus/locus") {

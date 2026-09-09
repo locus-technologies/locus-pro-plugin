@@ -183,6 +183,21 @@ in the [dashboard](https://platform.paywithlocus.com).
 | `agents/<client>/` | Per-client MCP server config |
 | `skills/` | Shared Agent Skills-format instructions; `metadata.openclaw` is an intentional host extension for credential declarations |
 
+## Development and releases
+
+Changes merge into `stage`. Before promotion, a maintainer explicitly chooses
+one semantic version for every host manifest and writes its changelog entry;
+CI checks that coordinated version but never updates it. A validated `stage`
+to `main` promotion creates the immutable GitHub release, checksummed plugin
+and skill archives, the Agent Skills discovery payload, and the matching MCP
+Registry version. Public directories that require vendor review (OpenAI and
+Cursor) are submitted through their review portals after that release.
+
+See [AGENTS.md](./AGENTS.md) for the branch policy, required checks, release
+prerequisites, and isolated local testing instructions for production and the
+stage MCP environment across Claude Code, Codex, Cursor, Grok, OpenClaw,
+Agent Plugins, Agent Skills, and ChatGPT.
+
 ## Links
 
 - Docs: https://docs.paywithlocus.com
