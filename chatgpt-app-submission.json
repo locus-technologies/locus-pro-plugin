@@ -32,6 +32,18 @@
         "destructive_justification": "Purely informational; changes no state."
       }
     },
+    "pin_endpoint": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Adds or removes the selected endpoint as a typed tool on the authenticated workspace, so it changes a workspace preference.",
+        "open_world_justification": "Updates only private Locus workspace configuration and does not publish to or modify an external third-party system.",
+        "destructive_justification": "Changes a reversible pin preference without deleting data, executing the endpoint, or charging credits."
+      }
+    },
     "list_apis": {
       "annotations": {
         "readOnlyHint": true,
@@ -103,51 +115,27 @@
         "open_world_justification": "Invokes external provider APIs from the Locus catalog and returns their responses.",
         "destructive_justification": "Debits credits from the prepaid balance for each non-replayed call; retries with the same idempotency key replay the stored outcome instead of charging again."
       }
-    },
-    "router_web_search": {
-      "annotations": {
-        "readOnlyHint": false,
-        "openWorldHint": true,
-        "destructiveHint": false
-      },
-      "justifications": {
-        "read_only_justification": "Runs a billed multi-provider web search, so it is a paid action rather than a read.",
-        "open_world_justification": "Dispatches to external search providers from the Locus catalog and returns normalized results.",
-        "destructive_justification": "Retrieves search results and bills credits for them; it modifies or deletes nothing."
-      }
-    },
-    "web_research": {
-      "annotations": {
-        "readOnlyHint": false,
-        "openWorldHint": true,
-        "destructiveHint": false
-      },
-      "justifications": {
-        "read_only_justification": "Runs a billed research workflow that may execute catalog capabilities, so it is a paid action rather than a read.",
-        "open_world_justification": "Selects and calls external catalog capabilities to produce a cited answer.",
-        "destructive_justification": "Produces research output and bills credits for the underlying calls; it modifies or deletes nothing."
-      }
     }
   },
   "test_cases": [
     {
-      "description": "Discover a capability by outcome: the user asks for an API that can do a job, and the app searches the enabled catalog and returns ranked, priced matches. Fixture: the provided demo workspace reached through the app's OAuth sign-in with the demo credentials - funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled, capability routing on.",
-      "user_prompt": "Find me an API through Locus that can answer research questions with cited sources, and tell me what each option costs.",
+      "description": "Discover a capability by outcome: the user asks for research or search APIs, and the app searches the enabled catalog and returns ranked, priced matches. Fixture: the dedicated sample-only Locus Review workspace reached through the supplied OAuth credentials; pre-funded balance, 1 credit = $0.001, and these enabled slugs: brave/answers, x402-api-exa-ai-search/call, x402-api-exa-ai-contents/call.",
+      "user_prompt": "Find the enabled APIs through Locus that can answer research questions or search the web. Return exact slugs and current prices. Do not execute any paid tool.",
       "file_attachment_urls": null,
       "tools_triggered": "search_apis",
-      "expected_output": "A short ranked list of catalog matches (including exa/answer and brave/answers) with each endpoint's slug, one-line summary, and credit price.",
+      "expected_output": "A short ranked list containing the enabled research and search matches, including brave/answers, x402-api-exa-ai-search/call, and x402-api-exa-ai-contents/call, with exact slugs, summaries, and current catalog prices; no charge is made.",
       "expected_output_url": null
     },
     {
-      "description": "Inspect one endpoint before calling it: the user asks for the input schema and price of a specific slug. Fixture: the provided demo workspace reached through the app's OAuth sign-in with the demo credentials - funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled, capability routing on.",
-      "user_prompt": "Show me the input schema, an example call, and the exact price for the exa/answer endpoint on Locus.",
+      "description": "Inspect one live endpoint before calling it: the user asks for the exact input schema and current price of brave/answers. Fixture: the dedicated sample-only Locus Review workspace with brave/answers enabled and a funded prepaid balance.",
+      "user_prompt": "Show me the input schema, an example call, and the current exact price for brave/answers on Locus. Do not execute it.",
       "file_attachment_urls": null,
       "tools_triggered": "describe_api",
-      "expected_output": "The endpoint's input schema (a required query string), an example invocation, its output shape, and the fixed price of 8 credits (~$0.008).",
+      "expected_output": "The live brave/answers schema: required messages array of {role, content} objects; optional model, stream, and max_completion_tokens fields; an example invocation; output information; and the current fixed catalog price (96 credits / $0.096 at submission). No charge is made.",
       "expected_output_url": null
     },
     {
-      "description": "Check remaining prepaid credits: the user asks for the balance before doing paid work. Fixture: the provided demo workspace reached through the app's OAuth sign-in with the demo credentials - funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled, capability routing on.",
+      "description": "Check remaining prepaid credits before paid work. Fixture: the dedicated sample-only Locus Review workspace, pre-funded with 25,000 credits and holding 24,904 credits after one verified 96-credit test call at submission; 1 credit = $0.001.",
       "user_prompt": "How many Locus credits do I have left on this workspace?",
       "file_attachment_urls": null,
       "tools_triggered": "get_balance",
@@ -155,19 +143,19 @@
       "expected_output_url": null
     },
     {
-      "description": "Quote without spending: the user names the endpoint and the exact request body, wants a binding price, explicitly does not want the call executed, and asks for the quote to be released. The app reads the schema, quotes those arguments, and cancels the unused approval. Fixture: the provided demo workspace reached through the app's OAuth sign-in with the demo credentials - funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled, capability routing on.",
-      "user_prompt": "On Locus, look up the exa/answer endpoint's schema, then quote exactly what a call with the body {\"query\": \"what is the x402 payment protocol\"} would cost. Do not run it, and cancel the quote when you have the number.",
+      "description": "Quote without spending: the user supplies the exact brave/answers body, requests a binding price, explicitly forbids execution, and asks the app to cancel the unused approval. Fixture: the dedicated funded Locus Review workspace with brave/answers enabled.",
+      "user_prompt": "On Locus, describe brave/answers, then quote exactly what a call with the body {\"messages\":[{\"role\":\"user\",\"content\":\"What is the x402 payment protocol?\"}]} would cost. Do not run it, and cancel the quote after reporting it.",
       "file_attachment_urls": null,
       "tools_triggered": "describe_api, estimate_cost, cancel_cost_approval",
-      "expected_output": "A binding quote of 8 credits with an approval reference, followed by confirmation the approval was cancelled; the balance is unchanged.",
+      "expected_output": "A binding quote equal to the endpoint's current catalog price (96 credits / $0.096 at submission), with an approval reference, followed by confirmation that the approval was cancelled; the credit balance is unchanged.",
       "expected_output_url": null
     },
     {
-      "description": "End-to-end paid call with an explicit slug and arguments: the user names the endpoint, the app confirms it in the catalog and its price, executes it with the given query, cites the sources, and reports the exact charge and remaining balance. Fixture: the provided demo workspace reached through the app's OAuth sign-in with the demo credentials - funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled, capability routing on.",
-      "user_prompt": "On Locus, find the exa/answer endpoint, confirm its price, then run it with the query \"what is the x402 payment protocol\" and give me the cited answer plus exactly what it charged.",
+      "description": "End-to-end paid call using the live brave/answers endpoint: the app confirms the schema and price, executes one request, reports the answer, exact charge, and remaining balance, and includes source URLs only if the upstream response actually returns them. Fixture: dedicated funded Locus Review workspace with brave/answers enabled.",
+      "user_prompt": "Using Locus, first describe brave/answers and confirm its current price and schema, then execute it for the query \"What is the x402 payment protocol?\" using the required messages format. Return any citations actually supplied, the exact credits charged, and the remaining balance.",
       "file_attachment_urls": null,
-      "tools_triggered": "search_apis, describe_api, execute",
-      "expected_output": "A synthesized answer with source citations, the exact charge of 8 credits from the response metadata, and the remaining balance.",
+      "tools_triggered": "describe_api, execute, get_balance",
+      "expected_output": "A substantive answer from brave/answers; any citations actually present in the upstream response, without inventing missing sources; the exact live charge from response metadata (96 credits / $0.096 at submission); and the remaining Locus balance. This exact flow was verified successfully before submission.",
       "expected_output_url": null
     }
   ],
