@@ -3,3 +3,4 @@ node_modules/
 .context/
 .idea/
 .vscode/
+dist/

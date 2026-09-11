@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+      - stage
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,6 +18,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -36,7 +40,51 @@ jobs:
           "$RUNNER_TEMP/skills-ref/bin/skills-ref" validate skills/locus-setup
 
       - name: Check manifest consistency
-        run: node scripts/check-manifests.mjs
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          node scripts/version.mjs check
+          node scripts/check-manifests.mjs
+          if [[ "$BASE_BRANCH" == "main" ]]; then
+            test "$HEAD_BRANCH" = "stage" || {
+              echo "Only the stage branch may be promoted to main." >&2
+              exit 1
+            }
+            node scripts/version.mjs release-check
+          fi
+
+      - name: Verify release packaging
+        run: |
+          node scripts/build-release.mjs "$RUNNER_TEMP/release"
+          for archive in "$RUNNER_TEMP"/release/*.zip; do unzip -t "$archive" >/dev/null; done
+          (cd "$RUNNER_TEMP/release" && sha256sum --check CHECKSUMS.sha256)
+
+      - name: Verify isolated stage fixture
+        run: |
+          node scripts/build-test-fixture.mjs \
+            --environment stage \
+            --output "$RUNNER_TEMP/locus-stage"
+          # shellcheck disable=SC2016
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            for (const path of process.argv.slice(1)) {
+              const value = JSON.parse(readFileSync(path, "utf8"));
+              const serialized = JSON.stringify(value);
+              if (!serialized.includes("https://api.stage.paywithlocus.com/api/credits/mcp")) {
+                throw new Error(`${path} does not contain the stage MCP endpoint`);
+              }
+              if (serialized.includes("https://api.paywithlocus.com/api/credits/mcp")) {
+                throw new Error(`${path} still contains the production MCP endpoint`);
+              }
+            }
+          ' \
+            "$RUNNER_TEMP/locus-stage/.mcp.json" \
+            "$RUNNER_TEMP/locus-stage/mcp.json" \
+            "$RUNNER_TEMP/locus-stage/agents/claude/.mcp.json" \
+            "$RUNNER_TEMP/locus-stage/agents/codex/.mcp.json" \
+            "$RUNNER_TEMP/locus-stage/agents/cursor/mcp.json" \
+            "$RUNNER_TEMP/locus-stage/agents/grok/mcp.json"
 
       - name: Smoke-test Codex marketplace installation
         env:
@@ -47,6 +95,7 @@ jobs:
           npx -y @openai/codex@0.147.0 plugin add locus@locus --json
           npx -y @openai/codex@0.147.0 plugin list --json
           npx -y @openai/codex@0.147.0 mcp list --json > "$RUNNER_TEMP/codex-mcp.json"
+          # shellcheck disable=SC2016
           node --input-type=module -e '
             import { readFileSync } from "node:fs";
             const servers = JSON.parse(readFileSync(process.argv[1], "utf8"));
@@ -74,6 +123,7 @@ jobs:
           npx -y @openai/codex@0.147.0 plugin marketplace add "$CODEX_FIXTURE" --json
           npx -y @openai/codex@0.147.0 plugin add locus@locus --json
           npx -y @openai/codex@0.147.0 mcp list --json > "$RUNNER_TEMP/codex-native-mcp.json"
+          # shellcheck disable=SC2016
           node --input-type=module -e '
             import { readFileSync } from "node:fs";
             const servers = JSON.parse(readFileSync(process.argv[1], "utf8"));
