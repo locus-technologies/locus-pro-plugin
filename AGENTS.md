@@ -57,7 +57,7 @@ npx -y @anthropic-ai/claude-code@2.1.259 plugin validate .claude-plugin/marketpl
 node scripts/smoke-production.mjs
 ```
 
-Validate both portable skills with the pinned reference implementation used
+Validate all portable skills with the pinned reference implementation used
 in CI:
 
 ```bash
@@ -67,6 +67,7 @@ python3 -m venv "$LOCUS_SKILLS_VENV"
   'git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref'
 "$LOCUS_SKILLS_VENV/bin/skills-ref" validate skills/locus
 "$LOCUS_SKILLS_VENV/bin/skills-ref" validate skills/locus-setup
+"$LOCUS_SKILLS_VENV/bin/skills-ref" validate skills/locus-workflows
 ```
 
 If Grok is installed, also run:

@@ -4,7 +4,7 @@ description: Create and fund a Locus workspace from an agent. Signup (human or a
 license: MIT
 metadata:
   author: locus
-  version: "1.0.1"
+  version: "1.1.0"
   openclaw:
     homepage: https://docs.paywithlocus.com
     primaryEnv: LOCUS_AGENT_CREDENTIAL
@@ -35,6 +35,11 @@ user signs in through the OAuth page and manages capabilities and funding in
 their dashboard.
 
 All endpoints below are production.
+
+Before changing host configuration, read the bundled
+[host adapter and readiness guide](./references/host-adapters.md). Reuse a
+healthy existing connection and report connection, guide activation, restart,
+and hosted Workflow readiness separately.
 
 ## Safety rules
 

@@ -23,6 +23,9 @@ Codex, Cursor, Grok, OpenClaw, and any client that speaks the
   (human sign-up through the OAuth page, or agent-owned accounts via
   AgentID), capability selection, and a user-requested Stripe funding
   handoff — so the whole product works from inside the plugin.
+- **The `locus-workflows` skill**: safe hosted Workflow authoring, fixtures,
+  bounded pilots, immutable versions, and durable run recovery through the
+  same authorized connection.
 
 No account yet? The OAuth sign-in page includes account creation, and the
 setup skill walks agents through the rest: [platform.paywithlocus.com](https://platform.paywithlocus.com).
@@ -101,7 +104,7 @@ changes.
 npx skills add locus-technologies/locus-pro-plugin
 ```
 
-Discovers both Locus skills (usage and setup) and installs your selection
+Discovers the Locus usage, setup, and Workflow skills and installs your selection
 into whichever agents you have. The skills include the connection
 instructions; add the MCP server in your client's settings to make the
 tools available.
@@ -118,6 +121,27 @@ npx plugins add locus-technologies/locus-pro-plugin
 claude mcp add --transport http locus https://api.paywithlocus.com/api/credits/mcp
 codex mcp add locus --url https://api.paywithlocus.com/api/credits/mcp
 ```
+
+### One-URL bootstrap and remote guides
+
+Ask a capable agent to read `https://paywithlocus.com/skill.md` and set up
+Locus. The bootstrap probes the actual host, preserves a healthy existing
+connection, selects a supported adapter, and reports any browser consent,
+restart, or runtime limitation still outstanding.
+
+An MCP-only host does not need persistent files. After connecting, it can call
+`get_locus_guide` to retrieve the same versioned skill and reference content
+published in this repository. The public guide manifest is served from the
+Locus API; customer-owned Workflow source and invocation guides remain private
+account artifacts and never enter that public bundle.
+
+Hosted Workflow tools are advertised only when the backend capability is live
+and the current connection can execute. A Workflow run is a constrained child
+of that existing connection, not a second registered agent. The first runtime
+supports approved TypeScript, Locus read/compute bindings, bounded concurrency,
+fixtures, pilots, durable inspection, cancellation, and resume; arbitrary npm
+dependencies, external connector credentials, scheduling, and publication are
+not implied.
 
 ## Data handling
 
