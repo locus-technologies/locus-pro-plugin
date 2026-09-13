@@ -20,6 +20,30 @@
         "destructive_justification": "Returns search results only and changes no state."
       }
     },
+    "list_tool_groups": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Returns only categories and curated packs already executable for the authenticated connection; it cannot enable tools or change permissions.",
+        "open_world_justification": "Reads the scoped Locus catalog registry only and contacts no external provider.",
+        "destructive_justification": "Returns discovery metadata only and changes no state."
+      }
+    },
+    "get_locus_guide": {
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Returns immutable public Locus guidance and supporting resource identifiers without changing account state.",
+        "open_world_justification": "Reads only the deployed Locus guide bundle and contacts no provider.",
+        "destructive_justification": "Guide retrieval is read-only and cannot install software, authorize spend, or publish customer content."
+      }
+    },
     "describe_api": {
       "annotations": {
         "readOnlyHint": true,
@@ -104,6 +128,54 @@
         "destructive_justification": "Debits credits from the prepaid balance for each non-replayed call; retries with the same idempotency key replay the stored outcome instead of charging again."
       }
     },
+    "workflow_definition": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Creates or revises tenant-private Workflow drafts and saves checked immutable versions, so the combined action tool can change Locus state.",
+        "open_world_justification": "Stores and reads Workflow source inside Locus only and does not contact external providers.",
+        "destructive_justification": "Draft revisions and immutable saves do not delete external data, spend credits, publish, or schedule execution."
+      }
+    },
+    "workflow_validate": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": false
+      },
+      "justifications": {
+        "read_only_justification": "Persists validation evidence and may start an isolated fixture sandbox, so it is not a pure read.",
+        "open_world_justification": "Structural checks do not execute code; fixture mode blocks outbound network and carries no live provider authority.",
+        "destructive_justification": "Validation records evidence only and cannot dispatch a paid provider call or modify external data."
+      }
+    },
+    "workflow_run": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": true,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "Queues a hosted Workflow that can perform multiple billed Locus calls under a hard run ceiling.",
+        "open_world_justification": "The isolated run may invoke only its saved, currently authorized external Locus bindings through the execution gateway.",
+        "destructive_justification": "A new run can debit prepaid credits; a replayed idempotency key returns the existing run instead of starting another."
+      }
+    },
+    "workflow_runs": {
+      "annotations": {
+        "readOnlyHint": false,
+        "openWorldHint": false,
+        "destructiveHint": true
+      },
+      "justifications": {
+        "read_only_justification": "The combined action tool can inspect, cancel, or resume a durable run, so it is not always read-only.",
+        "open_world_justification": "Run control reads and changes Locus control-plane state; provider calls happen only inside a separately authorized run.",
+        "destructive_justification": "Cancel permanently blocks new dispatch for the current attempt, while resume can continue eligible unfinished work and spend the remaining authorized budget."
+      }
+    },
     "router_web_search": {
       "annotations": {
         "readOnlyHint": false,
@@ -168,6 +240,14 @@
       "file_attachment_urls": null,
       "tools_triggered": "search_apis, describe_api, execute",
       "expected_output": "A synthesized answer with source citations, the exact charge of 8 credits from the response metadata, and the remaining balance.",
+      "expected_output_url": null
+    },
+    {
+      "description": "Create a repeatable process without local files: the execute-capable staging connection exposes hosted Workflows and deterministic fixtures for the approved demo capability.",
+      "user_prompt": "Using Locus, turn a two-company research task into a reusable Workflow, check it, test fixtures, save version 1, and queue a pilot capped at 20 credits. Do not schedule or publish it.",
+      "file_attachment_urls": null,
+      "tools_triggered": "get_locus_guide, search_apis, describe_api, workflow_definition, workflow_validate, workflow_run, workflow_runs",
+      "expected_output": "A tenant-private checked Workflow version and bounded pilot run ID, followed by durable status, exact charge/receipt evidence, and no new agent connection, schedule, or publication.",
       "expected_output_url": null
     }
   ],

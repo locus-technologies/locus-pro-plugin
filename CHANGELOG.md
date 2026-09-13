@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0 (2026-09-11)
+
+- Added provider-agnostic category and curated-pack discovery, including live
+  group lookup, scoped pagination, and remote guide retrieval.
+- Added the `locus-workflows` skill and a fixed-runtime TypeScript template for
+  checked, fixture-tested, budget-bounded hosted Workflows with durable run
+  inspection, cancellation, and resume guidance.
+- Added one canonical versioned guide registry and generated JSON/Markdown
+  bundle metadata so agents without persistent files can retrieve the same
+  reviewed instructions served by native plugin packages.
+- Extended manifest, release, and ChatGPT submission checks for the new guide
+  and conditional hosted-Workflow tools.
+
 ## 0.2.1 (2026-09-04)
 
 - Grok manifest precedence fixed: the root `.mcp.json` (the file Grok

@@ -18,6 +18,7 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildGuideBundle } from "./build-guide-bundle.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputDirectory = resolve(process.argv[2] ?? join(root, "dist"));
@@ -105,12 +106,19 @@ try {
   for (const path of pluginPaths) copyPath(path, pluginStage);
   artifacts.push(createZip(pluginStage, `locus-plugin-v${version}.zip`));
 
-  for (const skill of ["locus", "locus-setup"]) {
+  const skills = readdirSync(join(root, "skills"), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && existsSync(join(root, "skills", entry.name, "SKILL.md")))
+    .map((entry) => entry.name)
+    .sort();
+  for (const skill of skills) {
     const skillStage = join(temporaryRoot, skill);
     mkdirSync(skillStage);
     copyPath(`skills/${skill}/SKILL.md`, skillStage, "SKILL.md");
     if (existsSync(join(root, `skills/${skill}/references`))) {
       copyPath(`skills/${skill}/references`, skillStage, "references");
+    }
+    if (existsSync(join(root, `skills/${skill}/assets`))) {
+      copyPath(`skills/${skill}/assets`, skillStage, "assets");
     }
     artifacts.push(createZip(skillStage, `${skill}-v${version}.zip`));
   }
@@ -119,28 +127,25 @@ try {
   const releaseBase = `https://github.com/locus-technologies/locus-pro-plugin/releases/download/v${version}`;
   const skillIndex = {
     $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-    skills: [
-      {
-        name: "locus",
+    skills: skills.map((name) => {
+      const source = readFileSync(join(root, "skills", name, "SKILL.md"), "utf8");
+      const description = source.match(/^description:\s*(.+)$/m)?.[1]?.trim();
+      if (!description) throw new Error(`skills/${name}/SKILL.md is missing a description`);
+      return {
+        name,
         type: "archive",
-        description:
-          "Pay-per-use APIs through the Locus MCP server. Cited web research, paid data and API lookups, and metered provider endpoints billed to workspace credits.",
-        url: `${releaseBase}/locus-v${version}.zip`,
-        digest: `sha256:${artifactDigests[`locus-v${version}.zip`]}`,
-      },
-      {
-        name: "locus-setup",
-        type: "archive",
-        description:
-          "Create and fund a Locus workspace from an agent. Signup, OAuth connection, capability selection, and a Stripe funding handoff.",
-        url: `${releaseBase}/locus-setup-v${version}.zip`,
-        digest: `sha256:${artifactDigests[`locus-setup-v${version}.zip`]}`,
-      },
-    ],
+        description,
+        url: `${releaseBase}/${name}-v${version}.zip`,
+        digest: `sha256:${artifactDigests[`${name}-v${version}.zip`]}`,
+      };
+    }),
   };
   const indexPath = join(outputDirectory, "agent-skills-index.json");
   writeFileSync(indexPath, `${JSON.stringify(skillIndex, null, 2)}\n`);
   artifacts.push(indexPath);
+
+  const guideBundle = buildGuideBundle(outputDirectory);
+  artifacts.push(guideBundle.manifestPath, guideBundle.bundlePath);
 
   const manifestPath = join(outputDirectory, "release-manifest.json");
   const releaseManifest = {
