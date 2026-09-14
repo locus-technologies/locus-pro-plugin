@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.3 (2026-09-13)
+
+- Corrected the hosted Workflow lifecycle so agents save a checked immutable
+  version before starting a live pilot.
+- Documented the exact compact `workflow_run` request and host-approval
+  boundary, including the distinction from `workflow_runs` actions.
+- Required live contract digests for saved bindings and clarified bounded
+  remote-guide pagination.
+
 ## 0.3.1 (2026-09-13)
 
 - Made hosted Workflows automatically eligible for live Locus-reviewed Tools,

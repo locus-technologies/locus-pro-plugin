@@ -4,7 +4,7 @@ description: Pay-per-use APIs through the Locus MCP server. Cited web research, 
 license: MIT
 metadata:
   author: locus
-  version: "1.1.0"
+  version: "1.1.1"
   openclaw:
     homepage: https://docs.paywithlocus.com
 ---
@@ -49,7 +49,7 @@ keeps the tokens.
 | --- | --- |
 | `search_apis(query?, category?, pack?, limit?, cursor?, include_facets?)` | Find enabled endpoints by outcome and optional live group filters. At least one of query/category/pack is required. |
 | `list_tool_groups(kind?, query?, limit?, cursor?)` | Browse current, connection-scoped category and curated-pack IDs. |
-| `get_locus_guide(id?, task?, version?, section?, cursor?)` | Retrieve this released guidance when native skill files are unavailable. |
+| `get_locus_guide(id?, task?, version?, section?, cursor?, max_characters?)` | Retrieve this released guidance when native skill files are unavailable. |
 | `describe_api(slug)` | One endpoint's input schema, example, output shape, price. |
 | `execute(slug, args, idempotency_key?, approval_token?)` | Run the call and charge credits. |
 | `estimate_cost(slug, body, max_charge_credits?, ...)` | Executable quote, optional hard ceiling. |
@@ -99,6 +99,15 @@ supporting reference by the resource ID returned with it. A cursor is bound to
 one guide version and cannot be reused for another guide. Remote retrieval
 does not install files or guarantee that a host remembers them across future
 sessions, so reload the relevant guide when needed.
+Omit `max_characters` for the default 20,000-character page. Larger requests
+are accepted but capped at that server limit; follow `next_cursor` for the
+remainder.
+
+Resource enumeration is host-dependent. If a client cannot list MCP resources
+but Locus tools and direct resource reads still work, do not report the whole
+connection as broken: use `get_balance`, `list_apis`, and `get_locus_guide` for
+the same discoverable information, or read a known `locus://` URI when the host
+supports direct resource reads.
 
 ## Billing discipline
 
