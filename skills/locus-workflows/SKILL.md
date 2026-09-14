@@ -4,7 +4,7 @@ description: Author, validate, pilot, save, and run versioned Locus Workflows th
 license: MIT
 metadata:
   author: locus
-  version: "1.0.0"
+  version: "1.0.1"
   openclaw:
     homepage: https://docs.paywithlocus.com
 ---
@@ -25,6 +25,13 @@ Discover the outcome first with `search_apis`; use `list_tool_groups` only when
 a category or curated pack helps. Inspect every selected binding with
 `describe_api` and retain its slug and contract revision. A saved binding never
 restores access that has been revoked.
+
+Hosted eligibility follows the live server-owned catalog. Locus-native Tools
+and maintained Recipes are eligible without a second slug allowlist; verified
+external buyer-rail listings are eligible too. Tenant-imported custom APIs and
+unverified external listings require an exceptional platform approval. The
+server can deny any binding as an emergency override, and actual connection
+scope, tool enablement, availability, contract, and run budget still apply.
 
 Keep the enforced bindings in `workflow.json`. For a generated Workflow, also
 include `locus.lock.json` as a human-reviewable record of those same resolved
