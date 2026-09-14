@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.5 (2026-09-14)
+
+- Added a persistent-filesystem instruction tier between native skill
+  registration and remote MCP guide retrieval.
+- Required complete, digest-verified, versioned skill trees and honest
+  fresh-session activation reporting for hosts without a native skill registry.
+
 ## 0.3.3 (2026-09-13)
 
 - Corrected the hosted Workflow lifecycle so agents save a checked immutable
