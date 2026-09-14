@@ -138,10 +138,14 @@ account artifacts and never enter that public bundle.
 Hosted Workflow tools are advertised only when the backend capability is live
 and the current connection can execute. A Workflow run is a constrained child
 of that existing connection, not a second registered agent. The first runtime
-supports approved TypeScript, Locus read/compute bindings, bounded concurrency,
-fixtures, pilots, durable inspection, cancellation, and resume; arbitrary npm
-dependencies, external connector credentials, scheduling, and publication are
-not implied.
+supports approved TypeScript and every live catalog binding Locus has reviewed,
+including native Tools, maintained Recipes, and explicitly verified external
+buyer-rail listings. Tenant-imported and unverified external bindings require
+an exceptional platform approval; a server deny override can halt any binding.
+Connection scope, enablement, contract, availability, and run budgets still
+apply. The runtime also provides bounded concurrency, fixtures, pilots, durable
+inspection, cancellation, and resume; arbitrary npm dependencies, external
+connector credentials, scheduling, and publication are not implied.
 
 ## Data handling
 

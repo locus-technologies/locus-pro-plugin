@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-11 for the versioned Locus Workflow guide bundle. content-sha256: 61f88ecb515fad9245031a30978d647e69a21f31769bfa7c3fd3bb177870224e -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-13 for the versioned Locus Workflow guide bundle. content-sha256: 9395f3285b2956f3c6594ca2615eaf5d161546abfe7db664cfd40a5652621b44 -->
 
 # Authoring
 
@@ -60,13 +60,18 @@ should include it and keep its bindings consistent with the manifest. It does
 not widen execution authority.
 
 Only `locus.read` and `locus.compute` effects are supported in the first hosted
-runtime, and the platform separately maintains a fail-closed allowlist of
-reviewed slugs for those effects. A declaration in customer source cannot add a
-binding to that allowlist. A provider or connector available to the outer chat is not
-automatically available to hosted code. Keep customer strategy—ICP rules,
-seniority, exclusions, source selection, and uncertainty handling—in explicit
-inputs or deterministic code. Missing evidence is `unknown`, not a match or
-non-match.
+runtime. The gateway automatically accepts bindings the live server-owned
+catalog identifies as Locus-reviewed: native integrations and maintained
+Recipes, plus external buyer-rail listings carrying an explicit platform
+verification claim. Tenant-imported custom APIs and unverified external
+listings require an exceptional platform approval; an emergency deny override
+always wins. Customer source, descriptions, and pack membership cannot mark a
+binding verified. A provider or connector available to the outer chat is not
+automatically available to hosted code because connection scope, enablement,
+availability, contract, and run budget are still checked. Keep customer
+strategy—ICP rules, seniority, exclusions, source selection, and uncertainty
+handling—in explicit inputs or deterministic code. Missing evidence is
+`unknown`, not a match or non-match.
 
 ## Runtime API
 

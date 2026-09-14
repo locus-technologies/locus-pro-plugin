@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 (2026-09-13)
+
+- Made hosted Workflows automatically eligible for live Locus-reviewed Tools,
+  maintained Recipes, and explicitly verified external buyer-rail listings;
+  exceptional approvals and emergency denies remain server-controlled.
+- Clarified that catalog verification never bypasses connection scope, tool
+  enablement, availability, contract validation, or run budgets.
+
 ## 0.3.0 (2026-09-11)
 
 - Added provider-agnostic category and curated-pack discovery, including live
