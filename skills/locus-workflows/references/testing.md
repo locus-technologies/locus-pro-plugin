@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-11 for the versioned Locus Workflow guide bundle. content-sha256: 7d04da1620a3a39cf32cf135517d6dcc44f518412f08f4f483040e1a6743dc3c -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-13 for the versioned Locus Workflow guide bundle. content-sha256: 4a26da083797e63a8b1015545c8a502c6cb68d39970c8b725999ecd0beb7acf9 -->
 
 # Testing and pilots
 
@@ -45,6 +45,30 @@ Ask before live execution. Call `workflow_run` with the saved integer version,
 exact-decimal `max_charge_credits`, and a stable idempotency key. A pilot uses
 the same sandbox and execution gateway as a production run; it can spend the
 approved credits and contact the selected providers.
+
+The compact MCP call is exactly:
+
+```text
+workflow_run({
+  workflow_id,
+  version,
+  input,
+  mode: "pilot",
+  max_rows,
+  max_charge_credits,
+  idempotency_key
+})
+```
+
+Do not add `action` or rename `input` to `workflow_input`. The separate
+`workflow_runs` inspection tool uses `action` for operations such as `get`,
+`artifact`, `cancel`, and `resume`.
+
+An effectful run can require approval from the outer host even after the Locus
+budget and user-consent checks pass. If that host is configured with an
+approval policy such as `never`, report the local host-policy block and use its
+normal explicit approval mechanism. Do not weaken the Workflow credit cap or
+create a different run request to bypass the host.
 
 Poll with `workflow_runs({action:"get", run_id})` using the returned interval.
 Pass only when durable evidence shows the expected output rows, dispatched
