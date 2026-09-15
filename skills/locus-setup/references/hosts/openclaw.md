@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 1cef34984819b3289a5890359bdad1b6585aff98d9d881ff519f1e912c44353d -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 2aa5ce302ff45be315ca0d435a607eaa166e213a09807184050f8615278e674f -->
 
 # OpenClaw adapter
 
@@ -32,7 +32,9 @@ global `.env`, never an agent workspace `.env`; keep the state directory mode
 connection store and never belong in that file or MCP configuration.
 
 After authentication, reload or restart only when the installed version
-requires it. Verify a live MCP RPC and fresh-session skill discovery. A short
-probe or runtime status snapshot can lag a healthy server, active login, or
-subagent; retry with the configured timeout before reauthenticating or
-terminating a healthy foreground process.
+requires it. The OpenClaw Gateway is not required for `openclaw mcp login`, a
+direct MCP RPC, or fresh-session skill discovery; do not start it merely to
+activate the installed skills. Verify a live MCP RPC and fresh-session skill
+discovery. A short probe or runtime status snapshot can lag a healthy server,
+active login, or subagent; retry with the configured timeout before
+reauthenticating or terminating a healthy foreground process.

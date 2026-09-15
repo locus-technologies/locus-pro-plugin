@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 7ceca10a6883f5aebb64b7a32f557d6960c9e7e9a3f9a55e2a4286170e6f9896 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 914e92d88d471ec436586948027b1ffa57e7919bf51d7aaf854ba3eccd48c070 -->
 
 # Host adapters and readiness
 
@@ -24,6 +24,12 @@ delivery. Neither adapter is the default. Use this order:
    generated CLI, securely persist its credential, and invoke it as a durable
    tool. If exactly one set of requirements is met, use it. If both or neither
    are met and no stronger host signal resolves the choice, ask the user once.
+
+For a CLI selection, pass the compatibility record's exact `cli.base_url` to
+every command with `--base-url`, or save it in a dedicated profile for that
+environment. A globally installed CLI may default to production; output from a
+command that omitted the requested base URL is not evidence about stage or any
+other environment.
 
 Do not count generic HTTP, a browser, or a shell as MCP support. Do not count a
 shell alone as an installable CLI. Install and authenticate only the selected

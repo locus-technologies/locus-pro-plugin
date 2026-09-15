@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.2"
+  version: "1.3.3"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -19,6 +19,12 @@ metadata:
       - name: LOCUS_SECRET_KEY
         required: false
         description: Mentioned in the bundled credential guidance as a credential class to protect. This skill never reads or sets it and it never belongs in MCP configuration.
+      - name: OKIBI_AUTH_ALLOW_FILE_STORAGE
+        required: false
+        description: Explicit owner opt-in for the generated CLI's 0600 credential-file fallback when no OS keychain is available.
+      - name: OKIBI_AUTH_STORAGE
+        required: false
+        description: Selects a supported generated-CLI credential storage backend; never point it at a project directory.
 ---
 
 # Locus setup
@@ -52,10 +58,12 @@ When that guide links a reference for the detected host, read only that
 host-specific reference. Do not project one host's commands, storage paths,
 or lifecycle quirks onto another runtime.
 
-If host inspection selects the generated CLI, follow the environment-specific
-CLI guide returned by the compatibility record, authenticate that adapter, and
-then return to Verify completion. The account-management and OAuth steps below
-apply to an MCP selection; do not run them in addition to a CLI setup.
+If host inspection selects the generated CLI, use the compatibility record's
+exact `cli.base_url` on discovery, authentication, and readiness commands (or
+save it in an environment-specific CLI profile), then return to Verify
+completion. Never let an installed CLI's production default replace the
+requested environment. The account-management and OAuth steps below apply to
+an MCP selection; do not run them in addition to a CLI setup.
 
 ## Safety rules
 
