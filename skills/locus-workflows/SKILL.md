@@ -4,7 +4,7 @@ description: Author, validate, pilot, save, and run versioned Locus Workflows th
 license: MIT
 metadata:
   author: locus
-  version: "1.1.1"
+  version: "1.1.2"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -58,9 +58,12 @@ networking in hosted execution.
 2. Create one draft with a stable idempotency key. Pass the successful inline
    check's `source_digest` as `validated_source_digest` so creation carries a
    durable check for the identical source. Update with `revision` and either a
-   complete `source` or a small `source_patch`; unchanged files remain pinned
-   to the current draft. Run a persisted check only when current readiness is
-   not already `checked`.
+   complete `source` or a small `source_patch`; prefer exact text edits over
+   whole-file replacement for narrow changes. Give each logical update a
+   stable `idempotency_key` and reuse it unchanged after a timeout; Locus
+   stores only its one-way hash and recognizes an already-applied revision.
+   Unchanged files remain pinned to the current draft. Run a persisted check
+   only when current readiness is not already `checked`.
 3. Run fixture tests in an isolated no-network environment. Cover duplicate,
    missing, ambiguous, paginated, partial-error, and rate-limit cases relevant
    to the customer logic.
@@ -82,14 +85,18 @@ only when it is needed for editing or export.
 - `workflow_definition`: `list`, `create`, `update`, `get`, `clone`, `archive`,
   or `save`. Create accepts `{files:[{path,content}]}` or a tenant-owned source
   `artifact_id`, and can carry a matching inline `validated_source_digest`.
-  Update accepts a complete source or
-  `source_patch:{files:[{path,content|null}]}`. Use `revision` for update,
-  archive, and save; `expected_revision` remains a compatibility alias for all
-  three. Save returns both the immutable version and current
+  Update accepts a complete source, whole-file
+  `source_patch:{files:[{path,content|null}]}`, or targeted
+  `source_patch:{edits:[{path,old_string,new_string,replace_all?}]}`. Send one
+  patch form at a time. Use a stable `idempotency_key` for update retries and
+  `revision` for update, archive, and save;
+  `expected_revision` remains a compatibility alias for all three. Save
+  returns both the immutable version and current
   definition readiness.
 - `workflow_validate`: `mode: "check"` compiles without evaluation and accepts
-  either inline source or an existing draft revision; `mode: "fixtures"`
-  executes `tests/fixtures.ts` in a no-network sandbox for an existing draft.
+  either inline source or an existing draft revision. `mode: "fixtures"`
+  requires both `workflow_id` and exact `revision` and executes
+  `tests/fixtures.ts` in a no-network sandbox for that draft.
 - `workflow_run`: queues one immutable version in `pilot` or `run` mode. It
   requires `max_charge_credits` and a stable `idempotency_key`, and returns a
   dedicated `run_id`/status rather than blocking for the batch. Its compact
@@ -97,10 +104,10 @@ only when it is needed for editing or export.
   `workflow_run({workflow_id, version, input, mode, max_rows?, max_charge_credits, idempotency_key})`.
   Optional `action: "submit"` is accepted for symmetry with `workflow_runs`;
   `workflow_input` is not a field.
-- `workflow_runs`: `list`, `get`, retrieve an `artifact` page, `cancel`, or
-  `resume` an existing run. Get returns bounded durable events, call receipts,
-  exact charges, and artifact metadata; artifact reads require both `run_id`
-  and the returned `artifact_id`.
+- `workflow_runs`: `list`, `get`, retrieve an `artifact` or provider `call`
+  response page, `cancel`, or `resume` an existing run. Get returns bounded
+  durable events, call receipts, exact charges, and artifact metadata;
+  artifact/call reads require the `run_id` and returned artifact/call ID.
 
 The server enforces cross-field constraints even if a host UI does not. Do not
 use `input` together with `input_artifact_id`, pass `latest` instead of an

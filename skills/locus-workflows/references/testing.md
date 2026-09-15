@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: e1435f578fb34118d230bf99d57f7bcb6815938433c0b84ce511b058e4eb3fb2 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: ec16cd4de007c204e7084acbbc210870983abb701393d96b90fc661b207dbe95 -->
 
 # Testing and pilots
 
@@ -73,7 +73,7 @@ workflow_run({
 Omit `action` or set it to `"submit"`; do not rename `input` to
 `workflow_input`. The separate
 `workflow_runs` inspection tool uses `action` for operations such as `get`,
-`artifact`, `cancel`, and `resume`.
+`call`, `artifact`, `cancel`, and `resume`.
 
 An outer host can independently block effectful tools. If it does, report that
 host-policy result; do not weaken the Workflow credit cap or create a different
@@ -84,6 +84,11 @@ Pass only when durable evidence shows the expected output rows, dispatched
 bindings, receipt IDs, exact ledger charge, and result artifacts. A natural
 language claim of success, process exit code, or type-check result is not live
 evidence.
+
+The platform's pilot readiness records execution completion, not whether the
+customer's business output is useful. Treat `pilot_output_quality` as
+`not_evaluated` until the caller checks the expected fields and invariants in
+the result artifact. Do not promote an empty-but-successful run.
 
 Review every attempt. A changed source version, normalized input, mode, row
 cap, or credit cap is a different run request and needs a different

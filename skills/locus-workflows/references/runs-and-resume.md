@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/runs-and-resume.md, mirrored 2026-09-11 for the versioned Locus Workflow guide bundle. content-sha256: 4e196aa595194b572cb0303412524721ceb0610489bacbee6b31c1b21473ee97 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/runs-and-resume.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: e88ca8b63a0c55197fdbd7bae2672998489a7b54cebccd78a408398c25dbf4be -->
 
 # Runs, cancellation, and resume
 
@@ -20,6 +20,18 @@ with `workflow_runs({action:"artifact",run_id,artifact_id,max_characters})` and
 continue with the returned cursor. The server verifies that the artifact
 belongs to the authenticated account and the named run; an ID is never
 authorization by itself.
+
+For a provider-shape failure, read the already-stored response in bounded pages
+with `workflow_runs({action:"call",run_id,call_id,max_characters})`. This is a
+tenant-private diagnostic read and creates no new provider dispatch or charge.
+Use it to fixture the raw body returned by hosted `row.call`; do not retry a
+paid pilot merely to guess the response envelope.
+
+For an ambiguous draft update, retry the identical `workflow_definition`
+update with the same base revision, source or patch, and `idempotency_key`.
+The server stores only a one-way key hash and returns the already-applied
+revision when those identities match. A changed edit or base revision is a new
+logical update and needs a new key.
 
 ## Timeout or ambiguous provider response
 

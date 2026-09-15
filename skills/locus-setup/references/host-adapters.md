@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-14 for the versioned Locus guide bundle. content-sha256: 629f391cf91e5990138493f3232a0caadf4812a149fb474141e32e670d6d1409 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 7ceca10a6883f5aebb64b7a32f557d6960c9e7e9a3f9a55e2a4286170e6f9896 -->
 
 # Host adapters and readiness
 
@@ -13,8 +13,10 @@ delivery. Neither adapter is the default. Use this order:
 
 1. Honor an explicit MCP or CLI request. If it is unavailable, report the exact
    blocker instead of silently switching adapters.
-2. Reuse a healthy existing Locus MCP or CLI installation unless replacement
-   was requested.
+2. Reuse a healthy existing Locus MCP or CLI installation only when its server
+   or CLI base URL, authenticated grant, and installed skill bundle all match
+   the requested environment. Otherwise preserve it and install the requested
+   environment separately unless replacement was requested.
 3. Prefer the adapter bundled by a verified native plugin for this host.
 4. Otherwise select MCP only when the host natively registers Streamable HTTP
    servers, completes OAuth, securely persists refresh tokens, and exposes the
@@ -81,12 +83,15 @@ may inherit skill files while its tool policy omits MCP or shell access; that
 does not prove the main connection is missing or prove that the child can call
 it.
 
-For OpenClaw, apply the MCP guide's connection and request timeouts while
-registering the MCP adapter. Its default short probe can report a tool-listing
-timeout even when the server answers normally. Retry the live RPC with the
-configured timeout before suggesting reauthentication. Runtime snapshots of
-active execs or subagents can lag; do not restart OAuth or terminate work from
-that label alone when the waiting process or RPC remains healthy.
+After selecting the adapter, read a host-specific reference only when it
+matches the detected runtime:
+
+- [OpenClaw](hosts/openclaw.md)
+- [Hermes Agent](hosts/hermes.md)
+
+Those references adapt the same installation contract to native host commands.
+They do not change adapter selection, authentication authority, the requested
+environment, or what counts as complete.
 
 Report execution adapter and authentication, instruction-delivery tier and
 version, fresh-session activation, local authoring, and hosted execution
