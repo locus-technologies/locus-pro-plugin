@@ -58,6 +58,18 @@
       "source": "skills/locus-setup/references/host-adapters.md"
     },
     {
+      "id": "host-openclaw",
+      "title": "OpenClaw setup adapter",
+      "activation": "Use only when installing or repairing Locus in OpenClaw.",
+      "source": "skills/locus-setup/references/hosts/openclaw.md"
+    },
+    {
+      "id": "host-hermes",
+      "title": "Hermes Agent setup adapter",
+      "activation": "Use only when installing or repairing Locus in Hermes Agent.",
+      "source": "skills/locus-setup/references/hosts/hermes.md"
+    },
+    {
       "id": "credentials",
       "title": "Credential handling",
       "activation": "Use before storing or transmitting any Locus credential.",

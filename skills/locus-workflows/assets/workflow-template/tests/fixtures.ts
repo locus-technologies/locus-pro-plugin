@@ -1,4 +1,4 @@
-import { normalizeInput } from "../workflow.ts";
+import { normalizeInput, normalizeOutput } from "../workflow.ts";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(message);
@@ -15,5 +15,8 @@ export default function runFixtures() {
     rejected = true;
   }
   assert(rejected, "array input must be rejected");
-  return { ok: true, assertions: 2, cases: ["stable-input", "invalid-input"] };
+
+  const output = normalizeOutput({ status: "complete", input: { zebra: 2, alpha: 1 } });
+  assert(JSON.stringify(output.input) === '{"alpha":1,"zebra":2}', "output must be normalized");
+  return { ok: true, assertions: 3, cases: ["stable-input", "invalid-input", "output-shape"] };
 }

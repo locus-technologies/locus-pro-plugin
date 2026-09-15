@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.1"
+  version: "1.3.2"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -47,6 +47,10 @@ skills through the first tier the host supports: native registration, then a
 complete persistent filesystem copy, then MCP guide retrieval for a no-files
 host. Do not skip the filesystem tier merely because the host lacks a native
 skill registry.
+
+When that guide links a reference for the detected host, read only that
+host-specific reference. Do not project one host's commands, storage paths,
+or lifecycle quirks onto another runtime.
 
 If host inspection selects the generated CLI, follow the environment-specific
 CLI guide returned by the compatibility record, authenticate that adapter, and

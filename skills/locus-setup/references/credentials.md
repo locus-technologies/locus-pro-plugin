@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-02 so registry scanners can review the exact contract this skill uses in-repo. The runtime-specific section for a third-party host referencing its own environment layout is intentionally omitted. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: ee7d16653b16e8db3be9a173ed5e896a3bf77a379fe6afea7ecbd05828835629 -->
+<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-15 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: 970c69779c13971b75b99d3b19707fb5cb8ec33ee5f84d4738c7737c00e44727 -->
 
 # Store Locus agent authentication
 
@@ -21,25 +21,6 @@ the value under the environment name required by the selected flow. Never
 print it after capture, and never put it in a project-local `.env` file. The
 Okibi bootstrap registration token is recovery-grade secret material and must
 live in the same class of store.
-
-## OpenClaw
-
-Prefer an external vault injected into the Gateway process. When none is
-configured, use OpenClaw's trusted global environment file, not the agent
-workspace:
-
-```text
-~/.openclaw/.env
-```
-
-Set the OpenClaw state directory to mode `0700` and the file to `0600`. Add
-`LOCUS_AGENT_CREDENTIAL=<credential>` without echoing it to the terminal. Do
-not reference it from the MCP configuration. OAuth login writes its separate
-tokens to OpenClaw's native connection store.
-
-Never use a workspace `.env`: workspace files can be committed, read by tools,
-or supplied by an untrusted checkout. Run `openclaw doctor` after changing
-permissions.
 
 ## Hosted runtimes and proprietary vaults
 

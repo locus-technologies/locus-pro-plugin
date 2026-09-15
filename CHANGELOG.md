@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.9 (2026-09-15)
+
+- Documented the exact hosted `row.call` raw-body contract, input/output parse
+  hooks, provider-boundary probing, targeted source edits, response inspection,
+  and execution-versus-output pilot readiness.
+- Kept shared setup host-neutral while moving OpenClaw and Hermes commands,
+  storage, callback, reload, and lifecycle behavior into optional host
+  references.
+- Tightened reuse so an existing adapter is healthy only when its environment,
+  authenticated grant, and installed instruction bundle all match.
+
 ## 0.3.8 (2026-09-15)
 
 - Made ordinary Locus API and Workflow execution autonomous instead of adding

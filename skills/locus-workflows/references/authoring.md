@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: b7db0f0628bc84989dd3edc19fbb0cacf29474a5390064c9ffc25da0031ac861 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: fc75e554f75b39218bb8d2655f61a33df46d834e55c46d388ac3264f0f783550 -->
 
 # Authoring
 
@@ -82,28 +82,52 @@ handling—in explicit inputs or deterministic code. Missing evidence is
 The entrypoint default-exports `defineWorkflow(...)` from
 `@withlocus/workflows`:
 
+Declare `input.parse` and `output.parse` for the customer-facing boundary.
+They run before and after `run`, so rejected input never dispatches a provider
+call and malformed output never becomes a successful result artifact.
+
 ```ts
 import { defineWorkflow } from '@withlocus/workflows';
 
 export default defineWorkflow({
+  input: { parse: parseWorkflowInput },
+  output: { parse: parseWorkflowOutput },
   async run(ctx, input: { companies: Array<{ id: string; domain: string }> }) {
     return ctx.mapRows('companies', input.companies, {
       key: (company) => company.id,
       concurrency: 3,
       async run(row, company) {
-        const evidence = await row.call(
+        const response = await row.call<{
+          organization?: { estimated_num_employees?: number };
+        }>(
           'companyResearch',
           'research',
           { domain: company.domain },
           { maxChargeCredits: '25' },
         );
         await row.checkpoint('researched', { domain: company.domain });
-        return { id: company.id, evidence };
+        return {
+          id: company.id,
+          employeeCount: response.organization?.estimated_num_employees ?? null,
+        };
       },
     });
   },
 });
 ```
+
+`ctx.call<T>` and `row.call<T>` resolve to the provider's raw JSON response
+body. They do **not** return the outer MCP result, billing fields, receipts, or
+a `{data: ...}` wrapper. For an ordinary interactive `execute` call, this is
+the value under `structuredContent.data`; if interactive presentation returns
+a `truncated` preview, retrieve the complete call result before using it as a
+shape sample. Hosted calls receive the stored provider body directly and do
+not receive that chat-only preview/continuation envelope.
+
+Before writing substantial parsing logic, inspect the binding's saved
+`output_schema` and make one smallest representative direct call when live
+evidence is needed. Establish the raw-body boundary first, then fixture the
+observed shape. Do not build fixtures around the interactive MCP envelope.
 
 Every call declares a local binding, stable step path, JSON arguments, exact
 per-call credit ceiling, optional stable row key, and occurrence number when a
@@ -128,10 +152,13 @@ parse.
 Pass a successful inline check's `source_digest` to definition creation as
 `validated_source_digest`. The server verifies the digest against the submitted
 source and records the carried structural check on revision 1. For later edits,
-prefer `source_patch` with only changed paths; `content: null` deletes a path.
-The expected `revision` prevents the patch from being applied to a different
-draft, while omitted files are retained byte-for-byte. A complete `source`
-replacement remains available for imports and large rewrites.
+prefer `source_patch.edits` with exact `old_string`/`new_string` replacements
+for small changes, or `source_patch.files` when a complete file changed;
+`content: null` deletes a path. Send one patch form at a time. The expected
+`revision` and optional `base_source_digest` prevent the patch from being
+applied to a different draft, while omitted files are retained byte-for-byte.
+A complete `source` replacement remains available for imports and large
+rewrites.
 
 Use inline `{files:[{path,content}]}` for no-files agents and ordinary source
 up to the server limit. A shell-capable client may upload a larger JSON source
