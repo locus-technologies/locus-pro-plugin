@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.8 (2026-09-15)
+
+- Made ordinary Locus API and Workflow execution autonomous instead of adding
+  Locus-specific confirmation gates for billed calls.
+- Made compact and legacy tool vocabularies explicit while treating the live
+  connection inventory as authoritative, including outcome and access-request
+  tools.
+- Improved Workflow authoring guidance for manifest kinds, digest-carried
+  validation, path-scoped draft patches, consistent revisions, readiness,
+  real executable fixtures, and compact agent behavior.
+- Clarified Agent Skills archive installation, user-scoped source-of-truth and
+  workspace mirrors, main-session tool verification, and OpenClaw timeout and
+  stale-runtime-state recovery.
+
 ## 0.3.7 (2026-09-14)
 
 - Made MCP and the generated CLI peer installation adapters selected from the

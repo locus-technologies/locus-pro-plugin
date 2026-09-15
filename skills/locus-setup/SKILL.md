@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.0"
+  version: "1.3.1"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -325,3 +325,9 @@ current Locus credential. Move the replacement into the secret store
 atomically; the old credential stops working immediately.
 
 Day-to-day usage after setup is covered by the `locus` skill.
+
+The guide bundle version is the installation identity to pin. The plugin
+version identifies a native package release, each skill's metadata version
+identifies its own instruction contract, and the Workflow runtime version
+identifies the hosted ABI; these values are independent and should not be
+compared as though one supersedes another.

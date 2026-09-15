@@ -1,10 +1,10 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: ed738f9f21140f618c8299b712e5fdd8b9a07ff45c1d34cf3e84855c12207a9f -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: b7db0f0628bc84989dd3edc19fbb0cacf29474a5390064c9ffc25da0031ac861 -->
 
 # Authoring
 
 Model the customer's own process as ordinary, parameterized TypeScript. First
 clarify its inputs, output contract, business rules, allowed Locus effects,
-representative fixtures, maximum rows, and maximum spend. Do not convert a
+representative fixtures, maximum rows, and execution ceilings. Do not convert a
 one-off lookup into a Workflow unless the user asks for repeatability or the
 completed task has a substantial reusable structure and the user accepts a
 single offer to save it.
@@ -59,8 +59,12 @@ review/export aid in the runtime API, but agents generating a new Workflow
 should include it and keep its bindings consistent with the manifest. It does
 not widen execution authority.
 
-Only `locus.read` and `locus.compute` effects are supported in the first hosted
-runtime. The gateway automatically accepts bindings the live server-owned
+Only `locus.read` and `locus.compute` effects are accepted vocabulary in the
+first hosted runtime. They are declarations, not grants: the top-level list
+describes the Workflow's aggregate intent, and each binding list describes
+that call's intent. Both currently pass through the same verified Locus gateway
+and neither enables a binding, changes its price, or permits arbitrary network
+access. The gateway automatically accepts bindings the live server-owned
 catalog identifies as Locus-reviewed: native integrations and maintained
 Recipes, plus external buyer-rail listings carrying an explicit platform
 verification claim. Tenant-imported custom APIs and unverified external
@@ -115,10 +119,19 @@ provider receipt remains authoritative after a timeout; sandbox files do not.
 
 When `workflow_validate` advertises inline source, send the whole candidate
 with `mode: "check"` before creating a draft. Supply exactly one source form:
-inline `files` or a tenant-owned `artifact_id`. Use the returned file, line,
-column, and excerpt to repair the same candidate, then validate it again. Do
-not discover additional providers or create additional drafts merely because
-the generated TypeScript failed to parse.
+inline `files` or a tenant-owned `artifact_id`. Use the returned filename,
+JSON pointer, binding name, line, column, and excerpt to repair the same
+candidate, then validate it again. Do not discover additional providers or
+create additional drafts merely because the generated TypeScript failed to
+parse.
+
+Pass a successful inline check's `source_digest` to definition creation as
+`validated_source_digest`. The server verifies the digest against the submitted
+source and records the carried structural check on revision 1. For later edits,
+prefer `source_patch` with only changed paths; `content: null` deletes a path.
+The expected `revision` prevents the patch from being applied to a different
+draft, while omitted files are retained byte-for-byte. A complete `source`
+replacement remains available for imports and large rewrites.
 
 Use inline `{files:[{path,content}]}` for no-files agents and ordinary source
 up to the server limit. A shell-capable client may upload a larger JSON source

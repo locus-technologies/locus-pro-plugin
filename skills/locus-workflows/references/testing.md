@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: 559879ee03d9cb65c9139d3c70a2cb5d12debaf4f112e42b299ca6497bcd46cb -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: e1435f578fb34118d230bf99d57f7bcb6815938433c0b84ce511b058e4eb3fb2 -->
 
 # Testing and pilots
 
@@ -25,7 +25,9 @@ changes, the digest/revision changes and the check must be repeated.
 ## 2. Fixture test
 
 Add `tests/fixtures.ts` with a default function that returns deterministic JSON
-or throws on failed assertions. Call `workflow_validate` with
+or throws on failed assertions. Import pure parsers and transformations from
+`../workflow.ts`; do not substitute a list of case names for executable tests.
+Call `workflow_validate` with
 `mode: "fixtures"`. It runs in an isolated sandbox with internet disabled and
 without a live gateway capability, OAuth token, provider key, or refresh
 token. An attempted real provider call must fail.
@@ -34,23 +36,25 @@ Test the customer's logic with exact expected row IDs and output fields. Cover
 the relevant cases: duplicates, ambiguous and missing entities, explicit
 `unknown` decisions, pagination, partial provider failures, rate limits,
 filtering before expensive calls, and stable ordering under concurrency.
-Fixture execution uses compute, but never provider credits; do not call it a
-free operation unless the current product terms also include that compute.
+Fixture results report assertion counts, provider activity, and outbound
+network activity. Complete requested checks, fixtures, and save operations
+without pausing for another confirmation.
 
 ## 3. Save the checked version
 
 Call `workflow_definition` with `action: "save"`, the workflow ID, and the
-checked revision. The server saves immutable source, runtime, bindings, and
-validation evidence. It rejects an unchecked or stale revision. Saving is not
-publishing, installing an invocation skill, scheduling, or authorizing a run.
+checked `revision`. The server saves immutable source, runtime, bindings, and
+validation evidence. It rejects an unchecked or stale revision and returns the
+saved version plus current pilot/runnable readiness. Saving is not publishing,
+installing an invocation skill, or scheduling.
 
 ## 4. Bounded live pilot
 
-Ask before live execution. Call `workflow_run` with the saved integer version,
-`mode: "pilot"`, representative consented input, a small `max_rows`, a hard
+For a requested live test, call `workflow_run` with the saved integer version,
+`mode: "pilot"`, representative input, a bounded `max_rows`, a hard
 exact-decimal `max_charge_credits`, and a stable idempotency key. A pilot uses
-the same sandbox and execution gateway as a production run; it can spend the
-approved credits and contact the selected providers.
+the same sandbox and execution gateway as a production run; it can consume
+credits within the submitted ceiling and contact the selected providers.
 
 The compact MCP call is exactly:
 
@@ -66,15 +70,14 @@ workflow_run({
 })
 ```
 
-Do not add `action` or rename `input` to `workflow_input`. The separate
+Omit `action` or set it to `"submit"`; do not rename `input` to
+`workflow_input`. The separate
 `workflow_runs` inspection tool uses `action` for operations such as `get`,
 `artifact`, `cancel`, and `resume`.
 
-An effectful run can require approval from the outer host even after the Locus
-budget and user-consent checks pass. If that host is configured with an
-approval policy such as `never`, report the local host-policy block and use its
-normal explicit approval mechanism. Do not weaken the Workflow credit cap or
-create a different run request to bypass the host.
+An outer host can independently block effectful tools. If it does, report that
+host-policy result; do not weaken the Workflow credit cap or create a different
+run request to bypass it.
 
 Poll with `workflow_runs({action:"get", run_id})` using the returned interval.
 Pass only when durable evidence shows the expected output rows, dispatched
@@ -85,5 +88,5 @@ evidence.
 Review every attempt. A changed source version, normalized input, mode, row
 cap, or credit cap is a different run request and needs a different
 idempotency key. A same-key replay must return the same run without another
-charge. Only after a successful pilot should the user authorize the larger
-production run.
+charge. Production mode is available only after a successful pilot of that
+exact saved version.
