@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 324533200b9f7e1088009c15f5e36b499ebfb160104c51dde56778c43aef97a3 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 8a342d2ff04f72e28e632cc714bf64599b12191367987da549f9d15405b0722e -->
 
 # Hermes Agent adapter
 
@@ -14,12 +14,21 @@ linked references and assets. Use a fresh session or Hermes' documented
 prompt-cache invalidation after installing the complete trees.
 
 Register one OAuth server named `locus` at the exact environment URL returned
-by the compatibility record:
+by the compatibility record. Write the native configuration before login so
+an unauthenticated discovery probe cannot discard the server:
 
 ```bash
-hermes mcp add --url '<MCP transport URL>' --auth oauth locus
+hermes config set mcp_servers.locus.url '<MCP transport URL>'
+hermes config set mcp_servers.locus.auth oauth
+hermes config set mcp_servers.locus.connect_timeout 30
 hermes mcp login locus
 ```
+
+Do not patch or reinstall Hermes when an interactive `hermes mcp add` probe
+fails before OAuth. The declarative commands above register the same native
+server without that probe; `hermes mcp login locus` then owns discovery and
+authentication. Confirm the saved URL before login and do not preserve an
+entry from another Locus environment.
 
 Hermes performs OAuth discovery, PKCE, client identification, token exchange,
 and refresh. Keep the login command alive through approval. When Hermes offers

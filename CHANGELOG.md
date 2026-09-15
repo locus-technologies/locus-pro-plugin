@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.10 (2026-09-15)
+
+- Made the Hermes OAuth setup path declarative so an unauthenticated discovery
+  probe cannot prevent the server from being registered before login.
+- Clarified that OpenClaw CLI authentication and fresh-session skill discovery
+  do not require its Gateway, while retaining the foreground OAuth-listener
+  requirement.
+- Bound generated-CLI setup to the compatibility record's environment-specific
+  base URL and documented the explicit owner-only file-storage fallback.
+
 ## 0.3.9 (2026-09-15)
 
 - Documented the exact hosted `row.call` raw-body contract, input/output parse

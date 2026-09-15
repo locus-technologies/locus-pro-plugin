@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-15 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: 970c69779c13971b75b99d3b19707fb5cb8ec33ee5f84d4738c7737c00e44727 -->
+<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-15 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: 1010b086bdb55851769bf5180994e5dfb1b854ebe418201fde7ae51fd398cc8b -->
 
 # Store Locus agent authentication
 
@@ -40,6 +40,13 @@ secret, or cloud secret manager. If none exists, use this last-resort layout:
 Create `~/.config/locus` with mode `0700` and `credentials.env` with mode
 `0600`. Load it only for Locus setup and account-management calls. Never source
 it into unrelated tools or commit it.
+
+The generated CLI does not silently fall back to a secret file. When no OS
+keychain is available, file storage is an explicit owner choice: pass
+`--allow-file-storage` to `locus auth login`, or set
+`OKIBI_AUTH_ALLOW_FILE_STORAGE=1`. `OKIBI_AUTH_STORAGE` selects the supported
+storage backend. Keep any selected file in the owner-only location above; do
+not invent a project-local fallback.
 
 ## Rotation
 
