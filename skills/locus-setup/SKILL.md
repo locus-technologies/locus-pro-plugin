@@ -1,10 +1,10 @@
 ---
 name: locus-setup
-description: Create and fund a Locus workspace from an agent. Signup (human or agent-owned), OAuth connection, capability selection, and a Stripe funding handoff.
+description: Set up or repair Locus with native, persistent-filesystem, or remote instructions; OAuth connection, capability selection, and optional funding.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.0"
+  version: "1.2.0"
   openclaw:
     homepage: https://docs.paywithlocus.com
     primaryEnv: LOCUS_AGENT_CREDENTIAL
@@ -39,7 +39,11 @@ All endpoints below are production.
 Before changing host configuration, read the bundled
 [host adapter and readiness guide](./references/host-adapters.md). Reuse a
 healthy existing connection and report connection, guide activation, restart,
-and hosted Workflow readiness separately.
+and hosted Workflow readiness separately. Deliver the released operating
+skills through the first tier the host supports: native registration, then a
+complete persistent filesystem copy, then MCP guide retrieval for a no-files
+host. Do not skip the filesystem tier merely because the host lacks a native
+skill registry.
 
 ## Safety rules
 
