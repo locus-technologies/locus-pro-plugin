@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-13 for the versioned Locus Workflow guide bundle. content-sha256: 4a26da083797e63a8b1015545c8a502c6cb68d39970c8b725999ecd0beb7acf9 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: 559879ee03d9cb65c9139d3c70a2cb5d12debaf4f112e42b299ca6497bcd46cb -->
 
 # Testing and pilots
 
@@ -6,12 +6,18 @@ Use four distinct stages. Passing one never implies that the next stage ran.
 
 ## 1. Structural check
 
-Call `workflow_validate` with `mode: "check"`, the draft ID, and its exact
-integer revision. The server parses and type-checks the source against the
-fixed `@withlocus/workflows` declaration without importing or evaluating the
-module. It rejects unavailable bindings, unsupported imports, dynamic import,
-runtime code-generation globals, and TypeScript syntax that Node's fixed
-type-stripping runtime cannot erase.
+Before creating a draft, call `workflow_validate` with `mode: "check"` and
+exactly one inline source form (`files` or `artifact_id`) when the server
+advertises that shape. After persistence, call it with the draft ID and exact
+integer revision. The server parses and type-checks against the fixed
+`@withlocus/workflows` declaration without importing or evaluating the module.
+It rejects unavailable bindings, unsupported imports, dynamic import, runtime
+code-generation globals, and TypeScript syntax that Node's fixed type-stripping
+runtime cannot erase.
+
+Diagnostics identify a file and, when available, line, column, and a bounded
+source excerpt. Repair the same candidate deterministically and check again.
+Do not use definition creation as a syntax probe.
 
 A successful check has no provider activity and no outbound network. If source
 changes, the digest/revision changes and the check must be repeated.

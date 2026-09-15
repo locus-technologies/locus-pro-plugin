@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.7 (2026-09-14)
+
+- Made MCP and the generated CLI peer installation adapters selected from the
+  user's explicit choice, a healthy existing setup, and actual host support.
+- Made one-line setup completion include adapter authentication, complete
+  versioned skill delivery, a free readiness probe, and fresh-session
+  discovery instead of stopping after copying `SKILL.md`.
+- Added safe filesystem hydration metadata to the guide manifest and improved
+  Workflow guidance for inline validation, deterministic repair, truthful
+  readiness, and integrity counts.
+
 ## 0.3.6 (2026-09-14)
 
 - Released the corrected environment-aware remote-guide serving contract so

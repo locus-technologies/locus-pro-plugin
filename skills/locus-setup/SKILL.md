@@ -1,10 +1,11 @@
 ---
 name: locus-setup
-description: Set up or repair Locus via native, filesystem, or remote instructions. Browser sign-up by default; agent-owned accounts only for headless hosts or on request.
+description: Install or repair Locus through a host-selected MCP or CLI adapter, complete skill delivery, authentication, and fresh-session readiness.
 license: MIT
 metadata:
   author: locus
-  version: "1.2.1"
+  version: "1.3.0"
+  environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
     primaryEnv: LOCUS_AGENT_CREDENTIAL
@@ -22,17 +23,19 @@ metadata:
 
 # Locus setup
 
-Use this when Locus tools are wanted but no funded account exists yet.
-Installed as the full plugin, the Locus MCP server is already configured;
-installed as a skill alone, first add the server URL shown in step 4 in the
-client's MCP settings. This skill covers everything
-around the connection: creating the account, authenticating, choosing paid
-capabilities, and funding. The flow branches by account owner, and the
-human-owned path is the default. On a human-owned account, you guide: the
-user signs in through the OAuth page and manages capabilities and funding in
-their dashboard. On an agent-owned account, complete the identity,
-capability, and connection steps yourself, involving the user only for
-explicit approvals, the AgentMail verification step, and funding.
+Use this when the user asks to install, connect, authenticate, or repair Locus.
+The request is not complete merely because `SKILL.md` was saved. Select one
+execution adapter from the actual host capabilities and the user's explicit
+choice, install and authenticate it, deliver all three released skill trees,
+verify a free readiness operation, and check discovery in a fresh session.
+MCP and the official generated CLI are peer adapters; never prefer one without
+host evidence. The full plugin may preconfigure an adapter, while a skill-only
+install still needs the selected adapter's own setup.
+
+The account flow is separate from adapter selection. A person with browser or
+device consent uses a human-owned account by default. Use an agent-owned
+account only when requested or when the runtime is truly headless, and involve
+the user for explicit approvals, AgentMail verification, and funding.
 
 All endpoints below are production.
 
@@ -44,6 +47,11 @@ skills through the first tier the host supports: native registration, then a
 complete persistent filesystem copy, then MCP guide retrieval for a no-files
 host. Do not skip the filesystem tier merely because the host lacks a native
 skill registry.
+
+If host inspection selects the generated CLI, follow the environment-specific
+CLI guide returned by the compatibility record, authenticate that adapter, and
+then return to Verify completion. The account-management and OAuth steps below
+apply to an MCP selection; do not run them in addition to a CLI setup.
 
 ## Safety rules
 
@@ -294,10 +302,15 @@ session with a new idempotency key.
 
 Always confirm:
 
-- the MCP connection is authenticated and exposes Locus tools;
-- OAuth tokens are in the runtime's native token store, and any compatibility
-  setup credential is in an approved secret location; neither appears in the
-  workspace or version control.
+- the selected MCP or CLI adapter is installed, authenticated, and exposes
+  Locus operations;
+- the complete released instruction tree is available and its version and
+  environment match the adapter;
+- a free readiness operation succeeds and a fresh session discovers the
+  installed instructions or has an explicit persistent reopen path;
+- OAuth tokens or CLI credentials are in the adapter's approved secret store,
+  and any compatibility setup credential is in an approved secret location;
+  none appears in the workspace or version control.
 
 On an agent-owned account, additionally confirm that only the intended
 capabilities are enabled — and, when the user requested funding, that the

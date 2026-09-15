@@ -9,6 +9,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export function buildGuideBundle(outputDirectory, options = {}) {
   const version = readFileSync(resolve(root, "version.txt"), "utf8").trim();
+  const environment = options.environment ?? "production";
+  if (!["production", "stage", "beta", "development"].includes(environment)) {
+    throw new Error(`Invalid guide environment: ${environment}`);
+  }
   const registry = JSON.parse(readFileSync(resolve(root, "guide-registry.json"), "utf8"));
   const guideIds = new Set(registry.guides.map((guide) => guide.id));
   if (guideIds.size !== registry.guides.length) throw new Error("guide-registry.json contains duplicate IDs");
@@ -18,10 +22,23 @@ export function buildGuideBundle(outputDirectory, options = {}) {
     if (!guide.source.startsWith("skills/") || guide.source.includes("..")) {
       throw new Error(`Guide ${guide.id} has an unsafe source path`);
     }
+    const sourceMatch = /^skills\/([a-z0-9][a-z0-9-]*)\/(.+)$/.exec(guide.source);
+    if (!sourceMatch) throw new Error(`Guide ${guide.id} is not inside a skill tree`);
+    const [, skill, installPath] = sourceMatch;
+    if (
+      !installPath ||
+      installPath.startsWith("/") ||
+      installPath.split("/").some((part) => part === "" || part === "." || part === "..")
+    ) {
+      throw new Error(`Guide ${guide.id} has an unsafe install path`);
+    }
     const content = readFileSync(resolve(root, guide.source), "utf8").replace(/\r\n/g, "\n");
     return {
       id: guide.id,
       version,
+      skill,
+      install_path: installPath,
+      entrypoint: installPath === "SKILL.md",
       title: guide.title,
       activation: guide.activation,
       content_type: guide.content_type ?? "text/markdown",
@@ -46,14 +63,28 @@ export function buildGuideBundle(outputDirectory, options = {}) {
     });
   }
 
+  const publishedGuides = guides.map(({ source: _source, ...guide }) => guide);
   const manifest = {
     schema_version: registry.schema_version,
     bundle_version: version,
+    environment,
     compatible_api_versions: registry.compatible_api_versions,
     compatible_runtime_versions: registry.compatible_runtime_versions,
-    guides: guides.map(({ content, source, ...guide }) => guide),
+    guides: publishedGuides.map(({ content, ...guide }) => guide),
   };
-  const bundle = { ...manifest, guides };
+  const entrypoints = new Map();
+  const installTargets = new Set();
+  for (const guide of guides) {
+    const target = `${guide.skill}/${guide.install_path}`;
+    if (installTargets.has(target)) throw new Error(`Duplicate guide install target: ${target}`);
+    installTargets.add(target);
+    if (guide.entrypoint) entrypoints.set(guide.skill, (entrypoints.get(guide.skill) ?? 0) + 1);
+  }
+  for (const skill of new Set(guides.map((guide) => guide.skill))) {
+    if (entrypoints.get(skill) !== 1) throw new Error(`Skill ${skill} must have exactly one SKILL.md entrypoint`);
+  }
+
+  const bundle = { ...manifest, guides: publishedGuides };
   const bundleBytes = `${JSON.stringify(bundle)}\n`;
   const digest = createHash("sha256").update(bundleBytes).digest("hex");
   const releaseManifest = { ...manifest, bundle_sha256: digest };
