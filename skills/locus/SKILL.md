@@ -5,6 +5,7 @@ license: MIT
 metadata:
   author: locus
   version: "1.1.2"
+  environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
 ---
