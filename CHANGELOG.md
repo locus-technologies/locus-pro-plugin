@@ -12,6 +12,13 @@
   registration and remote MCP guide retrieval.
 - Required complete, digest-verified, versioned skill trees and honest
   fresh-session activation reporting for hosts without a native skill registry.
+- Setup skill (v1.2.1) states the path rule: human-owned accounts are the
+  default, the agent-owned path is only for headless runtimes or an explicit
+  request and requires telling the user what such an account cannot do, an
+  already-authenticated connection without an agent credential is
+  human-owned, and a funding request never triggers agent-native signup.
+  Usage skill (v1.1.2) and README send funding on human-owned accounts to
+  the dashboard.
 
 ## 0.3.3 (2026-09-13)
 
