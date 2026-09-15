@@ -4,7 +4,8 @@ description: Author, validate, pilot, save, and run versioned Locus Workflows th
 license: MIT
 metadata:
   author: locus
-  version: "1.0.2"
+  version: "1.1.0"
+  environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
 ---
@@ -47,9 +48,14 @@ networking in hosted execution.
 
 ## Lifecycle
 
-1. Create or update a draft with an expected revision and stable idempotency key.
-2. Run a structural check. This must parse/typecheck without evaluating module
-   top-level code or calling a provider.
+1. Validate a complete inline source candidate before persistence when the
+   server supports it. This catches syntax, path, manifest, and binding errors
+   without creating a draft. Repair diagnostics deterministically and validate
+   again; do not create near-duplicate drafts to trial-and-error syntax.
+2. Create or update one draft with an expected revision and stable idempotency
+   key. Run the persisted structural check for that exact revision. It must
+   parse/typecheck without evaluating module top-level code or calling a
+   provider.
 3. Run fixture tests in an isolated no-network environment. Cover duplicate,
    missing, ambiguous, paginated, partial-error, and rate-limit cases relevant
    to the customer logic.
@@ -63,15 +69,18 @@ networking in hosted execution.
    `max_charge_credits` budget. Return the run ID promptly and poll its bounded
    status instead of holding the client call open.
 
-The four server tools are action-oriented control-plane operations:
+The four server tools are action-oriented control-plane operations. Mutating
+definition calls return a compact summary by default; request the full source
+only when it is needed for editing or export.
 
 - `workflow_definition`: `list`, `create`, `update`, `get`, `clone`, `archive`,
   or `save`. Create and update accept `{files:[{path,content}]}` or a
   tenant-owned source `artifact_id`. Update and archive require
   `expected_revision`; save requires the exact revision's successful structural
   check.
-- `workflow_validate`: `mode: "check"` compiles without evaluation;
-  `mode: "fixtures"` executes `tests/fixtures.ts` in a no-network sandbox.
+- `workflow_validate`: `mode: "check"` compiles without evaluation and accepts
+  either inline source or an existing draft revision; `mode: "fixtures"`
+  executes `tests/fixtures.ts` in a no-network sandbox for an existing draft.
 - `workflow_run`: queues one immutable version in `pilot` or `run` mode. It
   requires `max_charge_credits` and a stable `idempotency_key`, and returns a
   dedicated `run_id`/status rather than blocking for the batch. Its compact

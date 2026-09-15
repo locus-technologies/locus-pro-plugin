@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-13 for the versioned Locus Workflow guide bundle. content-sha256: 9395f3285b2956f3c6594ca2615eaf5d161546abfe7db664cfd40a5652621b44 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-14 for the versioned Locus Workflow guide bundle. content-sha256: ed738f9f21140f618c8299b712e5fdd8b9a07ff45c1d34cf3e84855c12207a9f -->
 
 # Authoring
 
@@ -113,6 +113,13 @@ provider receipt remains authoritative after a timeout; sandbox files do not.
 
 ## Submission rules
 
+When `workflow_validate` advertises inline source, send the whole candidate
+with `mode: "check"` before creating a draft. Supply exactly one source form:
+inline `files` or a tenant-owned `artifact_id`. Use the returned file, line,
+column, and excerpt to repair the same candidate, then validate it again. Do
+not discover additional providers or create additional drafts merely because
+the generated TypeScript failed to parse.
+
 Use inline `{files:[{path,content}]}` for no-files agents and ordinary source
 up to the server limit. A shell-capable client may upload a larger JSON source
 artifact and use `{artifact_id}`. Paths must be relative and normalized.
@@ -127,3 +134,10 @@ and each linked template resource by ID through `get_locus_guide`, then submit
 the returned text as inline source files.
 When the packaged template is readable, read those local assets directly and
 do not call `get_locus_guide` for duplicate copies of the same resources.
+
+Before reporting completion, reconcile deterministic integrity counts: inputs,
+rows accepted, rows rejected, rows attempted, rows succeeded, rows failed,
+outputs, provider calls, and exact credits charged. Explain any mismatch. A
+definition with lifecycle status `active` can still be an unchecked draft;
+use readiness fields such as validation state, saved-version count, pilot
+state, and `runnable` instead of treating `active` as ready.

@@ -57,7 +57,8 @@ function rewriteTree(directory) {
         contents = contents
           .replaceAll("https://api.paywithlocus.com", "https://api.stage.paywithlocus.com")
           .replaceAll("https://platform.paywithlocus.com", "https://platform.stage.paywithlocus.com")
-          .replaceAll("All endpoints below are production.", "All endpoints below are stage.");
+          .replaceAll("All endpoints below are production.", "All endpoints below are stage.")
+          .replaceAll('environment: "production"', 'environment: "stage"');
       }
       writeFileSync(path, contents);
     }
