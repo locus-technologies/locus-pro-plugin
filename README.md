@@ -56,6 +56,17 @@ codex plugin add locus@locus
 codex mcp login locus
 ```
 
+### Cline
+
+```
+cline mcp install locus --transport http \
+  https://api.paywithlocus.com/api/credits/mcp
+```
+
+Keep **Remote (HTTP)**, choose **OAuth**, leave the client ID blank for dynamic
+registration, and complete sign-in in the browser. No clone, build, API key,
+or environment variable is required.
+
 ### Cursor
 
 Add the MCP server directly in `~/.cursor/mcp.json`:
