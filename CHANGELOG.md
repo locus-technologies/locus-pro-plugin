@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.6 (2026-09-14)
+
+- Released the corrected environment-aware remote-guide serving contract so
+  stage URLs and immutable historical guide versions can be verified without
+  changing the already published 0.3.5 artifacts.
+
 ## 0.3.5 (2026-09-14)
 
 - Added a persistent-filesystem instruction tier between native skill
