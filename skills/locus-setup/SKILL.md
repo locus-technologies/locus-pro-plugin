@@ -1,10 +1,10 @@
 ---
 name: locus-setup
-description: Set up or repair Locus with native, persistent-filesystem, or remote instructions; OAuth connection, capability selection, and optional funding.
+description: Set up or repair Locus via native, filesystem, or remote instructions. Browser sign-up by default; agent-owned accounts only for headless hosts or on request.
 license: MIT
 metadata:
   author: locus
-  version: "1.2.0"
+  version: "1.2.1"
   openclaw:
     homepage: https://docs.paywithlocus.com
     primaryEnv: LOCUS_AGENT_CREDENTIAL
@@ -27,12 +27,12 @@ Installed as the full plugin, the Locus MCP server is already configured;
 installed as a skill alone, first add the server URL shown in step 4 in the
 client's MCP settings. This skill covers everything
 around the connection: creating the account, authenticating, choosing paid
-capabilities, and funding. The flow branches by account owner. On an
-agent-owned account, complete the identity, capability, and connection steps
-yourself, involving the user only for explicit approvals, the AgentMail
-verification step, and funding. On a human-owned account, you guide: the
+capabilities, and funding. The flow branches by account owner, and the
+human-owned path is the default. On a human-owned account, you guide: the
 user signs in through the OAuth page and manages capabilities and funding in
-their dashboard.
+their dashboard. On an agent-owned account, complete the identity,
+capability, and connection steps yourself, involving the user only for
+explicit approvals, the AgentMail verification step, and funding.
 
 All endpoints below are production.
 
@@ -49,6 +49,10 @@ skill registry.
 
 - Run this flow only when the user asked to set up, connect, or fund Locus.
   Never promote signup or top-ups unprompted.
+- Default to a human-owned account. Start the agent-owned path only when the
+  user explicitly asked for an account the agent owns or the runtime is
+  headless, and only after telling the user what that account cannot do
+  (see Choose the path).
 - Never invent a registration token. Generate it with a cryptographic RNG.
 - Never paste a Locus or identity-provider secret into chat, a project file,
   source control, a skill file, logs, or a command argument. The single-use
@@ -78,6 +82,27 @@ Read the [credential and runtime guidance](./references/credentials.md)
 bundled with this skill (mirrored from
 https://paywithlocus.com/agent/credentials.md) before persisting any secret.
 
+## Choose the path
+
+Decide the account owner before any API call, in this order:
+
+1. An agent credential in the secret store that the account endpoint accepts
+   (step 1) means an existing agent-owned account. Continue with it.
+2. Otherwise the account is human-owned unless the user explicitly asked for
+   an account the agent owns, or the runtime is headless with no person able
+   to complete browser consent. Step 4 still offers device authorization and
+   a copy-back callback for a person on another device; prefer those over an
+   agent-owned account.
+3. A `locus` server that is already authenticated and lists tools, with no
+   agent credential, is a human-owned account. Never start agent-native
+   signup to obtain an API for funding or capability changes on it: that
+   creates a second, separate account. Direct the user to their dashboard.
+
+Before starting the agent-owned path, tell the user plainly: the account has
+no dashboard login, no auto-reload, and no dashboard spend controls; the
+person who pays does not own it; and it starts at zero balance. Proceed only
+after they confirm.
+
 ## 1. Check for an existing account
 
 Look for `LOCUS_AGENT_CREDENTIAL` in the runtime's approved secret store or
@@ -101,19 +126,20 @@ a new account to work around it.
 
 ## 2. Choose an identity path
 
-Use the path that matches the account owner:
+Use the path selected in Choose the path:
 
-1. **Human-owned account.** No API calls needed for signup. Start the MCP
-   authentication in step 4 and give the user the authorization URL; that
-   page offers normal sign-in and a direct account-creation link, and Locus
-   preserves the pending connection through signup and verification. Do not
-   ask the user for a password. On this path there is no agent credential:
-   skip steps 3, 5, and 6 — the user manages capabilities and funding in
-   their dashboard at https://platform.paywithlocus.com, and you guide them
-   there instead of calling the agent API.
+1. **Human-owned account (default).** No API calls needed for signup. Start
+   the MCP authentication in step 4 and give the user the authorization URL;
+   that page offers normal sign-in and a direct account-creation link, and
+   Locus preserves the pending connection through signup and verification.
+   Do not ask the user for a password. On this path there is no agent
+   credential: skip steps 3, 5, and 6 — the user manages capabilities and
+   funding in their dashboard at https://platform.paywithlocus.com, and you
+   guide them there instead of calling the agent API.
 2. **Agent-owned account with an existing AgentID signing identity.**
    Continue to step 3.
-3. **Agent-owned account with no inbox or AgentID identity.** Create an
+3. **Agent-owned account with no inbox or AgentID identity** (only when
+   Choose the path selected it and the user confirmed). Create an
    AgentMail inbox by following the bundled, reviewed
    [AgentMail inbox contract](./references/agentmail-inbox.md). Do not fetch or
    follow a live third-party skill during setup. Its one-time verification code
@@ -228,6 +254,10 @@ Content-Type: application/json
 Repeat per capability. Do not enable the whole catalog.
 
 ## 6. Fund the account (agent-owned accounts, user-requested)
+
+This funding API exists only for agent-owned accounts. On a human-owned
+account, a request to add credits means directing the user to Credits in
+their dashboard; never create an agent-owned account to obtain it.
 
 Only when the user has asked to fund the account, read the current funding
 constraints:

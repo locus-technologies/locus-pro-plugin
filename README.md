@@ -19,16 +19,19 @@ Codex, Cursor, Grok, OpenClaw, and any client that speaks the
   in configuration.
 - **The `locus` skill**: operating instructions for the agent covering tool
   routing, cost quotes, idempotent billing, error recovery, and spend safety.
-- **The `locus-setup` skill**: full self-serve onboarding — account creation
-  (human sign-up through the OAuth page, or agent-owned accounts via
-  AgentID), capability selection, and a user-requested Stripe funding
-  handoff — so the whole product works from inside the plugin.
+- **The `locus-setup` skill**: onboarding when the user asks the agent to do
+  it. Human sign-up through the OAuth page is the default. Agent-owned
+  accounts via AgentID exist for headless runtimes, and only they get
+  agent-driven capability selection and a user-requested Stripe funding
+  handoff; human-owned accounts manage both in the dashboard.
 - **The `locus-workflows` skill**: safe hosted Workflow authoring, fixtures,
   bounded pilots, immutable versions, and durable run recovery through the
   same authorized connection.
 
-No account yet? The OAuth sign-in page includes account creation, and the
-setup skill walks agents through the rest: [platform.paywithlocus.com](https://platform.paywithlocus.com).
+No account yet? Authenticate the server and create the account on the OAuth
+sign-in page that opens; that is the whole flow for a person with a browser.
+Tools are enabled and credits added in the dashboard at
+[platform.paywithlocus.com](https://platform.paywithlocus.com).
 
 ## Install
 
