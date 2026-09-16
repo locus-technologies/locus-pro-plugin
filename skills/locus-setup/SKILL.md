@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.4"
+  version: "1.3.5"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -37,6 +37,10 @@ verify a free readiness operation, and check discovery in a fresh session.
 MCP and the official generated CLI are peer adapters; never prefer one without
 host evidence. The full plugin may preconfigure an adapter, while a skill-only
 install still needs the selected adapter's own setup.
+
+When a bootstrap led here, this installed skill is the operating procedure.
+The live compatibility record remains authoritative for environment and
+adapter availability; the bootstrap only locates and pins this released tree.
 
 The account flow is separate from adapter selection. A person with browser or
 device consent uses a human-owned account by default. Use an agent-owned
@@ -242,10 +246,13 @@ it discovers Locus OAuth and opens the authorization URL.
   signup approval).
 - Headless host: keep the login process and any loopback listener alive. For
   a human-owned account, the user approves on another device, Locus shows the
-  complete loopback callback URL, and the user copies it back for you to
-  paste into the waiting login prompt. If the client supports OAuth Device
-  Authorization, prefer it: it prints a short user code and verification
-  link while the client polls, and the browser never receives tokens.
+  complete loopback callback URL. Return it only through the client's
+  documented manual-callback channel when one exists; do not assume every
+  client has a waiting paste prompt. If the listener or OAuth client state is
+  gone, start a fresh authorization instead of reusing the callback. If the
+  client supports OAuth Device Authorization, prefer it: it prints a short
+  user code and verification link while the client polls, and the browser
+  never receives tokens.
 
 Client-specific configuration snippets (settings-file examples only, no
 procedures) live at `https://paywithlocus.com/agent/mcp.md`.

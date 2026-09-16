@@ -4,7 +4,7 @@ description: Pay-per-use APIs through the Locus MCP server. Cited web research, 
 license: MIT
 metadata:
   author: locus
-  version: "1.1.3"
+  version: "1.1.4"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -82,7 +82,9 @@ execution; do not improvise a second connection or local credential.
   for these.
 - Everything else: `search_apis(query)` describing the outcome you need,
   `describe_api(slug)` for the exact contract, then `execute(slug, args)`.
-  Search by outcome, not by a guessed provider name.
+  Search by outcome, not by a guessed provider name. Search ranks enabled
+  matches first; when the user needs a capability that is not available, pass
+  `enabled: false` to inspect disabled matches and their access-request step.
 - When a broad task benefits from a known category or curated pack, call
   `list_tool_groups`, then pass its canonical `category` and/or `pack` ID to
   `search_apis`. Category plus pack is an intersection. Never ignore an

@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 8c0d95855d3ad29b368eb88bc916041c8b35151d9e21fb50a183aefe129a83ab -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 675a1b3f7c873c5271245c0df72a63e61eea0e7b8e3099d1444e911190a5d867 -->
 
 # OpenClaw adapter
 
@@ -16,10 +16,20 @@ openclaw mcp login locus
 
 Keep `openclaw mcp login locus` and its loopback listener alive until consent
 finishes. If a managed agent shell cleans up child processes when a turn ends,
-start the same login command in a foreground persistent terminal owned by the
-host before presenting its authorization URL; do not replace native OAuth with
-a hand-written flow. Paste a manual callback only into the waiting login
-prompt, never into a command argument.
+start the same native login command in a foreground persistent terminal owned
+by the host before presenting its authorization URL. If the host has no such
+terminal but does have Python, detach only that native command with
+`subprocess.Popen(..., start_new_session=True)`, redirect its output to an
+owner-only temporary log, and verify that both the process and listener remain
+alive before opening the URL. This is process supervision, not a replacement
+OAuth flow.
+
+Do not assume OpenClaw has an interactive callback-paste prompt: current
+releases expose the loopback listener and a `--code` option instead. Keep the
+listener alive so the browser can return directly. If it dies, discard that
+authorization attempt and start `openclaw mcp login locus` again for fresh
+state; do not reuse its callback or put an authorization code, token, or full
+callback URL in a command argument.
 
 Install the three released skill trees through OpenClaw's native skill registry
 when available. Its installer accepts a local skill directory, not an archive

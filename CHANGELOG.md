@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.12 (2026-09-15)
+
+- Corrected OpenClaw OAuth recovery so managed shells keep the native login
+  listener durable and restart expired authorization state instead of assuming
+  a callback-paste prompt exists.
+- Defined precedence between the live compatibility record, bootstrap, and
+  installed setup skill without making OpenClaw the shared setup default.
+- Documented enabled-first catalog discovery and the explicit disabled-endpoint
+  filter used when an agent needs to request access.
+
 ## 0.3.11 (2026-09-15)
 
 - Made environment-level adapter availability authoritative so an unavailable
