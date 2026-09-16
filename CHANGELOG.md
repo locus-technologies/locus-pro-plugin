@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.11 (2026-09-15)
+
+- Made environment-level adapter availability authoritative so an unavailable
+  stage CLI cannot override a working native MCP path.
+- Documented durable OpenClaw OAuth startup, local-directory archive installs,
+  and request timeouts suitable for long-running paid calls.
+- Clarified deferred fresh-session verification and the shared decoded-JSON
+  Workflow response contract.
+
 ## 0.3.10 (2026-09-15)
 
 - Made the Hermes OAuth setup path declarative so an unauthenticated discovery

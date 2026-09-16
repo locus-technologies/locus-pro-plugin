@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.3"
+  version: "1.3.4"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -59,11 +59,13 @@ host-specific reference. Do not project one host's commands, storage paths,
 or lifecycle quirks onto another runtime.
 
 If host inspection selects the generated CLI, use the compatibility record's
-exact `cli.base_url` on discovery, authentication, and readiness commands (or
-save it in an environment-specific CLI profile), then return to Verify
-completion. Never let an installed CLI's production default replace the
-requested environment. The account-management and OAuth steps below apply to
-an MCP selection; do not run them in addition to a CLI setup.
+exact `cli.base_url` on discovery, authentication, and readiness commands only
+when `cli.available` is true (or absent on an older production record). Use
+only its returned `install_url`; do not construct one for another environment.
+If `cli.available` is false, its `reason` is authoritative and the CLI is not
+an eligible adapter. Never let an installed CLI's production default replace
+the requested environment. The account-management and OAuth steps below apply
+to an MCP selection; do not run them in addition to a CLI setup.
 
 ## Safety rules
 
@@ -319,7 +321,10 @@ Always confirm:
 - the complete released instruction tree is available and its version and
   environment match the adapter;
 - a free readiness operation succeeds and a fresh session discovers the
-  installed instructions or has an explicit persistent reopen path;
+  installed instructions or has an explicit persistent reopen path. When the
+  current host cannot open a second session inside the install turn, report
+  setup ready and fresh-session activation pending, then verify it at the
+  start of the next ordinary task instead of blocking or repeating setup;
 - OAuth tokens or CLI credentials are in the adapter's approved secret store,
   and any compatibility setup credential is in an approved secret location;
   none appears in the workspace or version control.

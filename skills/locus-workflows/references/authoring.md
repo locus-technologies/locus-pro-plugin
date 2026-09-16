@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: fc75e554f75b39218bb8d2655f61a33df46d834e55c46d388ac3264f0f783550 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: 7d8dcf3176f55b8f25769c3e008f2d2a0b1825c3cfbcd03242334a27068a5018 -->
 
 # Authoring
 
@@ -122,7 +122,10 @@ a `{data: ...}` wrapper. For an ordinary interactive `execute` call, this is
 the value under `structuredContent.data`; if interactive presentation returns
 a `truncated` preview, retrieve the complete call result before using it as a
 shape sample. Hosted calls receive the stored provider body directly and do
-not receive that chat-only preview/continuation envelope.
+not receive that chat-only preview/continuation envelope. A successful body
+whose response content type is JSON is decoded before it reaches either
+surface; valid JSON objects therefore remain objects rather than serialized
+JSON strings. Non-JSON and malformed JSON responses remain strings.
 
 Before writing substantial parsing logic, inspect the binding's saved
 `output_schema` and make one smallest representative direct call when live
