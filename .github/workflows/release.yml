@@ -101,6 +101,19 @@ jobs:
           tag="v$VERSION"
           notes="$RUNNER_TEMP/release-notes.md"
           node scripts/version.mjs notes > "$notes"
+          cat >> "$notes" <<CHECKLIST
+
+          ---
+          ## Review-portal follow-ups (manual — no CI API exists)
+
+          - OpenAI Platform: create a new draft of the Locus app from this
+            release, resubmit for review, and publish after approval.
+            Publishing also creates the Codex directory plugin.
+          - Cursor: request a re-index at cursor.com/marketplace/publish
+            (listing now centralized via cursor.directory) after this release.
+          - Confirm \`com.paywithlocus/locus@$VERSION\` is listed in the MCP
+            Registry. Downstream directories (Glama, PulseMCP) sync from it.
+          CHECKLIST
 
           if git show-ref --tags --verify --quiet "refs/tags/$tag"; then
             tagged_sha="$(git rev-parse "$tag^{}")"

@@ -32,6 +32,20 @@ and may spend stage credits on real providers.
   the raw Ed25519 private key matching the public `v=MCPv1` TXT record on
   `paywithlocus.com`. Set it through GitHub's encrypted secret input; never put
   it in a file in this repository or in a workflow argument committed here.
+- `MCP_PRIVATE_KEY` setup: the DNS record already publishes the public key
+  (`dig TXT paywithlocus.com` shows the `v=MCPv1` entry), so in the normal
+  case just add the matching private key at Settings > Secrets and variables >
+  Actions > New repository secret with the exact name `MCP_PRIVATE_KEY`. If
+  the matching private key is lost, generate a new Ed25519 keypair per the
+  official registry publishing docs, replace the `v=MCPv1` TXT value at the
+  DNS provider, wait for propagation, then store the new private key as the
+  secret. GitHub OIDC login is not applicable here: it only works for
+  `io.github.*` namespaces, while this server publishes under the custom
+  `com.paywithlocus/locus` DNS namespace.
+- Without the secret the Release workflow fails loudly at the registry step
+  with setup instructions; the GitHub release itself is still created. Fix by
+  adding the secret and rerunning the failed Release (it is idempotent and
+  skips the already-published GitHub assets).
 - The release is idempotent. A rerun verifies that an existing tag points to
   the same commit, repairs release assets, and skips an MCP Registry version
   that is already present.
@@ -44,6 +58,38 @@ offer a CI publication API. Never claim that a GitHub release bypasses those
 reviews. The generated `agent-skills-index.json` is the exact payload to copy
 in a reviewed AgentPay pull request at
 `apps/landing/public/.well-known/agent-skills/index.json`.
+
+## Post-release manual steps (per version, no CI API)
+
+Every GitHub release appends this checklist to its notes; work through it
+after the Release workflow finishes:
+
+- OpenAI Platform dashboard: new draft of the Locus app from the release,
+  resubmit, publish after approval (publishing also creates the Codex
+  directory plugin). Updates take a new review (typically weeks); one version
+  in review at a time.
+- Cursor: request a re-index at cursor.com/marketplace/publish (now
+  centralized via cursor.directory) after the release. Team marketplaces with
+  Auto Refresh pick up the new `main` on their own; the public listing does not.
+- Confirm the new MCP Registry version is listed; Glama and PulseMCP sync
+  from it without further action.
+
+Out of scope for this repo: Vercel Marketplace lists deployable product
+integrations backed by a provider-hosted integration server (provider program
+plus email review), not agent plugins, so there is nothing in this repo to
+push there. Smithery ownership is already DNS-verified
+(`smithery-verification` TXT on `paywithlocus.com`); publishing new versions
+there is a separate manual `smithery mcp publish` step until credentials are
+added to CI.
+
+## Discoverability assets
+
+- Keep the GitHub repo topics intact (`mcp`, `model-context-protocol`,
+  `mcp-server`, plus the client tags). Glama auto-indexes public repos from
+  topics plus README; removing `mcp` drops that discovery path.
+- `assets/logo.png` is the 400x400 PNG required by visual marketplace
+  listings (Cline, cursor.directory). Keep it in sync with `assets/logo.svg`;
+  it ships inside the release archives via the `assets` release path.
 
 ## Required local checks
 
