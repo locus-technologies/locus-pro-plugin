@@ -24,6 +24,13 @@ and may spend stage credits on real providers.
 - Promote only with a pull request whose head is `stage` and base is `main`.
   CI rejects every other route to `main` and rejects a promotion without a
   version newer than the latest tag.
+- The Promote workflow keeps that PR evergreen on every push to `stage`, but
+  creating PRs requires a token permitted to do so: either enable "Allow
+  GitHub Actions to create and approve pull requests" (repo/org Settings >
+  Actions > General > Workflow permissions), or store a PAT with pull-request
+  write access as the `PROMOTE_TOKEN` repository secret, which the workflow
+  prefers when present. Without one of these the workflow fails loudly and
+  the promotion PR must be opened by hand.
 - After the validated promotion merges, `Release` creates the immutable tag,
   GitHub release, checksums, complete plugin archive, per-skill archives, and a
   digest-stamped `agent-skills-index.json`. It then publishes the matching
@@ -83,7 +90,6 @@ there is a separate manual `smithery mcp publish` step until credentials are
 added to CI.
 
 ## Discoverability assets
-
 - Keep the GitHub repo topics intact (`mcp`, `model-context-protocol`,
   `mcp-server`, plus the client tags). Glama auto-indexes public repos from
   topics plus README; removing `mcp` drops that discovery path.
