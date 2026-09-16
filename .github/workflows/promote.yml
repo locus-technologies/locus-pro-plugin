@@ -9,6 +9,12 @@ name: Promote
 # Validate enforces that only stage may promote to main with a version newer
 # than the latest tag. After the merge, Release publishes the GitHub release
 # and the MCP Registry version automatically.
+#
+# Permission requirement: creating the PR needs a token allowed to open pull
+# requests. Either enable "Allow GitHub Actions to create and approve pull
+# requests" for the repo/org (Settings > Actions > General > Workflow
+# permissions), or store a PAT with pull-request write access as the
+# PROMOTE_TOKEN repository secret — the workflow prefers it when present.
 
 on:
   push:
@@ -25,7 +31,7 @@ jobs:
     name: Ensure stage to main promotion PR
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.PROMOTE_TOKEN || github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
       - name: Check out the stage branch
