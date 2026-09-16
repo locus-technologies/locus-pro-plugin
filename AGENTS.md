@@ -42,7 +42,11 @@ and may spend stage credits on real providers.
 - `MCP_PRIVATE_KEY` setup: the DNS record already publishes the public key
   (`dig TXT paywithlocus.com` shows the `v=MCPv1` entry), so in the normal
   case just add the matching private key at Settings > Secrets and variables >
-  Actions > New repository secret with the exact name `MCP_PRIVATE_KEY`. If
+  Actions > New repository secret with the exact name `MCP_PRIVATE_KEY`. The
+  value must be the raw 32-byte Ed25519 seed as 64 hex characters (no `0x`
+  prefix, no PEM armor) — from the original `key.pem`: `openssl pkey -in
+  key.pem -noout -text | grep -A3 'priv:' | tail -n +2 | tr -d ' :\n'`. The
+  Release workflow validates this shape before attempting login. If
   the matching private key is lost, generate a new Ed25519 keypair per the
   official registry publishing docs, replace the `v=MCPv1` TXT value at the
   DNS provider, wait for propagation, then store the new private key as the
