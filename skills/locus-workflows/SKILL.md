@@ -4,7 +4,7 @@ description: Author, validate, pilot, save, and run versioned Locus Workflows th
 license: MIT
 metadata:
   author: locus
-  version: "1.1.2"
+  version: "1.1.3"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com

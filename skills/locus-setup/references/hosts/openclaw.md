@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 2aa5ce302ff45be315ca0d435a607eaa166e213a09807184050f8615278e674f -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 8c0d95855d3ad29b368eb88bc916041c8b35151d9e21fb50a183aefe129a83ab -->
 
 # OpenClaw adapter
 
@@ -10,20 +10,25 @@ Register one OAuth server named `locus` at the exact environment URL returned
 by the compatibility record. Current releases accept this shape:
 
 ```bash
-openclaw mcp set locus '{"url":"<MCP transport URL>","transport":"streamable-http","auth":"oauth","requestTimeoutMs":30000,"connectionTimeoutMs":15000}'
+openclaw mcp set locus '{"url":"<MCP transport URL>","transport":"streamable-http","auth":"oauth","requestTimeoutMs":120000,"connectionTimeoutMs":15000}'
 openclaw mcp login locus
 ```
 
 Keep `openclaw mcp login locus` and its loopback listener alive until consent
 finishes. If a managed agent shell cleans up child processes when a turn ends,
-run the same login command in a foreground persistent terminal owned by the
-host; do not replace native OAuth with a hand-written flow. Paste a manual
-callback only into the waiting login prompt, never into a command argument.
+start the same login command in a foreground persistent terminal owned by the
+host before presenting its authorization URL; do not replace native OAuth with
+a hand-written flow. Paste a manual callback only into the waiting login
+prompt, never into a command argument.
 
 Install the three released skill trees through OpenClaw's native skill registry
-when available. Otherwise use the shared persistent-filesystem tier beneath
-the selected profile's state directory. A direct URL install of only the
-bootstrap `SKILL.md` is not complete skill delivery.
+when available. Its installer accepts a local skill directory, not an archive
+URL: download each compatibility-index archive, verify its digest, extract it,
+then run `openclaw skills install <extracted-skill-directory> --force` for each
+of `locus`, `locus-setup`, and `locus-workflows`. Otherwise use the shared
+persistent-filesystem tier beneath the selected profile's state directory. A
+direct URL install of only the bootstrap `SKILL.md` is not complete skill
+delivery.
 
 Prefer an external vault injected into the Gateway process for a native
 `lcac_` setup credential. When none exists, use the selected profile's trusted

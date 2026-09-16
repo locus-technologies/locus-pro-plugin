@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 914e92d88d471ec436586948027b1ffa57e7919bf51d7aaf854ba3eccd48c070 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 74ee797227cd36d0ae0730e27dc91f31ce049fafd90cf7ed3ea4e2018886e45b -->
 
 # Host adapters and readiness
 
@@ -11,8 +11,10 @@ second grant merely to change how instructions are stored.
 Select MCP or CLI as the execution interface independently from instruction
 delivery. Neither adapter is the default. Use this order:
 
-1. Honor an explicit MCP or CLI request. If it is unavailable, report the exact
-   blocker instead of silently switching adapters.
+1. Read the compatibility record first. An adapter explicitly marked
+   `available: false` is ineligible in that environment; report its `reason`
+   when the user requested it. Honor an explicit MCP or CLI request among the
+   available adapters instead of silently switching.
 2. Reuse a healthy existing Locus MCP or CLI installation only when its server
    or CLI base URL, authenticated grant, and installed skill bundle all match
    the requested environment. Otherwise preserve it and install the requested
@@ -24,6 +26,12 @@ delivery. Neither adapter is the default. Use this order:
    generated CLI, securely persist its credential, and invoke it as a durable
    tool. If exactly one set of requirements is met, use it. If both or neither
    are met and no stronger host signal resolves the choice, ask the user once.
+
+The mere presence of a `locus` executable is not a healthy or eligible CLI
+signal. Its authenticated grant, base URL, signed release, and environment must
+all pass the compatibility record's readiness contract. Likewise, probing a
+different system Python or shell than the active host runtime does not prove a
+native MCP dependency is missing.
 
 For a CLI selection, pass the compatibility record's exact `cli.base_url` to
 every command with `--base-url`, or save it in a dedicated profile for that
@@ -77,10 +85,13 @@ and do not treat any instruction-delivery method as permission to authenticate,
 enable tools, or write to external systems.
 
 An instruction-only install is incomplete. Continue until the selected adapter
-is installed and authenticated, the complete instruction tree is available, a
-free readiness call succeeds, and a fresh session can discover the setup. If a
-browser approval, host restart, or user choice is still required, say that the
-install is waiting rather than calling it complete.
+is installed and authenticated, the complete instruction tree is available,
+and a free readiness call succeeds. Verify fresh-session discovery immediately
+when the host can open a second session. Otherwise report setup ready with
+fresh-session activation pending and verify it at the start of the next
+ordinary task; do not repeat installation merely to manufacture that evidence.
+If browser approval, a required host restart, or a user choice is still
+outstanding, say that the install is waiting rather than calling it complete.
 
 Verify instruction discovery and execution readiness separately. Test skill
 discovery in a fresh session, then make the live readiness call in the same
