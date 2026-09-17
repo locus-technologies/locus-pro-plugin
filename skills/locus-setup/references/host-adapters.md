@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: f2831cf39cb9056d9b5dc3b249cda4cf994b1693d54f3bfe406f3f3445921b7c -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: b4ae45f63ce08e97035c8fc39dba4117a90668ff30e6cf8875c62aeea6bacf88 -->
 
 # Host adapters and readiness
 
@@ -54,13 +54,21 @@ the first supported tier:
    compatibility record actually declares available:
    - Prefer its Agent Skills index and exact per-skill archives. Use the host's
      native Agent Skills installer when available; otherwise download the
-     three archives, verify their index digests, and extract them; or
+     three archives with a raw/binary HTTP client, not a browser or page
+     extractor. Require an `application/zip` response or ZIP `PK` magic bytes,
+     then verify each index digest before extracting; or
    - Hydrate the tree from the returned guide manifest. Require its environment
      to match the selected adapter. For every entry, reject absolute paths,
      traversal, duplicate `skill/install_path` pairs, unknown skill names, and
      digest mismatches; fetch the immutable `url`, verify `sha256`, and write it
      below `<environment>/<version>/<skill>/<install_path>`. Require exactly one
      `entrypoint: true` entry named `SKILL.md` per skill.
+
+   Resolve the active host profile's final path before writing durable files.
+   If files must be staged first, hydrate them in a new owner-only temporary
+   directory, never a shared `~/.locus` tree. Validate the complete tree, then
+   move it into the resolved profile and activate it; remove the temporary
+   directory afterward.
 
    Keep `SKILL.md`, `references/`, and `assets/` together in the active
    profile's stable agent-data directory outside project source control.

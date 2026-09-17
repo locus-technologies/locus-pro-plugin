@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.7"
+  version: "1.3.8"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -88,6 +88,9 @@ to an MCP selection; do not run them in addition to a CLI setup.
   AgentMail verification code is the one exception: it is deliberate human
   friction — the user sees and approves its use — and it is submitted once,
   only to AgentMail's own verification endpoint, never logged or repeated.
+- Never dump, enumerate, grep, or search the whole process environment. Check
+  only whether the exact named variable needed by the current step is present,
+  without printing or transmitting its value.
 - Send Locus credentials only to `https://api.paywithlocus.com`.
 - Treat the returned `lcac_` value as a compatibility setup credential for the
   account-management calls in this skill. Never put it in MCP server
