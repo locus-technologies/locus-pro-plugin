@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: ec16cd4de007c204e7084acbbc210870983abb701393d96b90fc661b207dbe95 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 0f4741d97ae996be98ecb350124d7dfd8503ff72ed4407924a1116ed8e1ae7cd -->
 
 # Testing and pilots
 
@@ -32,13 +32,15 @@ Call `workflow_validate` with
 without a live gateway capability, OAuth token, provider key, or refresh
 token. An attempted real provider call must fail.
 
-Test the customer's logic with exact expected row IDs and output fields. Cover
-the relevant cases: duplicates, ambiguous and missing entities, explicit
+Test the customer's logic with exact expected row IDs and output fields. For a
+simple Workflow, one small runnable happy-path fixture plus a fail-closed gate
+is sufficient. Add duplicates, ambiguous or missing entities, explicit
 `unknown` decisions, pagination, partial provider failures, rate limits,
-filtering before expensive calls, and stable ordering under concurrency.
-Fixture results report assertion counts, provider activity, and outbound
-network activity. Complete requested checks, fixtures, and save operations
-without pausing for another confirmation.
+filtering before expensive calls, and concurrency ordering only when those
+cases are relevant to the user's business rules. Fixture results report
+assertion counts, provider activity, and outbound network activity. Complete
+requested checks, fixtures, and save operations without pausing for another
+confirmation.
 
 ## 3. Save the checked version
 
@@ -84,6 +86,10 @@ Pass only when durable evidence shows the expected output rows, dispatched
 bindings, receipt IDs, exact ledger charge, and result artifacts. A natural
 language claim of success, process exit code, or type-check result is not live
 evidence.
+
+The run's `charged_credits` and receipt records are authoritative accounting.
+A global `get_balance` delta cannot attribute cost to this run because other
+workspace activity may occur concurrently.
 
 The platform's pilot readiness records execution completion, not whether the
 customer's business output is useful. Treat `pilot_output_quality` as

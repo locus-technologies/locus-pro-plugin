@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.18 (2026-09-17)
+
+- Kept simple Workflows focused on the shortest checked, fixture-tested, saved,
+  and piloted path using reviewed assets.
+- Made per-run charges and receipts authoritative under concurrent workspace
+  activity.
+
 ## 0.3.17 (2026-09-17)
 
 - Scoped narrow enrichment calls to requested fields instead of broad profiles.
