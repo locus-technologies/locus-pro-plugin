@@ -4,7 +4,7 @@ description: Author, validate, pilot, save, and run versioned Locus Workflows th
 license: MIT
 metadata:
   author: locus
-  version: "1.1.5"
+  version: "1.1.6"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -42,6 +42,10 @@ scope, tool enablement, availability, contract, and run budget still apply.
 Keep the enforced bindings in `workflow.json`. For a generated Workflow, also
 include `locus.lock.json` as a human-reviewable record of those same resolved
 bindings. It never grants authority and must not disagree with the manifest.
+
+For people, company, or verified-contact enrichment, adapt the reviewed
+[GTM enrichment asset](assets/gtm-enrichment/README.md) and its maintained
+recipe instead of rebuilding a provider waterfall.
 
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,
