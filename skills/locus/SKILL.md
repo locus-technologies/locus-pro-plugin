@@ -4,7 +4,7 @@ description: Find people, verified work emails, companies, current web research,
 license: MIT
 metadata:
   author: locus
-  version: "1.1.6"
+  version: "1.1.7"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com

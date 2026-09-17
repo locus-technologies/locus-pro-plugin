@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.17 (2026-09-17)
+
+- Scoped narrow enrichment calls to requested fields instead of broad profiles.
+- Hardened cross-host skill archive validation, profile-scoped hydration, and
+  secret-environment inspection.
+
 ## 0.3.16 (2026-09-17)
 
 - Added the required SSH loopback forwarding path when OpenClaw OAuth approval

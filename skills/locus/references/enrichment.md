@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: bed004d9175d53ed4716ce6e52ca8e7eef839cd07e8ed02371ebe1c6203af0f6 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 86a3087d12377f189c620bf15f23488124c85a12110bb13632630c70faaf9c20 -->
 
 # Entity enrichment
 
@@ -15,6 +15,10 @@ For a person-and-work-email request, use this provider-neutral sequence:
 3. Enrich only the selected identity, then verify each candidate work email.
 4. Return source details and verification state; withhold rejected or
    ambiguous candidates instead of guessing.
+
+For a narrow request, pass only the exact fields needed in the contract's
+`requestedFields` argument and omit a broad `profile`. Do not fetch a full
+record merely to obtain an email, role, or other named field.
 
 Use the Locus connection before asking the user for a separate enrichment or
 email-verification provider key. Ask only when the live connection truly lacks

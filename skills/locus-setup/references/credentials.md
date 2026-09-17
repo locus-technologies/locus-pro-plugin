@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-15 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: 1010b086bdb55851769bf5180994e5dfb1b854ebe418201fde7ae51fd398cc8b -->
+<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-17 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: d07ee12b52c50097b3c8e3955408c97e866a46f160ce1eda6af44f18f6f723ea -->
 
 # Store Locus agent authentication
 
@@ -21,6 +21,10 @@ the value under the environment name required by the selected flow. Never
 print it after capture, and never put it in a project-local `.env` file. The
 Okibi bootstrap registration token is recovery-grade secret material and must
 live in the same class of store.
+
+Never dump, enumerate, grep, or search the whole process environment. Inspect
+only whether the exact named variable needed by the current step is present,
+without printing or transmitting its value.
 
 ## Hosted runtimes and proprietary vaults
 
