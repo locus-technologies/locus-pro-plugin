@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-11 for the versioned Locus guide bundle. content-sha256: 058016a79a3b676af772b7338cce4eb2a674a99cb72b0c816a676c64ee2f944d -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: bed004d9175d53ed4716ce6e52ca8e7eef839cd07e8ed02371ebe1c6203af0f6 -->
 
 # Entity enrichment
 
@@ -6,6 +6,19 @@ Resolve a stable person or company identity before merging fields. Preserve
 field-level source evidence, distinguish no match from an explicit negative,
 and represent ambiguous or unavailable data as unknown. Deduplicate on durable
 identifiers where possible, not display names alone.
+
+For a person-and-work-email request, use this provider-neutral sequence:
+
+1. Establish the current company and role from public/current evidence.
+2. Search the live catalog for people discovery and resolve the intended
+   identity before enrichment.
+3. Enrich only the selected identity, then verify each candidate work email.
+4. Return source details and verification state; withhold rejected or
+   ambiguous candidates instead of guessing.
+
+Use the Locus connection before asking the user for a separate enrichment or
+email-verification provider key. Ask only when the live connection truly lacks
+the required capability and its returned recovery path cannot satisfy the task.
 
 The user supplies ICP, seniority, qualification, and destination rules. This
 guide does not authorize outreach or CRM writes. Discover current enrichment

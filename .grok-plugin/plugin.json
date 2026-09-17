@@ -1,6 +1,6 @@
 {
   "name": "locus",
-  "version": "0.3.13",
+  "version": "0.3.15",
   "description": "Pay-per-use APIs for agents: cited web research, paid data lookups, and metered provider endpoints billed to workspace credits via the Locus MCP server.",
   "author": {
     "name": "Locus",

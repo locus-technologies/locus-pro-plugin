@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/runs-and-resume.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: e88ca8b63a0c55197fdbd7bae2672998489a7b54cebccd78a408398c25dbf4be -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/runs-and-resume.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: ff4a93e417bcb77b2b45ac2ab026855229c2a7e1cde407d3ab01b7954a295d83 -->
 
 # Runs, cancellation, and resume
 
@@ -35,11 +35,18 @@ logical update and needs a new key.
 
 ## Timeout or ambiguous provider response
 
+An aborted or failed `workflow_runs({action:"get"})` observation is unknown
+client state, not Workflow failure. Preserve the `run_id` and query that same
+run in the next turn or session. Near a host deadline, return the durable
+`run_id` and nonterminal state instead of spending the remaining response
+window on one final poll. Never submit a replacement run, and do not call
+`resume` unless the durable run state is one of the states allowed below.
+
 Inspect the existing run first. Find the logical call and receipt. Do not
-create a new run, change the occurrence, or choose another provider merely
-because the client or sandbox timed out. The gateway will replay a settled
-logical call and will not add its charge twice. A still-dispatched call remains
-reserved until the receipt path reconciles it.
+change the occurrence or choose another provider merely because the client or
+sandbox timed out. The gateway will replay a settled logical call and will not
+add its charge twice. A still-dispatched call remains reserved until the
+receipt path reconciles it.
 
 ## Cancel
 

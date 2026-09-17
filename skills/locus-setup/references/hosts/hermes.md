@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 8a342d2ff04f72e28e632cc714bf64599b12191367987da549f9d15405b0722e -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 5732b42d8e70fb6b105984916696a8b1f3cc35f0e64cc64aed5ab4a7952458fb -->
 
 # Hermes Agent adapter
 
@@ -12,6 +12,11 @@ the compatibility record's digest-pinned Agent Skills archives or guide
 manifest so `locus`, `locus-setup`, and `locus-workflows` each retain their
 linked references and assets. Use a fresh session or Hermes' documented
 prompt-cache invalidation after installing the complete trees.
+
+Keep the versioned source and activation links inside the active Hermes
+profile: use `<HERMES_HOME>/locus-agent-skills/<environment>/<version>/...`
+and `<HERMES_HOME>/skills`. When `HERMES_HOME` is overridden, do not link that
+profile to a shared `~/.locus` tree or another Hermes profile.
 
 Register one OAuth server named `locus` at the exact environment URL returned
 by the compatibility record. Write the native configuration before login so
@@ -31,17 +36,27 @@ authentication. Confirm the saved URL before login and do not preserve an
 entry from another Locus environment.
 
 Hermes performs OAuth discovery, PKCE, client identification, token exchange,
-and refresh. Keep the login command alive through approval. When Hermes offers
-manual completion, paste the complete callback response containing `code`,
-`state`, and `iss` into its waiting prompt; do not reduce it to only the code
-or put it in command arguments. Use Hermes' documented DCR fallback only when
-the installed release rejects Client ID Metadata Documents.
+and refresh. Keep the login command alive through approval. From a one-shot
+Hermes agent turn, launch it in the host's managed interactive PTY with
+background, PTY, and completion notification enabled, then keep polling or let
+the completion notification resume the same turn until the command exits. When
+Hermes offers manual completion, paste the complete callback response
+containing `code`, `state`, and `iss` into its waiting prompt; do not reduce it
+to only the code or put it in command arguments. Use Hermes' documented DCR
+fallback only when the installed release rejects Client ID Metadata Documents.
 
 OAuth tokens belong in Hermes' owner-only MCP token store. For a native `lcac_`
 setup credential, prefer an injected vault; otherwise use
 the active Hermes data directory's `.env`, never a project or workspace
 `.env`, with the directory mode `0700` and file mode `0600`. Do not add the
 credential to the MCP entry.
+
+The login process normally exits after saving credentials, so process absence
+is not authentication failure. After it exits or a host turn times out, confirm
+the active profile has a native token record without reading or printing it,
+reload MCP, and prove authentication with a live free Locus call before
+starting OAuth again. `hermes mcp list` labels such as `enabled` or `Tools: all`
+describe configuration and filtering, not authenticated reachability.
 
 Reload MCP if the authenticated server is not immediately visible, then verify
 the live tool list, a free readiness call, and automatic skill discovery in a
