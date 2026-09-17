@@ -4,7 +4,7 @@ description: Pay-per-use APIs through the Locus MCP server. Cited web research, 
 license: MIT
 metadata:
   author: locus
-  version: "1.1.4"
+  version: "1.1.5"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -147,9 +147,14 @@ approval token. If the response says the approval is expired, canceled,
 mutated, or requires reapproval, call `estimate_cost` again and use the new
 returned pair.
 
-On any billed direct tool, including `web_research` and pinned tools, pass the
-key as request `_meta` key `locus/idempotencyKey`, or inside the arguments
-under `_locus`, for example
+`execute` is a meta-tool: always pass `idempotency_key` as its top-level
+parameter and never put `_locus` inside `execute.args`. Those arguments are
+validated only against the selected endpoint's schema, which may reject extra
+properties.
+
+On an advertised billed direct capability tool, including `web_research` and
+pinned tools, pass the key as request `_meta` key `locus/idempotencyKey`, or
+inside that direct tool's arguments under `_locus`, for example
 `{"query": "...", "_locus": {"idempotency_key": "run-123"}}`. Direct tools
 take the provider's own arguments at the top level. They do not accept an
 approval token; when a token is required, call `execute` with the endpoint
@@ -168,9 +173,9 @@ When a token is returned, pass its `approval_token` and `idempotency_key` to
 `execute` unchanged with the same body. `max_charge_credits` is a hard ceiling;
 an exact quote rejects price movement. `MCP_APPROVAL_REAPPROVAL_REQUIRED`
 means nothing was dispatched under that attempt: estimate again and retry with
-the replacement token. Quotes default to 120 seconds. `expires_in_seconds` must be an
-integer from 30 through 600; values outside that range are invalid. Cancel an
-unused quote with `cancel_cost_approval`.
+the replacement token. Quotes default to 120 seconds. `expires_in_seconds`
+must be an integer from 30 through 600; values outside that range are invalid.
+Cancel an unused quote with `cancel_cost_approval`.
 
 On a successful billed call, read `data`, `credits_charged`, and
 `credits_balance` from `structuredContent` when present. `_meta` carries
