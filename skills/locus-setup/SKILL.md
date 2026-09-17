@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.6"
+  version: "1.3.7"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com

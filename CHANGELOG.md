@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.16 (2026-09-17)
+
+- Added the required SSH loopback forwarding path when OpenClaw OAuth approval
+  runs in a browser on a different machine.
+
 ## 0.3.15 (2026-09-17)
 
 - Front-loaded people, company, and verified-work-email intent so ordinary
