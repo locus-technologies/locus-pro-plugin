@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-02 so registry scanners can review the exact contract this skill uses in-repo. The runtime-specific section for a third-party host referencing its own environment layout is intentionally omitted. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: ee7d16653b16e8db3be9a173ed5e896a3bf77a379fe6afea7ecbd05828835629 -->
+<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-15 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: 1010b086bdb55851769bf5180994e5dfb1b854ebe418201fde7ae51fd398cc8b -->
 
 # Store Locus agent authentication
 
@@ -22,25 +22,6 @@ print it after capture, and never put it in a project-local `.env` file. The
 Okibi bootstrap registration token is recovery-grade secret material and must
 live in the same class of store.
 
-## OpenClaw
-
-Prefer an external vault injected into the Gateway process. When none is
-configured, use OpenClaw's trusted global environment file, not the agent
-workspace:
-
-```text
-~/.openclaw/.env
-```
-
-Set the OpenClaw state directory to mode `0700` and the file to `0600`. Add
-`LOCUS_AGENT_CREDENTIAL=<credential>` without echoing it to the terminal. Do
-not reference it from the MCP configuration. OAuth login writes its separate
-tokens to OpenClaw's native connection store.
-
-Never use a workspace `.env`: workspace files can be committed, read by tools,
-or supplied by an untrusted checkout. Run `openclaw doctor` after changing
-permissions.
-
 ## Hosted runtimes and proprietary vaults
 
 Use the platform's encrypted secret manager or environment injection. Bind the
@@ -59,6 +40,13 @@ secret, or cloud secret manager. If none exists, use this last-resort layout:
 Create `~/.config/locus` with mode `0700` and `credentials.env` with mode
 `0600`. Load it only for Locus setup and account-management calls. Never source
 it into unrelated tools or commit it.
+
+The generated CLI does not silently fall back to a secret file. When no OS
+keychain is available, file storage is an explicit owner choice: pass
+`--allow-file-storage` to `locus auth login`, or set
+`OKIBI_AUTH_ALLOW_FILE_STORAGE=1`. `OKIBI_AUTH_STORAGE` selects the supported
+storage backend. Keep any selected file in the owner-only location above; do
+not invent a project-local fallback.
 
 ## Rotation
 

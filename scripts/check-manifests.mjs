@@ -54,13 +54,58 @@ const manifestVersion = [...versions][0];
 if (versions.size > 1) errors.push(`plugin manifests disagree on version: ${[...versions].join(", ")}`);
 
 if (!manifestVersion) errors.push("no plugin manifest carries a version");
-for (const [path, expected] of [
-  ["version.txt", read("version.txt").trim()],
-  [".release-please-manifest.json", json(".release-please-manifest.json")?.["."]],
-]) {
-  if (!expected) errors.push(`${path}: missing version entry`);
-  else if (manifestVersion && expected !== manifestVersion) {
-    errors.push(`${path}: version ${expected} != manifest version ${manifestVersion}`);
+const canonicalVersion = read("version.txt").trim();
+if (!canonicalVersion) errors.push("version.txt: missing version entry");
+else if (manifestVersion && canonicalVersion !== manifestVersion) {
+  errors.push(`version.txt: version ${canonicalVersion} != manifest version ${manifestVersion}`);
+}
+
+// --- Versioned remote-guide registry ---------------------------------------
+// Every published Markdown guide and direct reference must be retrievable by
+// ID for agents that have MCP/HTTP but no persistent filesystem.
+const guideRegistry = json("guide-registry.json");
+if (guideRegistry) {
+  if (guideRegistry.schema_version !== "1") {
+    errors.push('guide-registry.json: schema_version must be "1"');
+  }
+  if (!Array.isArray(guideRegistry.compatible_api_versions) || guideRegistry.compatible_api_versions.length === 0) {
+    errors.push("guide-registry.json: compatible_api_versions must be nonempty");
+  }
+  if (!Array.isArray(guideRegistry.compatible_runtime_versions) || guideRegistry.compatible_runtime_versions.length === 0) {
+    errors.push("guide-registry.json: compatible_runtime_versions must be nonempty");
+  }
+  const guides = Array.isArray(guideRegistry.guides) ? guideRegistry.guides : [];
+  if (guides.length === 0) errors.push("guide-registry.json: guides must be nonempty");
+  const ids = new Set();
+  const sources = new Set();
+  for (const [index, guide] of guides.entries()) {
+    const label = `guide-registry.json: guides[${index}]`;
+    if (!/^[a-z0-9][a-z0-9.-]{0,79}$/.test(guide?.id ?? "")) {
+      errors.push(`${label}.id is invalid`);
+    } else if (ids.has(guide.id)) {
+      errors.push(`${label}.id duplicates ${guide.id}`);
+    } else ids.add(guide.id);
+    if (typeof guide?.source !== "string" || !guide.source.startsWith("skills/") || guide.source.includes("..")) {
+      errors.push(`${label}.source is unsafe`);
+    } else if (!existsSync(resolve(root, guide.source))) {
+      errors.push(`${label}.source does not exist: ${guide.source}`);
+    } else if (sources.has(guide.source)) {
+      errors.push(`${label}.source is duplicated: ${guide.source}`);
+    } else sources.add(guide.source);
+    for (const key of ["title", "activation"]) {
+      if (typeof guide?.[key] !== "string" || guide[key].trim() === "") {
+        errors.push(`${label}.${key} must be nonempty`);
+      }
+    }
+    if (guide?.content_type !== undefined && !/^[a-z]+\/[a-z0-9.+-]+$/i.test(guide.content_type)) {
+      errors.push(`${label}.content_type is invalid`);
+    }
+  }
+  const publicGuideFiles = readdirSync(resolve(root, "skills"), { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.(?:md|json|ts)$/.test(entry.name))
+    .map((entry) => `skills/${resolve(entry.parentPath ?? entry.path, entry.name).slice(resolve(root, "skills").length + 1)}`);
+  for (const path of publicGuideFiles) {
+    if (!sources.has(path)) errors.push(`guide-registry.json: missing retrievable source ${path}`);
   }
 }
 
@@ -105,7 +150,7 @@ if (openPluginMcp && openPluginMcp.$schema !== "https://agent-plugins.org/schema
 }
 
 // MCP Registry manifest: the registry pins immutable versions, so this file
-// must move in lockstep with the plugin manifests (release-please bumps it).
+// must move in lockstep with the plugin manifests (version.mjs enforces it).
 const registryServer = json("server.json");
 if (registryServer) {
   if (registryServer.name !== "com.paywithlocus/locus") {
@@ -305,6 +350,15 @@ for (const { name, path } of skillPaths) {
   }
 }
 
+const locusSkill = read("skills/locus/SKILL.md");
+if (
+  !locusSkill.includes(
+    "always pass `idempotency_key` as its top-level\nparameter and never put `_locus` inside `execute.args`",
+  )
+) {
+  errors.push("skills/locus/SKILL.md: must keep execute idempotency outside endpoint args");
+}
+
 // --- Secret scan over every checked file ------------------------------------
 const skillFiles = readdirSync(resolve(root, "skills"), { recursive: true, withFileTypes: true })
   .filter((entry) => entry.isFile())
@@ -412,10 +466,12 @@ if (submission) {
     errors.push("chatgpt-app-submission.json: app_info.description exceeds the 4000-char schema cap");
   }
   // The tool set and every annotation triplet mirror what a full-scope
-  // production OAuth session exposes (eight meta-tools plus the enabled
-  // capability tools); a server-side change must land here too.
+  // execute-capable OAuth session exposes when hosted Workflows are enabled;
+  // a released server-side change must land here too.
   const EXPECTED_SUBMISSION_TOOLS = {
     search_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    list_tool_groups: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
+    get_locus_guide: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     describe_api: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     list_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     get_balance: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
@@ -423,13 +479,17 @@ if (submission) {
     estimate_cost: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
     cancel_cost_approval: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     execute: { readOnlyHint: false, openWorldHint: true, destructiveHint: true },
+    workflow_definition: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
+    workflow_validate: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
+    workflow_run: { readOnlyHint: false, openWorldHint: true, destructiveHint: true },
+    workflow_runs: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     router_web_search: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
     web_research: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
   };
   const submittedTools = Object.keys(submission.tools ?? {}).sort();
   const expectedTools = Object.keys(EXPECTED_SUBMISSION_TOOLS).sort();
   if (submittedTools.join(",") !== expectedTools.join(",")) {
-    errors.push(`chatgpt-app-submission.json: tools [${submittedTools.join(", ")}] != the ten tools a full-scope production OAuth session exposes`);
+    errors.push(`chatgpt-app-submission.json: tools [${submittedTools.join(", ")}] != the expected tools a full-scope production OAuth session exposes`);
   }
   for (const [name, tool] of Object.entries(submission.tools ?? {})) {
     const expected = EXPECTED_SUBMISSION_TOOLS[name];

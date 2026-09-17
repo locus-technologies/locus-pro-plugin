@@ -1,5 +1,126 @@
 # Changelog
 
+## 0.3.13 (2026-09-16)
+
+- Clarified that the `execute` meta-tool takes `idempotency_key` only as a
+  top-level parameter, while `_locus` applies only to advertised direct tools.
+- Cleaned up malformed execution-recovery line wrapping in the Locus skill.
+
+## 0.3.12 (2026-09-15)
+
+- Corrected OpenClaw OAuth recovery so managed shells keep the native login
+  listener durable and restart expired authorization state instead of assuming
+  a callback-paste prompt exists.
+- Defined precedence between the live compatibility record, bootstrap, and
+  installed setup skill without making OpenClaw the shared setup default.
+- Documented enabled-first catalog discovery and the explicit disabled-endpoint
+  filter used when an agent needs to request access.
+
+## 0.3.11 (2026-09-15)
+
+- Made environment-level adapter availability authoritative so an unavailable
+  stage CLI cannot override a working native MCP path.
+- Documented durable OpenClaw OAuth startup, local-directory archive installs,
+  and request timeouts suitable for long-running paid calls.
+- Clarified deferred fresh-session verification and the shared decoded-JSON
+  Workflow response contract.
+
+## 0.3.10 (2026-09-15)
+
+- Made the Hermes OAuth setup path declarative so an unauthenticated discovery
+  probe cannot prevent the server from being registered before login.
+- Clarified that OpenClaw CLI authentication and fresh-session skill discovery
+  do not require its Gateway, while retaining the foreground OAuth-listener
+  requirement.
+- Bound generated-CLI setup to the compatibility record's environment-specific
+  base URL and documented the explicit owner-only file-storage fallback.
+
+## 0.3.9 (2026-09-15)
+
+- Documented the exact hosted `row.call` raw-body contract, input/output parse
+  hooks, provider-boundary probing, targeted source edits, response inspection,
+  and execution-versus-output pilot readiness.
+- Kept shared setup host-neutral while moving OpenClaw and Hermes commands,
+  storage, callback, reload, and lifecycle behavior into optional host
+  references.
+- Tightened reuse so an existing adapter is healthy only when its environment,
+  authenticated grant, and installed instruction bundle all match.
+
+## 0.3.8 (2026-09-15)
+
+- Made ordinary Locus API and Workflow execution autonomous instead of adding
+  Locus-specific confirmation gates for billed calls.
+- Made compact and legacy tool vocabularies explicit while treating the live
+  connection inventory as authoritative, including outcome and access-request
+  tools.
+- Improved Workflow authoring guidance for manifest kinds, digest-carried
+  validation, path-scoped draft patches, consistent revisions, readiness,
+  real executable fixtures, and compact agent behavior.
+- Clarified Agent Skills archive installation, user-scoped source-of-truth and
+  workspace mirrors, main-session tool verification, and OpenClaw timeout and
+  stale-runtime-state recovery.
+
+## 0.3.7 (2026-09-14)
+
+- Made MCP and the generated CLI peer installation adapters selected from the
+  user's explicit choice, a healthy existing setup, and actual host support.
+- Made one-line setup completion include adapter authentication, complete
+  versioned skill delivery, a free readiness probe, and fresh-session
+  discovery instead of stopping after copying `SKILL.md`.
+- Added safe filesystem hydration metadata to the guide manifest and improved
+  Workflow guidance for inline validation, deterministic repair, truthful
+  readiness, and integrity counts.
+
+## 0.3.6 (2026-09-14)
+
+- Released the corrected environment-aware remote-guide serving contract so
+  stage URLs and immutable historical guide versions can be verified without
+  changing the already published 0.3.5 artifacts.
+
+## 0.3.5 (2026-09-14)
+
+- Added a persistent-filesystem instruction tier between native skill
+  registration and remote MCP guide retrieval.
+- Required complete, digest-verified, versioned skill trees and honest
+  fresh-session activation reporting for hosts without a native skill registry.
+- Setup skill (v1.2.1) states the path rule: human-owned accounts are the
+  default, the agent-owned path is only for headless runtimes or an explicit
+  request and requires telling the user what such an account cannot do, an
+  already-authenticated connection without an agent credential is
+  human-owned, and a funding request never triggers agent-native signup.
+  Usage skill (v1.1.2) and README send funding on human-owned accounts to
+  the dashboard.
+
+## 0.3.3 (2026-09-13)
+
+- Corrected the hosted Workflow lifecycle so agents save a checked immutable
+  version before starting a live pilot.
+- Documented the exact compact `workflow_run` request and host-approval
+  boundary, including the distinction from `workflow_runs` actions.
+- Required live contract digests for saved bindings and clarified bounded
+  remote-guide pagination.
+
+## 0.3.1 (2026-09-13)
+
+- Made hosted Workflows automatically eligible for live Locus-reviewed Tools,
+  maintained Recipes, and explicitly verified external buyer-rail listings;
+  exceptional approvals and emergency denies remain server-controlled.
+- Clarified that catalog verification never bypasses connection scope, tool
+  enablement, availability, contract validation, or run budgets.
+
+## 0.3.0 (2026-09-11)
+
+- Added provider-agnostic category and curated-pack discovery, including live
+  group lookup, scoped pagination, and remote guide retrieval.
+- Added the `locus-workflows` skill and a fixed-runtime TypeScript template for
+  checked, fixture-tested, budget-bounded hosted Workflows with durable run
+  inspection, cancellation, and resume guidance.
+- Added one canonical versioned guide registry and generated JSON/Markdown
+  bundle metadata so agents without persistent files can retrieve the same
+  reviewed instructions served by native plugin packages.
+- Extended manifest, release, and ChatGPT submission checks for the new guide
+  and conditional hosted-Workflow tools.
+
 ## 0.2.1 (2026-09-04)
 
 - Grok manifest precedence fixed: the root `.mcp.json` (the file Grok

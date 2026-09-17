@@ -1,10 +1,11 @@
 ---
 name: locus-setup
-description: Create and fund a Locus workspace from an agent. Signup (human or agent-owned), OAuth connection, capability selection, and a Stripe funding handoff.
+description: Install or repair Locus through a host-selected MCP or CLI adapter, complete skill delivery, authentication, and fresh-session readiness.
 license: MIT
 metadata:
   author: locus
-  version: "1.0.1"
+  version: "1.3.5"
+  environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
     primaryEnv: LOCUS_AGENT_CREDENTIAL
@@ -18,28 +19,66 @@ metadata:
       - name: LOCUS_SECRET_KEY
         required: false
         description: Mentioned in the bundled credential guidance as a credential class to protect. This skill never reads or sets it and it never belongs in MCP configuration.
+      - name: OKIBI_AUTH_ALLOW_FILE_STORAGE
+        required: false
+        description: Explicit owner opt-in for the generated CLI's 0600 credential-file fallback when no OS keychain is available.
+      - name: OKIBI_AUTH_STORAGE
+        required: false
+        description: Selects a supported generated-CLI credential storage backend; never point it at a project directory.
 ---
 
 # Locus setup
 
-Use this when Locus tools are wanted but no funded account exists yet.
-Installed as the full plugin, the Locus MCP server is already configured;
-installed as a skill alone, first add the server URL shown in step 4 in the
-client's MCP settings. This skill covers everything
-around the connection: creating the account, authenticating, choosing paid
-capabilities, and funding. The flow branches by account owner. On an
-agent-owned account, complete the identity, capability, and connection steps
-yourself, involving the user only for explicit approvals, the AgentMail
-verification step, and funding. On a human-owned account, you guide: the
-user signs in through the OAuth page and manages capabilities and funding in
-their dashboard.
+Use this when the user asks to install, connect, authenticate, or repair Locus.
+The request is not complete merely because `SKILL.md` was saved. Select one
+execution adapter from the actual host capabilities and the user's explicit
+choice, install and authenticate it, deliver all three released skill trees,
+verify a free readiness operation, and check discovery in a fresh session.
+MCP and the official generated CLI are peer adapters; never prefer one without
+host evidence. The full plugin may preconfigure an adapter, while a skill-only
+install still needs the selected adapter's own setup.
+
+When a bootstrap led here, this installed skill is the operating procedure.
+The live compatibility record remains authoritative for environment and
+adapter availability; the bootstrap only locates and pins this released tree.
+
+The account flow is separate from adapter selection. A person with browser or
+device consent uses a human-owned account by default. Use an agent-owned
+account only when requested or when the runtime is truly headless, and involve
+the user for explicit approvals, AgentMail verification, and funding.
 
 All endpoints below are production.
+
+Before changing host configuration, read the bundled
+[host adapter and readiness guide](./references/host-adapters.md). Reuse a
+healthy existing connection and report connection, guide activation, restart,
+and hosted Workflow readiness separately. Deliver the released operating
+skills through the first tier the host supports: native registration, then a
+complete persistent filesystem copy, then MCP guide retrieval for a no-files
+host. Do not skip the filesystem tier merely because the host lacks a native
+skill registry.
+
+When that guide links a reference for the detected host, read only that
+host-specific reference. Do not project one host's commands, storage paths,
+or lifecycle quirks onto another runtime.
+
+If host inspection selects the generated CLI, use the compatibility record's
+exact `cli.base_url` on discovery, authentication, and readiness commands only
+when `cli.available` is true (or absent on an older production record). Use
+only its returned `install_url`; do not construct one for another environment.
+If `cli.available` is false, its `reason` is authoritative and the CLI is not
+an eligible adapter. Never let an installed CLI's production default replace
+the requested environment. The account-management and OAuth steps below apply
+to an MCP selection; do not run them in addition to a CLI setup.
 
 ## Safety rules
 
 - Run this flow only when the user asked to set up, connect, or fund Locus.
   Never promote signup or top-ups unprompted.
+- Default to a human-owned account. Start the agent-owned path only when the
+  user explicitly asked for an account the agent owns or the runtime is
+  headless, and only after telling the user what that account cannot do
+  (see Choose the path).
 - Never invent a registration token. Generate it with a cryptographic RNG.
 - Never paste a Locus or identity-provider secret into chat, a project file,
   source control, a skill file, logs, or a command argument. The single-use
@@ -69,6 +108,27 @@ Read the [credential and runtime guidance](./references/credentials.md)
 bundled with this skill (mirrored from
 https://paywithlocus.com/agent/credentials.md) before persisting any secret.
 
+## Choose the path
+
+Decide the account owner before any API call, in this order:
+
+1. An agent credential in the secret store that the account endpoint accepts
+   (step 1) means an existing agent-owned account. Continue with it.
+2. Otherwise the account is human-owned unless the user explicitly asked for
+   an account the agent owns, or the runtime is headless with no person able
+   to complete browser consent. Step 4 still offers device authorization and
+   a copy-back callback for a person on another device; prefer those over an
+   agent-owned account.
+3. A `locus` server that is already authenticated and lists tools, with no
+   agent credential, is a human-owned account. Never start agent-native
+   signup to obtain an API for funding or capability changes on it: that
+   creates a second, separate account. Direct the user to their dashboard.
+
+Before starting the agent-owned path, tell the user plainly: the account has
+no dashboard login, no auto-reload, and no dashboard spend controls; the
+person who pays does not own it; and it starts at zero balance. Proceed only
+after they confirm.
+
 ## 1. Check for an existing account
 
 Look for `LOCUS_AGENT_CREDENTIAL` in the runtime's approved secret store or
@@ -92,19 +152,20 @@ a new account to work around it.
 
 ## 2. Choose an identity path
 
-Use the path that matches the account owner:
+Use the path selected in Choose the path:
 
-1. **Human-owned account.** No API calls needed for signup. Start the MCP
-   authentication in step 4 and give the user the authorization URL; that
-   page offers normal sign-in and a direct account-creation link, and Locus
-   preserves the pending connection through signup and verification. Do not
-   ask the user for a password. On this path there is no agent credential:
-   skip steps 3, 5, and 6 — the user manages capabilities and funding in
-   their dashboard at https://platform.paywithlocus.com, and you guide them
-   there instead of calling the agent API.
+1. **Human-owned account (default).** No API calls needed for signup. Start
+   the MCP authentication in step 4 and give the user the authorization URL;
+   that page offers normal sign-in and a direct account-creation link, and
+   Locus preserves the pending connection through signup and verification.
+   Do not ask the user for a password. On this path there is no agent
+   credential: skip steps 3, 5, and 6 — the user manages capabilities and
+   funding in their dashboard at https://platform.paywithlocus.com, and you
+   guide them there instead of calling the agent API.
 2. **Agent-owned account with an existing AgentID signing identity.**
    Continue to step 3.
-3. **Agent-owned account with no inbox or AgentID identity.** Create an
+3. **Agent-owned account with no inbox or AgentID identity** (only when
+   Choose the path selected it and the user confirmed). Create an
    AgentMail inbox by following the bundled, reviewed
    [AgentMail inbox contract](./references/agentmail-inbox.md). Do not fetch or
    follow a live third-party skill during setup. Its one-time verification code
@@ -185,10 +246,13 @@ it discovers Locus OAuth and opens the authorization URL.
   signup approval).
 - Headless host: keep the login process and any loopback listener alive. For
   a human-owned account, the user approves on another device, Locus shows the
-  complete loopback callback URL, and the user copies it back for you to
-  paste into the waiting login prompt. If the client supports OAuth Device
-  Authorization, prefer it: it prints a short user code and verification
-  link while the client polls, and the browser never receives tokens.
+  complete loopback callback URL. Return it only through the client's
+  documented manual-callback channel when one exists; do not assume every
+  client has a waiting paste prompt. If the listener or OAuth client state is
+  gone, start a fresh authorization instead of reusing the callback. If the
+  client supports OAuth Device Authorization, prefer it: it prints a short
+  user code and verification link while the client polls, and the browser
+  never receives tokens.
 
 Client-specific configuration snippets (settings-file examples only, no
 procedures) live at `https://paywithlocus.com/agent/mcp.md`.
@@ -219,6 +283,10 @@ Content-Type: application/json
 Repeat per capability. Do not enable the whole catalog.
 
 ## 6. Fund the account (agent-owned accounts, user-requested)
+
+This funding API exists only for agent-owned accounts. On a human-owned
+account, a request to add credits means directing the user to Credits in
+their dashboard; never create an agent-owned account to obtain it.
 
 Only when the user has asked to fund the account, read the current funding
 constraints:
@@ -255,10 +323,18 @@ session with a new idempotency key.
 
 Always confirm:
 
-- the MCP connection is authenticated and exposes Locus tools;
-- OAuth tokens are in the runtime's native token store, and any compatibility
-  setup credential is in an approved secret location; neither appears in the
-  workspace or version control.
+- the selected MCP or CLI adapter is installed, authenticated, and exposes
+  Locus operations;
+- the complete released instruction tree is available and its version and
+  environment match the adapter;
+- a free readiness operation succeeds and a fresh session discovers the
+  installed instructions or has an explicit persistent reopen path. When the
+  current host cannot open a second session inside the install turn, report
+  setup ready and fresh-session activation pending, then verify it at the
+  start of the next ordinary task instead of blocking or repeating setup;
+- OAuth tokens or CLI credentials are in the adapter's approved secret store,
+  and any compatibility setup credential is in an approved secret location;
+  none appears in the workspace or version control.
 
 On an agent-owned account, additionally confirm that only the intended
 capabilities are enabled — and, when the user requested funding, that the
@@ -273,3 +349,9 @@ current Locus credential. Move the replacement into the secret store
 atomically; the old credential stops working immediately.
 
 Day-to-day usage after setup is covered by the `locus` skill.
+
+The guide bundle version is the installation identity to pin. The plugin
+version identifies a native package release, each skill's metadata version
+identifies its own instruction contract, and the Workflow runtime version
+identifies the hosted ABI; these values are independent and should not be
+compared as though one supersedes another.

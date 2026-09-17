@@ -1,0 +1,155 @@
+{
+  "schema_version": "1",
+  "compatible_api_versions": ["2026-09-11"],
+  "compatible_runtime_versions": ["locus-typescript-1"],
+  "guides": [
+    {
+      "id": "usage",
+      "title": "Use Locus Pro",
+      "activation": "Use when an agent needs to discover or call Locus Recipes and Tools.",
+      "source": "skills/locus/SKILL.md"
+    },
+    {
+      "id": "discovery",
+      "title": "Discover Locus capabilities",
+      "activation": "Use when the needed provider or endpoint is not already known.",
+      "source": "skills/locus/references/discovery.md"
+    },
+    {
+      "id": "research",
+      "title": "Research with evidence",
+      "activation": "Use for public-web research, source handling, and evidence quality.",
+      "source": "skills/locus/references/research.md"
+    },
+    {
+      "id": "enrichment",
+      "title": "Entity enrichment",
+      "activation": "Use for sourced company or person enrichment and qualification inputs.",
+      "source": "skills/locus/references/enrichment.md"
+    },
+    {
+      "id": "travel",
+      "title": "Travel research",
+      "activation": "Use for current travel options, quote interpretation, and booking boundaries.",
+      "source": "skills/locus/references/travel.md"
+    },
+    {
+      "id": "media",
+      "title": "Media generation",
+      "activation": "Use for asynchronous image, audio, and other generated-media calls.",
+      "source": "skills/locus/references/media.md"
+    },
+    {
+      "id": "results-and-recovery",
+      "title": "Results and recovery",
+      "activation": "Use after a timeout, partial result, large result, or ambiguous paid dispatch.",
+      "source": "skills/locus/references/results-and-recovery.md"
+    },
+    {
+      "id": "setup",
+      "title": "Set up Locus Pro",
+      "activation": "Use when installing, authenticating, verifying, or repairing Locus Pro.",
+      "source": "skills/locus-setup/SKILL.md"
+    },
+    {
+      "id": "host-adapters",
+      "title": "Host setup adapters",
+      "activation": "Use to choose a supported native, MCP, CLI, or remote-guide setup path.",
+      "source": "skills/locus-setup/references/host-adapters.md"
+    },
+    {
+      "id": "host-openclaw",
+      "title": "OpenClaw setup adapter",
+      "activation": "Use only when installing or repairing Locus in OpenClaw.",
+      "source": "skills/locus-setup/references/hosts/openclaw.md"
+    },
+    {
+      "id": "host-hermes",
+      "title": "Hermes Agent setup adapter",
+      "activation": "Use only when installing or repairing Locus in Hermes Agent.",
+      "source": "skills/locus-setup/references/hosts/hermes.md"
+    },
+    {
+      "id": "credentials",
+      "title": "Credential handling",
+      "activation": "Use before storing or transmitting any Locus credential.",
+      "source": "skills/locus-setup/references/credentials.md"
+    },
+    {
+      "id": "agentid-auth",
+      "title": "AgentID approval contract",
+      "activation": "Use only for approved agent-owned account identity setup.",
+      "source": "skills/locus-setup/references/agentid-auth.md"
+    },
+    {
+      "id": "agentmail-inbox",
+      "title": "AgentMail inbox contract",
+      "activation": "Use only when the user approved creating an agent-owned inbox.",
+      "source": "skills/locus-setup/references/agentmail-inbox.md"
+    },
+    {
+      "id": "workflows",
+      "title": "Build and run Locus Workflows",
+      "activation": "Use when a user asks for a repeatable, testable, saved process.",
+      "source": "skills/locus-workflows/SKILL.md"
+    },
+    {
+      "id": "workflow-authoring",
+      "title": "Author a Workflow",
+      "activation": "Use while turning a customer-owned process into parameterized TypeScript.",
+      "source": "skills/locus-workflows/references/authoring.md"
+    },
+    {
+      "id": "workflow-testing",
+      "title": "Test and pilot a Workflow",
+      "activation": "Use for structural checks, fixture tests, and bounded live pilots.",
+      "source": "skills/locus-workflows/references/testing.md"
+    },
+    {
+      "id": "hosted-execution",
+      "title": "Hosted Workflow execution",
+      "activation": "Use to understand hosted runtime authority, isolation, and limitations.",
+      "source": "skills/locus-workflows/references/hosted-execution.md"
+    },
+    {
+      "id": "runs-and-resume",
+      "title": "Inspect, cancel, and resume runs",
+      "activation": "Use for durable run state, receipts, cancellation, or recovery.",
+      "source": "skills/locus-workflows/references/runs-and-resume.md"
+    },
+    {
+      "id": "workflow-template-readme",
+      "title": "Workflow template instructions",
+      "activation": "Use when creating the initial fixed-runtime Workflow source bundle.",
+      "source": "skills/locus-workflows/assets/workflow-template/README.md"
+    },
+    {
+      "id": "workflow-template-manifest",
+      "title": "Workflow template manifest",
+      "activation": "Copy as workflow.json and replace the example binding with a live inspected contract.",
+      "source": "skills/locus-workflows/assets/workflow-template/workflow.json",
+      "content_type": "application/json"
+    },
+    {
+      "id": "workflow-template-source",
+      "title": "Workflow template source",
+      "activation": "Copy as workflow.ts and replace the example logic with the customer process.",
+      "source": "skills/locus-workflows/assets/workflow-template/workflow.ts",
+      "content_type": "application/typescript"
+    },
+    {
+      "id": "workflow-template-lock",
+      "title": "Workflow binding lock example",
+      "activation": "Use as the optional review and export record for resolved Workflow bindings.",
+      "source": "skills/locus-workflows/assets/workflow-template/locus.lock.json",
+      "content_type": "application/json"
+    },
+    {
+      "id": "workflow-template-fixtures",
+      "title": "Workflow fixture test template",
+      "activation": "Copy as tests/fixtures.ts and replace it with deterministic customer-logic assertions.",
+      "source": "skills/locus-workflows/assets/workflow-template/tests/fixtures.ts",
+      "content_type": "application/typescript"
+    }
+  ]
+}

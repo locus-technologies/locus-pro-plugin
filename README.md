@@ -19,13 +19,19 @@ Codex, Cursor, Grok, OpenClaw, and any client that speaks the
   in configuration.
 - **The `locus` skill**: operating instructions for the agent covering tool
   routing, cost quotes, idempotent billing, error recovery, and spend safety.
-- **The `locus-setup` skill**: full self-serve onboarding — account creation
-  (human sign-up through the OAuth page, or agent-owned accounts via
-  AgentID), capability selection, and a user-requested Stripe funding
-  handoff — so the whole product works from inside the plugin.
+- **The `locus-setup` skill**: onboarding when the user asks the agent to do
+  it. Human sign-up through the OAuth page is the default. Agent-owned
+  accounts via AgentID exist for headless runtimes, and only they get
+  agent-driven capability selection and a user-requested Stripe funding
+  handoff; human-owned accounts manage both in the dashboard.
+- **The `locus-workflows` skill**: safe hosted Workflow authoring, fixtures,
+  bounded pilots, immutable versions, and durable run recovery through the
+  same authorized connection.
 
-No account yet? The OAuth sign-in page includes account creation, and the
-setup skill walks agents through the rest: [platform.paywithlocus.com](https://platform.paywithlocus.com).
+No account yet? Authenticate the server and create the account on the OAuth
+sign-in page that opens; that is the whole flow for a person with a browser.
+Tools are enabled and credits added in the dashboard at
+[platform.paywithlocus.com](https://platform.paywithlocus.com).
 
 ## Install
 
@@ -49,6 +55,17 @@ codex plugin marketplace add locus-technologies/locus-pro-plugin
 codex plugin add locus@locus
 codex mcp login locus
 ```
+
+### Cline
+
+```
+cline mcp install locus --transport http \
+  https://api.paywithlocus.com/api/credits/mcp
+```
+
+Keep **Remote (HTTP)**, choose **OAuth**, leave the client ID blank for dynamic
+registration, and complete sign-in in the browser. No clone, build, API key,
+or environment variable is required.
 
 ### Cursor
 
@@ -101,7 +118,7 @@ changes.
 npx skills add locus-technologies/locus-pro-plugin
 ```
 
-Discovers both Locus skills (usage and setup) and installs your selection
+Discovers the Locus usage, setup, and Workflow skills and installs your selection
 into whichever agents you have. The skills include the connection
 instructions; add the MCP server in your client's settings to make the
 tools available.
@@ -118,6 +135,31 @@ npx plugins add locus-technologies/locus-pro-plugin
 claude mcp add --transport http locus https://api.paywithlocus.com/api/credits/mcp
 codex mcp add locus --url https://api.paywithlocus.com/api/credits/mcp
 ```
+
+### One-URL bootstrap and remote guides
+
+Ask a capable agent to read `https://paywithlocus.com/skill.md` and set up
+Locus. The bootstrap probes the actual host, preserves a healthy existing
+connection, selects a supported adapter, and reports any browser consent,
+restart, or runtime limitation still outstanding.
+
+An MCP-only host does not need persistent files. After connecting, it can call
+`get_locus_guide` to retrieve the same versioned skill and reference content
+published in this repository. The public guide manifest is served from the
+Locus API; customer-owned Workflow source and invocation guides remain private
+account artifacts and never enter that public bundle.
+
+Hosted Workflow tools are advertised only when the backend capability is live
+and the current connection can execute. A Workflow run is a constrained child
+of that existing connection, not a second registered agent. The first runtime
+supports approved TypeScript and every live catalog binding Locus has reviewed,
+including native Tools, maintained Recipes, and explicitly verified external
+buyer-rail listings. Tenant-imported and unverified external bindings require
+an exceptional platform approval; a server deny override can halt any binding.
+Connection scope, enablement, contract, availability, and run budgets still
+apply. The runtime also provides bounded concurrency, fixtures, pilots, durable
+inspection, cancellation, and resume; arbitrary npm dependencies, external
+connector credentials, scheduling, and publication are not implied.
 
 ## Data handling
 
@@ -182,6 +224,21 @@ in the [dashboard](https://platform.paywithlocus.com).
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |
 | `agents/<client>/` | Per-client MCP server config |
 | `skills/` | Shared Agent Skills-format instructions; `metadata.openclaw` is an intentional host extension for credential declarations |
+
+## Development and releases
+
+Changes merge into `stage`. Before promotion, a maintainer explicitly chooses
+one semantic version for every host manifest and writes its changelog entry;
+CI checks that coordinated version but never updates it. A validated `stage`
+to `main` promotion creates the immutable GitHub release, checksummed plugin
+and skill archives, the Agent Skills discovery payload, and the matching MCP
+Registry version. Public directories that require vendor review (OpenAI and
+Cursor) are submitted through their review portals after that release.
+
+See [AGENTS.md](./AGENTS.md) for the branch policy, required checks, release
+prerequisites, and isolated local testing instructions for production and the
+stage MCP environment across Claude Code, Codex, Cursor, Grok, OpenClaw,
+Agent Plugins, Agent Skills, and ChatGPT.
 
 ## Links
 

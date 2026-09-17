@@ -1,0 +1,118 @@
+name: Promote
+
+# Keeps the stage -> main promotion pull request evergreen. Every push to
+# stage creates the promotion PR if it does not exist, or refreshes its body
+# so reviewers always see the pending version, changelog, and the manual
+# review-portal follow-ups (OpenAI, Cursor) that CI cannot perform.
+#
+# Merging stays manual: the main branch requires an approving review, and
+# Validate enforces that only stage may promote to main with a version newer
+# than the latest tag. After the merge, Release publishes the GitHub release
+# and the MCP Registry version automatically.
+#
+# Permission requirement: creating the PR needs a token allowed to open pull
+# requests. Either enable "Allow GitHub Actions to create and approve pull
+# requests" for the repo/org (Settings > Actions > General > Workflow
+# permissions), or store a PAT with pull-request write access as the
+# PROMOTE_TOKEN repository secret — the workflow prefers it when present.
+
+on:
+  push:
+    branches:
+      - stage
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  promotion-pr:
+    name: Ensure stage to main promotion PR
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROMOTE_TOKEN || github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Check out the stage branch
+        uses: actions/checkout@v4
+        with:
+          ref: stage
+          fetch-depth: 0
+
+      - name: Ensure the promotion pull request
+        run: |
+          set -euo pipefail
+
+          main_sha="$(git rev-parse origin/main)"
+          stage_sha="$(git rev-parse HEAD)"
+          if [[ "$main_sha" == "$stage_sha" ]]; then
+            echo "stage equals main ($stage_sha); nothing to promote."
+            exit 0
+          fi
+
+          version="$(tr -d '[:space:]' < version.txt)"
+          notes="$(node scripts/version.mjs notes)"
+          changed="$(git diff --stat "origin/main...HEAD" | tail -5)"
+          body_file="$RUNNER_TEMP/promotion-body.md"
+
+          cat > "$body_file" <<EOF
+          Promotes \`stage\` ($stage_sha) to \`main\` for release **v$version**.
+
+          ## Changelog (v$version)
+
+          $notes
+
+          ## What merges automatically after this PR
+
+          - Immutable GitHub release **v$version** with checksummed plugin and
+            skill archives, the Agent Skills discovery payload, and the guide
+            bundle (Release workflow).
+          - MCP Registry version \`com.paywithlocus/locus@$version\` via DNS
+            auth (Release workflow; requires the \`MCP_PRIVATE_KEY\` secret —
+            see AGENTS.md).
+          - Git-backed installs (Claude Code, Codex CLI, Grok, OpenClaw, Agent
+            Plugins, Agent Skills) resolve the new \`main\` commit on their
+            normal update cadence.
+
+          ## Manual review-portal follow-ups (no CI API exists)
+
+          - [ ] OpenAI Platform: new draft of the Locus app from this release,
+            resubmit for review, publish after approval (publishing also
+            creates the Codex directory plugin).
+          - [ ] Cursor: request a re-index at cursor.com/marketplace/publish
+            (listing now centralized via cursor.directory) after the release.
+          - [ ] Confirm the new MCP Registry version is listed.
+
+          ## Diff tail (main...stage)
+
+          \`\`\`
+          $changed
+          \`\`\`
+
+          See AGENTS.md for the branch policy and release prerequisites.
+          EOF
+
+          existing="$(gh pr list --head stage --base main --state open --json number --jq '.[0].number // empty')"
+          manage_pr() {
+            if [[ -n "$existing" ]]; then
+              gh pr edit "$existing" --title "Promote stage to main (v$version)" --body-file "$body_file"
+              echo "Updated promotion PR #$existing."
+            else
+              gh pr create --head stage --base main \
+                --title "Promote stage to main (v$version)" \
+                --body-file "$body_file"
+              echo "Created promotion PR."
+            fi
+          }
+
+          if ! output="$(manage_pr 2>&1)"; then
+            if grep -q "not permitted to create or approve pull requests" <<<"$output"; then
+              echo "::warning::Promotion PR must be opened by hand: enable 'Allow GitHub Actions to create and approve pull requests' or add a PROMOTE_TOKEN secret (see AGENTS.md)."
+              echo "$output"
+              exit 0
+            fi
+            echo "$output" >&2
+            exit 1
+          fi
+          echo "$output"

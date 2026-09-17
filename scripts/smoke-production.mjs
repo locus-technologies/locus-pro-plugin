@@ -41,9 +41,13 @@ check(
   authenticate.includes(`resource_metadata="${RESOURCE_METADATA_URL}"`),
   "MCP challenge omitted the expected protected-resource metadata URL",
 );
-for (const scope of ["mcp:read", "mcp:execute", "offline_access"]) {
+for (const scope of ["mcp:read", "mcp:execute"]) {
   check(authenticate.includes(scope), `MCP challenge omitted ${scope}`);
 }
+check(
+  !authenticate.includes("offline_access"),
+  "MCP challenge incorrectly advertised offline_access as a resource scope",
+);
 
 const resourceResponse = await get(RESOURCE_METADATA_URL);
 check(resourceResponse.ok, `Protected-resource metadata returned ${resourceResponse.status}`);
@@ -54,6 +58,13 @@ check(
     resource.authorization_servers.length === 1 &&
     resource.authorization_servers[0] === AUTH_ISSUER,
   "Protected-resource metadata did not identify exactly the production authorization issuer",
+);
+for (const scope of ["mcp:read", "mcp:execute"]) {
+  check(resource.scopes_supported?.includes(scope), `Protected-resource metadata omitted ${scope}`);
+}
+check(
+  !resource.scopes_supported?.includes("offline_access"),
+  "Protected-resource metadata incorrectly advertised offline_access as a resource scope",
 );
 
 const authResponse = await get(AUTH_METADATA_URL);
@@ -68,6 +79,10 @@ check(
 check(
   auth.code_challenge_methods_supported?.includes("S256"),
   "PKCE S256 is not advertised",
+);
+check(
+  auth.scopes_supported?.includes("offline_access"),
+  "Authorization metadata omitted offline_access",
 );
 for (const grant of [
   "authorization_code",
