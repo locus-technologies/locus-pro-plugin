@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 1adebba44de296265a70111e1ae0171c9e107650b50fc9ce7af410a348591b96 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 50e621318e77f9060aa1e74ee4f798a4d2164363599c95862cb3cb2e985e7397 -->
 
 # Authoring
 
@@ -182,9 +182,13 @@ Adapt the closest reviewed packaged asset, normally the
 [Workflow template](../assets/workflow-template/README.md), instead of building
 new infrastructure around it. Keep an ordinary single-row Workflow to the
 smallest input boundary, provider call, output gate, and fixture needed for the
-user's rules; do not add generic parsing or ranking frameworks. In a no-files
-host, retrieve that guide and each linked template resource by ID through
-`get_locus_guide`, then submit the returned text as inline source files.
+user's rules; do not add generic parsing or ranking frameworks. For people,
+company, or verified-contact enrichment, prefer the reviewed
+[GTM enrichment asset](../assets/gtm-enrichment/README.md), which keeps the
+maintained recipe and verification gate instead of reconstructing its provider
+waterfall. In a no-files host, retrieve that guide and each linked template
+resource by ID through `get_locus_guide`, then submit the returned text as
+inline source files.
 When the packaged template is readable, read those local assets directly and
 do not call `get_locus_guide` for duplicate copies of the same resources.
 

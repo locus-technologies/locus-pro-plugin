@@ -4,7 +4,7 @@ description: Find people, verified work emails, companies, current web research,
 license: MIT
 metadata:
   author: locus
-  version: "1.1.7"
+  version: "1.1.8"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -189,6 +189,11 @@ billing metadata and, when returned, a durable receipt: ordinary calls use
 `locus/capabilityRunId`; capability results can also include
 `capability_run_id`. Surface notable charges to the user rather than spending
 silently.
+
+Use durable charge fields (`credits_charged` on calls and `charged_credits` on
+Workflow runs) and their receipts to account for this task. Never infer task
+spend from a global `get_balance` delta: concurrent workspace activity and
+delayed settlement can change that balance independently.
 
 Oversized results replace `data` with `{truncated: true, preview,
 api_call_id, continuation}`. Page the remainder with

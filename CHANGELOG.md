@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.19 (2026-09-17)
+
+- Added the reviewed GTM enrichment Workflow asset to native and skill-only
+  packages and made it the preferred starting point for enrichment workflows.
+- Grounded task accounting in durable call and run receipts instead of global
+  balance deltas.
+
 ## 0.3.18 (2026-09-17)
 
 - Kept simple Workflows focused on the shortest checked, fixture-tested, saved,
