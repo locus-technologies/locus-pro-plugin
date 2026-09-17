@@ -350,6 +350,15 @@ for (const { name, path } of skillPaths) {
   }
 }
 
+const locusSkill = read("skills/locus/SKILL.md");
+if (
+  !locusSkill.includes(
+    "always pass `idempotency_key` as its top-level\nparameter and never put `_locus` inside `execute.args`",
+  )
+) {
+  errors.push("skills/locus/SKILL.md: must keep execute idempotency outside endpoint args");
+}
+
 // --- Secret scan over every checked file ------------------------------------
 const skillFiles = readdirSync(resolve(root, "skills"), { recursive: true, withFileTypes: true })
   .filter((entry) => entry.isFile())

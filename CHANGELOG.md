@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.13 (2026-09-16)
+
+- Clarified that the `execute` meta-tool takes `idempotency_key` only as a
+  top-level parameter, while `_locus` applies only to advertised direct tools.
+- Cleaned up malformed execution-recovery line wrapping in the Locus skill.
+
 ## 0.3.12 (2026-09-15)
 
 - Corrected OpenClaw OAuth recovery so managed shells keep the native login
