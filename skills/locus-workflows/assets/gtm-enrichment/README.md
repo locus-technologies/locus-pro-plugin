@@ -4,6 +4,8 @@ This maintained template batches the first-party `locus-gtm/enrich` recipe
 without reimplementing its provider waterfall. It supports person or company
 records, named enrichment profiles, exact requested fields, stable row IDs,
 per-record recipe ceilings, and a separate hard ceiling on the complete run.
+The template defaults the per-record ceiling internally; keep it out of the
+required customer input unless the customer explicitly asks to tune it.
 
 For a first pilot of one record, retain the maintained `locus-gtm/enrich`
 recipe binding and its default contact-verification quality gate, but prune or

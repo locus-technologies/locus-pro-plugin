@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 50e621318e77f9060aa1e74ee4f798a4d2164363599c95862cb3cb2e985e7397 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 7f5f4e2769a3a1e10f11f06133f61d4daf54e0b9b92d284b8b7d979be4475a89 -->
 
 # Authoring
 
@@ -8,6 +8,9 @@ representative fixtures, maximum rows, and execution ceilings. Do not convert a
 one-off lookup into a Workflow unless the user asks for repeatability or the
 completed task has a substantial reusable structure and the user accepts a
 single offer to save it.
+
+Keep execution ceilings as internal or run settings. Do not make them required
+customer inputs unless the customer explicitly asks to control a budget.
 
 Defaults must preserve the promised output contract. If the Workflow promises
 a verified email, verified identity, or another quality gate, omission of an

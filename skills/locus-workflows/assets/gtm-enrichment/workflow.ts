@@ -72,6 +72,7 @@ const REQUESTED_FIELDS = [
   'company.funding',
   'company.hiring',
 ] as const;
+const DEFAULT_MAX_CREDITS_PER_RECORD = '1000';
 
 interface WorkflowInputValue {
   records?: unknown;
@@ -176,14 +177,16 @@ export function parseInput(value: unknown): GtmWorkflowInput {
     (key) => !['records', 'maxCreditsPerRecord', 'concurrency'].includes(key),
   );
   if (unsupportedInput) throw new Error(`input contains unsupported field: ${unsupportedInput}`);
+  if (!Array.isArray(candidate.records) || candidate.records.length === 0) {
+    throw new Error('records are required');
+  }
   if (
-    !Array.isArray(candidate.records) ||
-    candidate.records.length === 0 ||
-    typeof candidate.maxCreditsPerRecord !== 'string' ||
-    !/^\d+(?:\.\d{1,6})?$/.test(candidate.maxCreditsPerRecord) ||
-    Number(candidate.maxCreditsPerRecord) <= 0
+    candidate.maxCreditsPerRecord !== undefined &&
+    (typeof candidate.maxCreditsPerRecord !== 'string' ||
+      !/^\d+(?:\.\d{1,6})?$/.test(candidate.maxCreditsPerRecord) ||
+      Number(candidate.maxCreditsPerRecord) <= 0)
   ) {
-    throw new Error('records and maxCreditsPerRecord are required');
+    throw new Error('maxCreditsPerRecord must be a positive decimal string');
   }
   let concurrency: number | undefined;
   if (candidate.concurrency !== undefined) {
@@ -249,7 +252,7 @@ export function parseInput(value: unknown): GtmWorkflowInput {
   });
   const parsed: GtmWorkflowInput = {
     records,
-    maxCreditsPerRecord: candidate.maxCreditsPerRecord,
+    maxCreditsPerRecord: candidate.maxCreditsPerRecord ?? DEFAULT_MAX_CREDITS_PER_RECORD,
   };
   if (concurrency !== undefined) parsed.concurrency = concurrency;
   return parsed;

@@ -24,15 +24,19 @@ export default function runFixtures() {
         profile: 'company_core',
       },
     ],
-    maxCreditsPerRecord: '1000',
     concurrency: 3,
   });
   assert(valid.records[0]?.id === 'acme', 'stable record id must survive parsing');
-  assert(valid.maxCreditsPerRecord === '1000', 'credit ceiling must survive parsing');
+  assert(valid.maxCreditsPerRecord === '1000', 'credit ceiling must default internally');
+  assert(
+    parseInput({ records: valid.records, maxCreditsPerRecord: '1500' }).maxCreditsPerRecord ===
+      '1500',
+    'explicit credit ceiling must survive parsing',
+  );
   const output = parseOutput({ records: [{ id: 'acme', enrichment: { company: 'Acme' } }] });
   assert(output.records[0]?.id === 'acme', 'output record id must survive parsing');
 
-  rejects({ records: valid.records, maxCreditsPerRecord: '0' }, 'required');
+  rejects({ records: valid.records, maxCreditsPerRecord: '0' }, 'positive decimal');
   rejects(
     { records: [...valid.records, valid.records[0]], maxCreditsPerRecord: '1000' },
     'duplicate record id',
@@ -71,7 +75,7 @@ export default function runFixtures() {
 
   return {
     ok: true,
-    assertions: 9,
+    assertions: 10,
     cases: [
       'valid-company',
       'invalid-ceiling',
