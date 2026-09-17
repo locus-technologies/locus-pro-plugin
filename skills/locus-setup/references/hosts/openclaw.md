@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 1443aaf23b492140e6988785adf31bfdad28e36af61a5e223c1dd649e4d450b7 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 3d76de67af5a3f2b1c65b037e37482cfa68ab6e8ea112bc7fcec744c34c480d0 -->
 
 # OpenClaw adapter
 
@@ -32,6 +32,19 @@ or the host reports a timeout, run the live probe below before restarting
 OAuth: successful credential persistence can outlive the waiting process.
 Start a fresh login only when the probe reports unauthenticated/no credential
 or the original process reports an explicit OAuth failure.
+
+If approval will open on a different machine, forward the printed callback
+port before opening the authorization URL. From the browser machine, keep this
+tunnel alive alongside the remote login process:
+
+```bash
+ssh -N -L <callback-port>:127.0.0.1:<callback-port> <openclaw-host>
+```
+
+The browser's loopback redirect then reaches OpenClaw's remote listener. If no
+secure port-forwarding path or browser on the OpenClaw host is available, stop
+and report that current OpenClaw cannot complete this OAuth flow remotely; do
+not present copy-back parameters it cannot consume.
 
 Install the three released skill trees through OpenClaw's native skill registry
 when available. Its installer accepts a local skill directory, not an archive
