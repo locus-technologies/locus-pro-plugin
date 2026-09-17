@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.15 (2026-09-17)
+
+- Front-loaded people, company, and verified-work-email intent so ordinary
+  outcome prompts activate Locus without naming a provider or tool.
+- Scoped filesystem installs to the selected environment and host profile,
+  and made Hermes/OpenClaw OAuth verification recover from completed or timed
+  out login processes before starting a second authorization.
+- Made hosted Workflow quality defaults fail closed and preserved durable run
+  IDs across client timeouts while reducing unnecessary guide and search load.
+
 ## 0.3.13 (2026-09-16)
 
 - Clarified that the `execute` meta-tool takes `idempotency_key` only as a

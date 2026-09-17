@@ -4,7 +4,7 @@ description: Author, validate, pilot, save, and run versioned Locus Workflows th
 license: MIT
 metadata:
   author: locus
-  version: "1.1.3"
+  version: "1.1.4"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -22,8 +22,9 @@ enable tools, widen scopes, or perform external writes.
 
 Use the existing Locus OAuth MCP connection. Do not create a second OAuth
 client, copy its tokens into code, or configure an `lcac_` credential in MCP.
-Discover the outcome first with `search_apis`; use `list_tool_groups` only when
-a category or curated pack helps. Inspect every selected binding with
+Discover the outcome first with `search_apis`; use a focused `limit: 3` when
+the live contract supports it, and use `list_tool_groups` only when a category
+or curated pack helps. Inspect every selected binding with
 `describe_api`; require `workflow_binding.eligible: true`, then use its
 `manifest_kind` and retain the slug, contract revision, and contract digest. If
 an older response omits these fields, refresh the description against the
@@ -119,10 +120,11 @@ Send source directly to the tools instead of narrating every file. Pause only
 when the task itself needs missing business input or an external action outside
 the requested Workflow lifecycle.
 
-Read [authoring](references/authoring.md), [testing](references/testing.md),
-and [hosted execution](references/hosted-execution.md) before sending source
-or starting a pilot. Read [runs and resume](references/runs-and-resume.md) when
-recovering, canceling, or continuing a nonterminal run.
+Read [authoring](references/authoring.md) before sending source, [testing](references/testing.md)
+before validation or a pilot, and [hosted execution](references/hosted-execution.md)
+only when reasoning about runtime authority or recovery. Read
+[runs and resume](references/runs-and-resume.md) when recovering, canceling, or
+continuing a nonterminal run.
 When these packaged references and assets are readable, use them directly and
 do not retrieve duplicate copies through `get_locus_guide`.
 
@@ -138,8 +140,9 @@ do not retrieve duplicate copies through `get_locus_guide`.
   retrying or resuming.
 - Cancel blocks new dispatch. Work already completed can remain charged, and
   partial outputs must remain inspectable.
-- Save, publish, and schedule are separate actions. Do not create an automation
-  or publish a private launcher merely by saving a Workflow.
+- Save, publish, and schedule are separate actions. Do not create an automation,
+  host skill, or private launcher merely by saving a Workflow unless the user
+  requested that separate artifact.
 
 ## Result handling
 

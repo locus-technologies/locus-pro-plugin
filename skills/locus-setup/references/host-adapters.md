@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-15 for the versioned Locus guide bundle. content-sha256: 74ee797227cd36d0ae0730e27dc91f31ce049fafd90cf7ed3ea4e2018886e45b -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: f2831cf39cb9056d9b5dc3b249cda4cf994b1693d54f3bfe406f3f3445921b7c -->
 
 # Host adapters and readiness
 
@@ -59,12 +59,14 @@ the first supported tier:
      to match the selected adapter. For every entry, reject absolute paths,
      traversal, duplicate `skill/install_path` pairs, unknown skill names, and
      digest mismatches; fetch the immutable `url`, verify `sha256`, and write it
-     below `<version>/<skill>/<install_path>`. Require exactly one
+     below `<environment>/<version>/<skill>/<install_path>`. Require exactly one
      `entrypoint: true` entry named `SKILL.md` per skill.
 
-   Keep `SKILL.md`, `references/`, and `assets/` together in a stable
-   user-scoped agent-data directory outside project source control. Install
-   versions side by side and switch a small `current` pointer atomically. Some
+   Keep `SKILL.md`, `references/`, and `assets/` together in the active
+   profile's stable agent-data directory outside project source control.
+   Never share a `current` pointer between environments or isolated host
+   profiles. Install versions side by side below the environment directory and
+   switch its small `current` pointer atomically. Some
    hosts require a native copy beneath a project workspace to discover skills;
    in that case the user-scoped tree remains the versioned source of truth,
    the workspace copy is a generated activation mirror, and it must be ignored

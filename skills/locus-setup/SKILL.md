@@ -4,7 +4,7 @@ description: Install or repair Locus through a host-selected MCP or CLI adapter,
 license: MIT
 metadata:
   author: locus
-  version: "1.3.5"
+  version: "1.3.6"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -25,6 +25,9 @@ metadata:
       - name: OKIBI_AUTH_STORAGE
         required: false
         description: Selects a supported generated-CLI credential storage backend; never point it at a project directory.
+      - name: HERMES_HOME
+        required: false
+        description: Active Hermes profile root; profile-scoped Locus skills stay beneath it when set.
 ---
 
 # Locus setup

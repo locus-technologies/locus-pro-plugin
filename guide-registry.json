@@ -6,7 +6,7 @@
     {
       "id": "usage",
       "title": "Use Locus Pro",
-      "activation": "Use when an agent needs to discover or call Locus Recipes and Tools.",
+      "activation": "Use for people, verified work email, company enrichment, current web research, market data, or other API-backed outcomes.",
       "source": "skills/locus/SKILL.md"
     },
     {

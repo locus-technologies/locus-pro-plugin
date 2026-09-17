@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-15 for the versioned Locus Workflow guide bundle. content-sha256: 7d8dcf3176f55b8f25769c3e008f2d2a0b1825c3cfbcd03242334a27068a5018 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 49eb996c41e6241cade6be1f5b088cc8bccbaba151e42eb90dd610827b5dc459 -->
 
 # Authoring
 
@@ -8,6 +8,12 @@ representative fixtures, maximum rows, and execution ceilings. Do not convert a
 one-off lookup into a Workflow unless the user asks for repeatability or the
 completed task has a substantial reusable structure and the user accepts a
 single offer to save it.
+
+Defaults must preserve the promised output contract. If the Workflow promises
+a verified email, verified identity, or another quality gate, omission of an
+optional flag must keep that gate enabled and missing or rejected evidence must
+fail closed. Only an explicit caller input may request a documented best-effort
+mode. Fixture both the omitted-flag case and the rejected-evidence case.
 
 ## Source bundle
 
@@ -128,9 +134,10 @@ surface; valid JSON objects therefore remain objects rather than serialized
 JSON strings. Non-JSON and malformed JSON responses remain strings.
 
 Before writing substantial parsing logic, inspect the binding's saved
-`output_schema` and make one smallest representative direct call when live
-evidence is needed. Establish the raw-body boundary first, then fixture the
-observed shape. Do not build fixtures around the interactive MCP envelope.
+`output_schema`. When that schema is generic or has no representative example,
+make one smallest representative direct call before creating the draft or
+starting a Workflow pilot. Establish the raw-body boundary first, then fixture
+the observed shape. Do not build fixtures around the interactive MCP envelope.
 
 Every call declares a local binding, stable step path, JSON arguments, exact
 per-call credit ceiling, optional stable row key, and occurrence number when a
