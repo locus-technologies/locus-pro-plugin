@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.20 (2026-09-17)
+
+- Kept Workflow execution ceilings autonomous by default instead of exposing
+  them as required customer inputs.
+
 ## 0.3.19 (2026-09-17)
 
 - Added the reviewed GTM enrichment Workflow asset to native and skill-only
