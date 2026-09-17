@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 49eb996c41e6241cade6be1f5b088cc8bccbaba151e42eb90dd610827b5dc459 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 1adebba44de296265a70111e1ae0171c9e107650b50fc9ce7af410a348591b96 -->
 
 # Authoring
 
@@ -178,10 +178,13 @@ package-manager lockfiles, TypeScript configs, install hooks, and reusable
 credentials are rejected. The Locus-specific `locus.lock.json` review record
 is allowed. The runtime has no arbitrary package installation.
 
-Start from the reviewed [Workflow template](../assets/workflow-template/README.md)
-when the host can copy packaged assets. In a no-files host, retrieve that guide
-and each linked template resource by ID through `get_locus_guide`, then submit
-the returned text as inline source files.
+Adapt the closest reviewed packaged asset, normally the
+[Workflow template](../assets/workflow-template/README.md), instead of building
+new infrastructure around it. Keep an ordinary single-row Workflow to the
+smallest input boundary, provider call, output gate, and fixture needed for the
+user's rules; do not add generic parsing or ranking frameworks. In a no-files
+host, retrieve that guide and each linked template resource by ID through
+`get_locus_guide`, then submit the returned text as inline source files.
 When the packaged template is readable, read those local assets directly and
 do not call `get_locus_guide` for duplicate copies of the same resources.
 
