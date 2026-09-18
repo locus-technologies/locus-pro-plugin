@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.3.20 (2026-09-17)
+
+- Kept Workflow execution ceilings autonomous by default instead of exposing
+  them as required customer inputs.
+- Added a Hermes-compatible Agent Plugins overlay with the Locus MCP server
+  and all three skills, plus pinned validation of the installed runtime.
+
+## 0.3.19 (2026-09-17)
+
+- Added the reviewed GTM enrichment Workflow asset to native and skill-only
+  packages and made it the preferred starting point for enrichment workflows.
+- Grounded task accounting in durable call and run receipts instead of global
+  balance deltas.
+
+## 0.3.18 (2026-09-17)
+
+- Kept simple Workflows focused on the shortest checked, fixture-tested, saved,
+  and piloted path using reviewed assets.
+- Made per-run charges and receipts authoritative under concurrent workspace
+  activity.
+
+## 0.3.17 (2026-09-17)
+
+- Scoped narrow enrichment calls to requested fields instead of broad profiles.
+- Hardened cross-host skill archive validation, profile-scoped hydration, and
+  secret-environment inspection.
+
+## 0.3.16 (2026-09-17)
+
+- Added the required SSH loopback forwarding path when OpenClaw OAuth approval
+  runs in a browser on a different machine.
+
+## 0.3.15 (2026-09-17)
+
+- Front-loaded people, company, and verified-work-email intent so ordinary
+  outcome prompts activate Locus without naming a provider or tool.
+- Scoped filesystem installs to the selected environment and host profile,
+  and made Hermes/OpenClaw OAuth verification recover from completed or timed
+  out login processes before starting a second authorization.
+- Made hosted Workflow quality defaults fail closed and preserved durable run
+  IDs across client timeouts while reducing unnecessary guide and search load.
+
 ## 0.3.13 (2026-09-16)
 
 - Clarified that the `execute` meta-tool takes `idempotency_key` only as a

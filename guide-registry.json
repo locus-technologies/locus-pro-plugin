@@ -6,7 +6,7 @@
     {
       "id": "usage",
       "title": "Use Locus Pro",
-      "activation": "Use when an agent needs to discover or call Locus Recipes and Tools.",
+      "activation": "Use for people, verified work email, company enrichment, current web research, market data, or other API-backed outcomes.",
       "source": "skills/locus/SKILL.md"
     },
     {
@@ -149,6 +149,40 @@
       "title": "Workflow fixture test template",
       "activation": "Copy as tests/fixtures.ts and replace it with deterministic customer-logic assertions.",
       "source": "skills/locus-workflows/assets/workflow-template/tests/fixtures.ts",
+      "content_type": "application/typescript"
+    },
+    {
+      "id": "gtm-enrichment-template-readme",
+      "title": "GTM enrichment Workflow instructions",
+      "activation": "Use when adapting the maintained GTM enrichment recipe Workflow.",
+      "source": "skills/locus-workflows/assets/gtm-enrichment/README.md"
+    },
+    {
+      "id": "gtm-enrichment-template-manifest",
+      "title": "GTM enrichment Workflow manifest",
+      "activation": "Copy as workflow.json and pin the live inspected recipe contract.",
+      "source": "skills/locus-workflows/assets/gtm-enrichment/workflow.json",
+      "content_type": "application/json"
+    },
+    {
+      "id": "gtm-enrichment-template-source",
+      "title": "GTM enrichment Workflow source",
+      "activation": "Adapt as workflow.ts without rebuilding the maintained provider waterfall.",
+      "source": "skills/locus-workflows/assets/gtm-enrichment/workflow.ts",
+      "content_type": "application/typescript"
+    },
+    {
+      "id": "gtm-enrichment-template-lock",
+      "title": "GTM enrichment binding lock",
+      "activation": "Use as the review record for the inspected maintained recipe binding.",
+      "source": "skills/locus-workflows/assets/gtm-enrichment/locus.lock.json",
+      "content_type": "application/json"
+    },
+    {
+      "id": "gtm-enrichment-template-fixtures",
+      "title": "GTM enrichment fixture tests",
+      "activation": "Adapt as tests/fixtures.ts for the customer's enrichment boundary and gates.",
+      "source": "skills/locus-workflows/assets/gtm-enrichment/tests/fixtures.ts",
       "content_type": "application/typescript"
     }
   ]

@@ -12,6 +12,7 @@ const jsonVersionFiles = [
   ".cursor-plugin/plugin.json",
   ".codex-plugin/plugin.json",
   ".grok-plugin/plugin.json",
+  "agents/hermes/plugin.json",
   "plugin.json",
   "server.json",
 ];

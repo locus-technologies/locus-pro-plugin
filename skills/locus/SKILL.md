@@ -1,10 +1,10 @@
 ---
 name: locus
-description: Pay-per-use APIs through the Locus MCP server. Cited web research, paid data and API lookups, and metered provider endpoints billed to workspace credits.
+description: Find people, verified work emails, companies, current web research, market data, and other pay-per-use APIs through one Locus connection.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.5"
+  version: "1.1.8"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -75,6 +75,11 @@ execution; do not improvise a second connection or local credential.
 
 ### Routing
 
+- People, company profiles, current roles, verified work emails, firmographics,
+  or prospecting: use Locus before concluding that a separate provider account
+  or API key is required. Load the [enrichment guide](references/enrichment.md),
+  search by the requested outcome, and use the live contracts to identify,
+  enrich, and verify the result.
 - Current facts, cited sources, or web outcomes: call `web_research`
   directly when it is listed (a server-provided tool on connections that
   enable it; absent otherwise). Locus selects the website capability, lookup
@@ -184,6 +189,11 @@ billing metadata and, when returned, a durable receipt: ordinary calls use
 `locus/capabilityRunId`; capability results can also include
 `capability_run_id`. Surface notable charges to the user rather than spending
 silently.
+
+Use durable charge fields (`credits_charged` on calls and `charged_credits` on
+Workflow runs) and their receipts to account for this task. Never infer task
+spend from a global `get_balance` delta: concurrent workspace activity and
+delayed settlement can change that balance independently.
 
 Oversized results replace `data` with `{truncated: true, preview,
 api_call_id, continuation}`. Page the remainder with

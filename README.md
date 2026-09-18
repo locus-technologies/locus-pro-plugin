@@ -56,6 +56,17 @@ codex plugin add locus@locus
 codex mcp login locus
 ```
 
+### Hermes
+
+```bash
+hermes plugins install locus
+hermes plugins enable locus
+hermes mcp login agent-plugin-locus-0b597595__locus
+```
+
+Complete browser OAuth, then start a new Hermes session. The plugin includes
+the usage, setup, and Workflow skills; no separate skill install is needed.
+
 ### Cline
 
 ```

@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: 22
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Validate Claude plugin and marketplace manifests
         run: |
           npx -y @anthropic-ai/claude-code@2.1.259 plugin validate . --strict
@@ -54,6 +59,14 @@ jobs:
             }
             node scripts/version.mjs release-check
           fi
+
+      - name: Validate Hermes plugin overlay
+        run: |
+          python3 -m venv "$RUNNER_TEMP/hermes"
+          "$RUNNER_TEMP/hermes/bin/pip" install -e \
+            'git+https://github.com/NousResearch/hermes-agent.git@1904c5e812abdc229ef67e9769581cb851455308#egg=hermes-agent'
+          "$RUNNER_TEMP/hermes/bin/hermes" plugins validate --install-deps agents/hermes
+          "$RUNNER_TEMP/hermes/bin/python" scripts/check-hermes-plugin.py
 
       - name: Verify release packaging
         run: |
@@ -85,7 +98,8 @@ jobs:
             "$RUNNER_TEMP/locus-stage/agents/claude/.mcp.json" \
             "$RUNNER_TEMP/locus-stage/agents/codex/.mcp.json" \
             "$RUNNER_TEMP/locus-stage/agents/cursor/mcp.json" \
-            "$RUNNER_TEMP/locus-stage/agents/grok/mcp.json"
+            "$RUNNER_TEMP/locus-stage/agents/grok/mcp.json" \
+            "$RUNNER_TEMP/locus-stage/agents/hermes/mcp.json"
 
       - name: Smoke-test Codex marketplace installation
         env:
@@ -153,7 +167,7 @@ jobs:
       - name: Install Grok CLI
         run: |
           curl -fsSL https://x.ai/cli/install.sh -o grok-install.sh
-          echo "7fd6fdc75d9418b2e58356726fcbf1ae849416f773925da07d0ccc7a60d3e791  grok-install.sh" | sha256sum -c -
+          sha256sum -c - <<< "7fd6fdc75d9418b2e58356726fcbf1ae849416f773925da07d0ccc7a60d3e791  grok-install.sh"
           bash grok-install.sh 1.0.13
           echo "$GROK_BIN_DIR" >> "$GITHUB_PATH"
 

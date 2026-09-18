@@ -4,7 +4,7 @@ description: Author, validate, pilot, save, and run versioned Locus Workflows th
 license: MIT
 metadata:
   author: locus
-  version: "1.1.3"
+  version: "1.1.7"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -22,8 +22,9 @@ enable tools, widen scopes, or perform external writes.
 
 Use the existing Locus OAuth MCP connection. Do not create a second OAuth
 client, copy its tokens into code, or configure an `lcac_` credential in MCP.
-Discover the outcome first with `search_apis`; use `list_tool_groups` only when
-a category or curated pack helps. Inspect every selected binding with
+Discover the outcome first with `search_apis`; use a focused `limit: 3` when
+the live contract supports it, and use `list_tool_groups` only when a category
+or curated pack helps. Inspect every selected binding with
 `describe_api`; require `workflow_binding.eligible: true`, then use its
 `manifest_kind` and retain the slug, contract revision, and contract digest. If
 an older response omits these fields, refresh the description against the
@@ -42,6 +43,10 @@ Keep the enforced bindings in `workflow.json`. For a generated Workflow, also
 include `locus.lock.json` as a human-reviewable record of those same resolved
 bindings. It never grants authority and must not disagree with the manifest.
 
+For people, company, or verified-contact enrichment, adapt the reviewed
+[GTM enrichment asset](assets/gtm-enrichment/README.md) and its maintained
+recipe instead of rebuilding a provider waterfall.
+
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,
 fixtures, generated launchers, or logs. Do not rely on arbitrary npm installs,
@@ -50,11 +55,18 @@ networking in hosted execution.
 
 ## Lifecycle
 
+Prioritize completing inline check, one draft, minimal relevant fixtures,
+immutable save, and a bounded pilot in the current task. Adapt the closest
+reviewed asset and keep an ordinary single-row Workflow minimal. Do not build
+generic parsers, ranking frameworks, or exhaustive edge-case suites unless the
+user's business rules require them.
+
 1. Start with the smallest complete template and validate the inline source
    candidate before persistence when the
    server supports it. This catches syntax, path, manifest, and binding errors
-   without creating a draft. Repair diagnostics deterministically and validate
-   again; do not create near-duplicate drafts to trial-and-error syntax.
+   without creating a draft. Repair or shrink the same candidate and validate
+   again before adding features; do not create near-duplicate drafts to
+   trial-and-error syntax.
 2. Create one draft with a stable idempotency key. Pass the successful inline
    check's `source_digest` as `validated_source_digest` so creation carries a
    durable check for the identical source. Update with `revision` and either a
@@ -64,9 +76,9 @@ networking in hosted execution.
    stores only its one-way hash and recognizes an already-applied revision.
    Unchanged files remain pinned to the current draft. Run a persisted check
    only when current readiness is not already `checked`.
-3. Run fixture tests in an isolated no-network environment. Cover duplicate,
-   missing, ambiguous, paginated, partial-error, and rate-limit cases relevant
-   to the customer logic.
+3. Run fixture tests in an isolated no-network environment. For a simple
+   Workflow, one small runnable happy path plus its fail-closed quality gate is
+   sufficient. Add other edge cases only when the customer logic needs them.
 4. Save the exact checked source as an immutable version. A pilot requires a
    saved integer version; editing a draft is not changing a saved version.
 5. For a requested live test, run a bounded pilot and bind its source digest,
@@ -119,10 +131,11 @@ Send source directly to the tools instead of narrating every file. Pause only
 when the task itself needs missing business input or an external action outside
 the requested Workflow lifecycle.
 
-Read [authoring](references/authoring.md), [testing](references/testing.md),
-and [hosted execution](references/hosted-execution.md) before sending source
-or starting a pilot. Read [runs and resume](references/runs-and-resume.md) when
-recovering, canceling, or continuing a nonterminal run.
+Read [authoring](references/authoring.md) before sending source, [testing](references/testing.md)
+before validation or a pilot, and [hosted execution](references/hosted-execution.md)
+only when reasoning about runtime authority or recovery. Read
+[runs and resume](references/runs-and-resume.md) when recovering, canceling, or
+continuing a nonterminal run.
 When these packaged references and assets are readable, use them directly and
 do not retrieve duplicate copies through `get_locus_guide`.
 
@@ -138,8 +151,9 @@ do not retrieve duplicate copies through `get_locus_guide`.
   retrying or resuming.
 - Cancel blocks new dispatch. Work already completed can remain charged, and
   partial outputs must remain inspectable.
-- Save, publish, and schedule are separate actions. Do not create an automation
-  or publish a private launcher merely by saving a Workflow.
+- Save, publish, and schedule are separate actions. Do not create an automation,
+  host skill, or private launcher merely by saving a Workflow unless the user
+  requested that separate artifact.
 
 ## Result handling
 
