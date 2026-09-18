@@ -30,6 +30,7 @@ const manifests = {
   ".cursor-plugin/plugin.json": json(".cursor-plugin/plugin.json"),
   ".codex-plugin/plugin.json": json(".codex-plugin/plugin.json"),
   ".grok-plugin/plugin.json": json(".grok-plugin/plugin.json"),
+  "agents/hermes/plugin.json": json("agents/hermes/plugin.json"),
   "plugin.json": json("plugin.json"),
 };
 
@@ -116,6 +117,7 @@ const mcpConfigs = [
   { path: "agents/claude/.mcp.json", wrapped: true, type: "http", source: "claude-code-plugin" },
   { path: "agents/cursor/mcp.json", wrapped: true, type: "http", source: "cursor-plugin" },
   { path: "agents/grok/mcp.json", wrapped: true, type: "http", source: "grok-plugin" },
+  { path: "agents/hermes/mcp.json", wrapped: true, type: "streamable-http", source: "hermes-plugin" },
   { path: "mcp.json", wrapped: true, type: "streamable-http", source: "open-plugin" },
 ];
 
@@ -219,6 +221,31 @@ const skillPaths = readdirSync(resolve(root, "skills"), { withFileTypes: true })
   .map((d) => ({ name: d.name, path: `skills/${d.name}/SKILL.md` }));
 if (skillPaths.length === 0) errors.push("skills/: no skills found");
 const declaredEnvVars = new Map();
+
+const hermesSkillsRoot = resolve(root, "agents/hermes/skills");
+const relativeFiles = (directory) => readdirSync(directory, { recursive: true, withFileTypes: true })
+  .filter((entry) => entry.isFile())
+  .map((entry) => resolve(entry.parentPath ?? entry.path, entry.name).slice(directory.length + 1))
+  .sort();
+const sharedSkillFiles = relativeFiles(resolve(root, "skills"));
+const hermesSkillFiles = relativeFiles(hermesSkillsRoot);
+if (sharedSkillFiles.join("\n") !== hermesSkillFiles.join("\n")) {
+  errors.push("agents/hermes/skills: file tree must match skills/");
+}
+for (const relativePath of sharedSkillFiles.filter((path) => hermesSkillFiles.includes(path))) {
+  const shared = read(`skills/${relativePath}`);
+  const hermes = read(`agents/hermes/skills/${relativePath}`);
+  if (relativePath.endsWith("/SKILL.md")) {
+    const body = (source) => source.replace(/^---\n[\s\S]*?\n---\n/, "");
+    if (body(shared) !== body(hermes)) errors.push(`agents/hermes/skills/${relativePath}: body drifted from skills/`);
+    const frontmatter = hermes.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+    if (/^ {4,}\S|^ {2}-/m.test(frontmatter)) {
+      errors.push(`agents/hermes/skills/${relativePath}: Hermes metadata must stay a flat string map`);
+    }
+  } else if (shared !== hermes) {
+    errors.push(`agents/hermes/skills/${relativePath}: content drifted from skills/`);
+  }
+}
 
 for (const { name, path } of skillPaths) {
   if (!existsSync(resolve(root, path))) {
