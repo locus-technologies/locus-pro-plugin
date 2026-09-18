@@ -75,6 +75,7 @@ for (const path of [
   "agents/codex/.mcp.json",
   "agents/cursor/mcp.json",
   "agents/grok/mcp.json",
+  "agents/hermes/mcp.json",
 ]) {
   const contents = readFileSync(join(output, path), "utf8");
   if (!contents.includes(`${expectedMcpOrigin}/api/credits/mcp`)) {

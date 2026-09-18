@@ -4,6 +4,8 @@
 
 - Kept Workflow execution ceilings autonomous by default instead of exposing
   them as required customer inputs.
+- Added a Hermes-compatible Agent Plugins overlay with the Locus MCP server
+  and all three skills, plus pinned validation of the installed runtime.
 
 ## 0.3.19 (2026-09-17)
 
