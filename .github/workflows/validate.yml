@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: 22
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Validate Claude plugin and marketplace manifests
         run: |
           npx -y @anthropic-ai/claude-code@2.1.259 plugin validate . --strict
@@ -58,8 +63,8 @@ jobs:
       - name: Validate Hermes plugin overlay
         run: |
           python3 -m venv "$RUNNER_TEMP/hermes"
-          "$RUNNER_TEMP/hermes/bin/pip" install \
-            'git+https://github.com/NousResearch/hermes-agent.git@96030a35366e17292043fb6206015b1e40dc40fa'
+          "$RUNNER_TEMP/hermes/bin/pip" install -e \
+            'git+https://github.com/NousResearch/hermes-agent.git@1904c5e812abdc229ef67e9769581cb851455308#egg=hermes-agent'
           "$RUNNER_TEMP/hermes/bin/hermes" plugins validate --install-deps agents/hermes
           "$RUNNER_TEMP/hermes/bin/python" scripts/check-hermes-plugin.py
 
