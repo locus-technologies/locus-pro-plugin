@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.25 (2026-09-19)
+
+- Qualified vendor person IDs with the exact matching enrichment adapter so
+  IDs cannot cross provider boundaries inside the generic waterfall.
+
 ## 0.3.24 (2026-09-19)
 
 - Preserved stable provider person IDs through role discovery and enrichment

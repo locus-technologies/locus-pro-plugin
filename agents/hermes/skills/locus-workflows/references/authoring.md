@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-19 for the versioned Locus Workflow guide bundle. content-sha256: 5d80183a4275e183607614f1f6719a12f3d4827e641f6ef97ba1fd467b9c6270 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-19 for the versioned Locus Workflow guide bundle. content-sha256: 2ad40f5da57c554c1f4ec336ec379a60c938f3cb02c752a841fb648b5d37ee6c -->
 
 # Authoring
 
@@ -29,9 +29,11 @@ Make the requested role an exact output gate, not a search hint. A narrower
 business-unit title, “Head of Sales,” or text that merely contains the role
 does not establish company-wide “VP of Sales.” When no candidate passes, emit
 an unverified role with no person or email instead of enriching the nearest
-title. When a passing directory row supplies a provider person ID, preserve it
-and seed `locus-gtm/enrich` with `entity.identifiers.personId`; never fall back
-to an obfuscated or first name. Handle a binding-call failure as a bounded
+title. When a passing directory row supplies a provider person ID, preserve its
+provenance and seed `locus-gtm/enrich` with `entity.identifiers.personId` only
+while restricting `providers` to the one exact matching adapter ID advertised
+by the live contract. Never send an unqualified provider ID or fall back to an
+obfuscated or first name. Handle a binding-call failure as a bounded
 unknown/failed row when the Workflow promises partial results instead of
 letting one provider error crash the whole run.
 

@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: a1cc18fb31abcf45b4efc7ae1b15e5f5cb15de72fdb28aabc13468d1b81d530f -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: d80fd597face6e006caa7cf1f80fd096fd6c1b5a8bf5dfda13a8c8bd36058ad3 -->
 
 # GTM waterfall enrichment
 
@@ -15,10 +15,12 @@ supported sole enrichment seed because the recipe has no reliable reverse-phone
 identity resolver. Supported company seeds are a domain, name, LinkedIn URL,
 or provider ID.
 
-When a discovery result supplies a stable provider person ID, send it as
-`entity.identifiers.personId`. Prefer that exact seed over an obfuscated name
-or first name, and do not call a second provider-specific enrichment endpoint
-merely to turn the ID into a display name.
+When a discovery result supplies a stable provider person ID, keep its provider
+provenance. Send it as `entity.identifiers.personId` only with `providers`
+containing the one exact matching adapter ID advertised by the live contract.
+An unqualified ID can belong to another vendor and must never enter the general
+waterfall. If the adapter cannot be identified, use a portable exact identifier
+or the issuing provider directly; never substitute an obfuscated or first name.
 
 Choose a named `profile` for a broad common case. For an exact or narrow data
 contract, omit `profile` and set `requestedFields` to only the fields the task
