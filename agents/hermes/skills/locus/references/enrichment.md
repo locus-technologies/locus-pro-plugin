@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 86a3087d12377f189c620bf15f23488124c85a12110bb13632630c70faaf9c20 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-18 for the versioned Locus guide bundle. content-sha256: 91b82d8d6cd5f599788ef5c6a07b5ccb0d101124cf3d41759079dd7a6705e97e -->
 
 # Entity enrichment
 
@@ -19,6 +19,10 @@ For a person-and-work-email request, use this provider-neutral sequence:
 For a narrow request, pass only the exact fields needed in the contract's
 `requestedFields` argument and omit a broad `profile`. Do not fetch a full
 record merely to obtain an email, role, or other named field.
+
+When the live catalog exposes the maintained recipe, follow the
+[GTM waterfall guide](gtm-enrichment.md) for its input, provenance, verification,
+and budget contract instead of recreating the provider waterfall.
 
 Use the Locus connection before asking the user for a separate enrichment or
 email-verification provider key. Ask only when the live connection truly lacks

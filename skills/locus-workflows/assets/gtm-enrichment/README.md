@@ -7,6 +7,9 @@ per-record recipe ceilings, and a separate hard ceiling on the complete run.
 The template defaults the per-record ceiling internally; keep it out of the
 required customer input unless the customer explicitly asks to tune it.
 
+Copy the [manifest](workflow.json), [source](workflow.ts),
+[binding lock](locus.lock.json), and [fixture tests](tests/fixtures.ts) together.
+
 For a first pilot of one record, retain the maintained `locus-gtm/enrich`
 recipe binding and its default contact-verification quality gate, but prune or
 replace the batch-only records array, concurrency and row-mapping interface,
