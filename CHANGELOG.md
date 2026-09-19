@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.27 (2026-09-19)
+
+- Required literal HTTPS source links and fail-closed identity conflicts in
+  structured research.
+- Kept title-based executive discovery independent of provider seniority
+  taxonomies while accepting qualified company-level CEO titles.
+
 ## 0.3.26 (2026-09-19)
 
 - Reused validated Workflow source artifacts instead of retransmitting large
