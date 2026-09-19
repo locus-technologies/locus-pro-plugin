@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.12"
+  version: "1.1.13"
   environment: "production"
 ---
 
@@ -58,6 +58,14 @@ directory row's provider person ID and pass it to `locus-gtm/enrich` as
 ID advertised by the live contract. Never send an unqualified provider ID or
 downgrade it to an obfuscated or first name.
 
+Treat provider-side title and seniority filters as recall hints, not the exact
+role gate. Start with the company/domain and requested title variants; add a
+seniority filter only when the customer's rule requires it, because provider
+taxonomies can suppress a correct title match. Expect directory results to
+omit a combined name or return an obfuscated last name. Preserve the stable
+provider ID and apply the exact role gate to the returned title instead of
+inventing a full name.
+
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,
 fixtures, generated launchers, or logs. Do not rely on arbitrary npm installs,
@@ -84,7 +92,9 @@ business rules require them.
    trial-and-error syntax.
 2. Create one draft with a stable idempotency key. Pass the successful inline
    check's `source_digest` as `validated_source_digest` so creation carries a
-   durable check for the identical source. Update with `revision` and either a
+   durable check for the identical source. When that check returns a
+   `source_artifact_id`, create from that artifact instead of retransmitting or
+   reconstructing the inline files. Update with `revision` and either a
    complete `source` or a small `source_patch`; prefer exact text edits over
    whole-file replacement for narrow changes. Give each logical update a
    stable `idempotency_key` and reuse it unchanged after a timeout; Locus

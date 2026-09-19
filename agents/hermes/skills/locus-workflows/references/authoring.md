@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-19 for the versioned Locus Workflow guide bundle. content-sha256: 2ad40f5da57c554c1f4ec336ec379a60c938f3cb02c752a841fb648b5d37ee6c -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-19 for the versioned Locus Workflow guide bundle. content-sha256: 9bb850923da40bbe1a8f9d3ca416d0bb602d634d8e7441ec22fbb903b1fe1d39 -->
 
 # Authoring
 
@@ -183,7 +183,10 @@ parse.
 
 Pass a successful inline check's `source_digest` to definition creation as
 `validated_source_digest`. The server verifies the digest against the submitted
-source and records the carried structural check on revision 1. For later edits,
+source and records the carried structural check on revision 1. A successful
+inline check also returns `source_artifact_id`; use
+`source:{artifact_id: source_artifact_id}` for creation so the checked bytes are
+reused exactly instead of being transcribed or sent again. For later edits,
 prefer `source_patch.edits` with exact `old_string`/`new_string` replacements
 for small changes, or `source_patch.files` when a complete file changed;
 `content: null` deletes a path. Send one patch form at a time. The expected

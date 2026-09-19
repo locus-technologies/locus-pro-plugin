@@ -4,7 +4,7 @@ description: Find people, verified work emails, companies, and live data.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.13"
+  version: "1.1.14"
   environment: "production"
 ---
 
@@ -84,6 +84,11 @@ execution; do not improvise a second connection or local credential.
   chain, or search-provider plan itself. Do not search the catalog first
   for these. When the user asks for source links, preserve the returned URLs
   in the final result instead of replacing them with outlet names.
+- Before returning structured research, check every requested constraint
+  against the collected evidence, including dates, geography, identity,
+  company/domain, and current title. Exclude a row or mark the disputed field
+  unknown when sources conflict; never silently reconcile incompatible
+  provider records into one confident result.
 - Everything else: `search_apis(query)` describing the outcome you need,
   `describe_api(slug)` for the exact contract, then `execute(slug, args)`.
   Search by outcome, not by a guessed provider name. Search ranks enabled

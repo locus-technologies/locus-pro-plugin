@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.26 (2026-09-19)
+
+- Reused validated Workflow source artifacts instead of retransmitting large
+  inline bundles between check and creation.
+- Documented the normalized GTM field and verification shape, plus directory
+  filter behavior that can otherwise hide exact role matches.
+- Made final structured research fail closed on requested constraints and
+  conflicting identity evidence.
+
 ## 0.3.25 (2026-09-19)
 
 - Qualified vendor person IDs with the exact matching enrichment adapter so
