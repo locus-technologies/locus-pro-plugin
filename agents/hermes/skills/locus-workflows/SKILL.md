@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.11"
+  version: "1.1.12"
   environment: "production"
 ---
 
@@ -54,7 +54,9 @@ company-wide “VP of Sales,” and “Head of Sales” is not the same requeste
 title. If no exact candidate survives this gate, do not enrich the closest
 match: return the requested role as unverified. Preserve a surviving
 directory row's provider person ID and pass it to `locus-gtm/enrich` as
-`personId`; never downgrade it to an obfuscated or first name.
+`personId` only while restricting `providers` to the one exact matching adapter
+ID advertised by the live contract. Never send an unqualified provider ID or
+downgrade it to an obfuscated or first name.
 
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,
