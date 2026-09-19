@@ -39,6 +39,13 @@ field provenance and `contactVerification.verifications`, and never turn a
 rejected candidate into a fact. Phone-only person records are invalid because
 the recipe has no reliable reverse-phone identity resolver.
 
+Hosted calls return the recipe body directly. Read normalized values from the
+field map, for example `result.fields["person.fullName"]?.value`, not from a
+flat `result.person` object. A work email passes the default gate only when the
+matching `contactVerification.verifications` entry has
+`field: "person.workEmail"`, `status: "verified"`, and acceptable checks such
+as `checks.valid: true`; fixture this exact body shape before the pilot.
+
 BYOK `custom-*` bindings can be added to a separate customer Workflow when the
 exact tenant slug is enabled and Workflow-eligible. Provider credentials stay
 in the encrypted Custom API configuration and never belong in these files.

@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: d80fd597face6e006caa7cf1f80fd096fd6c1b5a8bf5dfda13a8c8bd36058ad3 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 090d5b827f26f6b6284f693ecbb4e78c5d7c693d0275eef745a2588c12d842c0 -->
 
 # GTM waterfall enrichment
 
@@ -40,6 +40,20 @@ downstream task explicitly accepts unverified provider candidates.
 5. Report the normalized fields, each field's provider provenance,
    `contactVerification.verifications`, and `missingFields`. Do not present
    rejected identity-conflict or contact-verification responses as facts.
+
+## Output shape
+
+The recipe returns a normalized field map rather than a nested `person` or
+`company` object. Read values and provenance from entries such as
+`fields["person.fullName"].value` and
+`fields["person.workEmail"].providerId`. The input and discovered stable keys
+remain under `identifiers`.
+
+With required verification, accept a work email only when its matching
+`contactVerification.verifications` entry reports `status: "verified"` and
+the relevant checks pass (for example `checks.valid: true`). Provider-native
+statuses such as `valid` can appear inside the evidence, but the recipe's
+normalized decision is `verified`; do not compare that field to `valid`.
 
 The routing policy is seed-specific. The first provider is selected by correct
 whole-record completeness in the current benchmark. Later providers are
