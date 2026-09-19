@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.13"
+  version: "1.1.14"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -53,20 +53,25 @@ role as the company-wide role, or enrich the candidate until independent
 current evidence corroborates the exact person, company, title, and scope.
 For example, “Vice President, Head of Merchant Sales” does not establish the
 company-wide “VP of Sales,” and “Head of Sales” is not the same requested
-title. If no exact candidate survives this gate, do not enrich the closest
-match: return the requested role as unverified. Preserve a surviving
+title. For a CEO request, a current company-level title containing the
+standalone title “CEO” or “Chief Executive Officer” still qualifies when it
+also contains modifiers such as “Co-Founder” or “President”; “Office of the
+CEO,” assistant, partner, and support roles do not. If no exact candidate
+survives this gate, do not enrich the closest match: return the requested role
+as unverified. Preserve a surviving
 directory row's provider person ID and pass it to `locus-gtm/enrich` as
 `personId` only while restricting `providers` to the one exact matching adapter
 ID advertised by the live contract. Never send an unqualified provider ID or
 downgrade it to an obfuscated or first name.
 
 Treat provider-side title and seniority filters as recall hints, not the exact
-role gate. Start with the company/domain and requested title variants; add a
-seniority filter only when the customer's rule requires it, because provider
-taxonomies can suppress a correct title match. Expect directory results to
-omit a combined name or return an obfuscated last name. Preserve the stable
-provider ID and apply the exact role gate to the returned title instead of
-inventing a full name.
+role gate. Start with the company/domain and requested title variants. A role
+request such as CEO or VP of Sales is not a seniority-filter request; omit
+provider seniority filters unless the user explicitly adds a seniority rule,
+because provider taxonomies can suppress a correct title match. Expect
+directory results to omit a combined name or return an obfuscated last name.
+Preserve the stable provider ID and apply the exact role gate to the returned
+title instead of inventing a full name.
 
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,
