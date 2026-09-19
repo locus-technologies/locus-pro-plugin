@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 3d76de67af5a3f2b1c65b037e37482cfa68ab6e8ea112bc7fcec744c34c480d0 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: cc700afd6bb1e1d13680edebe2ffb1d7f2131a6deeefab252b94760cb133e9e3 -->
 
 # OpenClaw adapter
 
@@ -7,7 +7,9 @@ OpenClaw installation. Inspect `openclaw mcp --help` because command spelling
 can change between releases.
 
 Register one OAuth server named `locus` at the exact environment URL returned
-by the compatibility record. Current releases accept this shape:
+by the compatibility record. Before presenting an authorization URL, run the
+login in a persistent terminal and prove its loopback listener will survive
+the agent turn. Current releases accept this shape:
 
 ```bash
 openclaw mcp set locus '{"url":"<MCP transport URL>","transport":"streamable-http","auth":"oauth","requestTimeoutMs":120000,"connectionTimeoutMs":15000}'

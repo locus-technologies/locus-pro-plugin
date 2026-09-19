@@ -1,10 +1,10 @@
 ---
 name: locus-setup
-description: Install or repair Locus through a host-selected MCP or CLI adapter, complete skill delivery, authentication, and fresh-session readiness.
+description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.9"
+  version: "1.3.10"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com

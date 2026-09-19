@@ -23,12 +23,15 @@ for (const entry of readdirSync(outputRoot, { withFileTypes: true })) {
     if (!value) throw new Error(`${path}: missing ${field}`);
     return value;
   };
+  const descriptionLine = line("description");
+  const description = descriptionLine.slice("description:".length).trim().replace(/^['"]|['"]$/g, "");
+  if (description.length > 60) throw new Error(`${path}: Hermes description exceeds 60 characters`);
   writeFileSync(
     path,
     [
       "---",
       line("name"),
-      line("description"),
+      descriptionLine,
       line("license"),
       "metadata:",
       line("author", "  "),
