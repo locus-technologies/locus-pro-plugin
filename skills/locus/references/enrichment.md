@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-18 for the versioned Locus guide bundle. content-sha256: f39d4f654d1815a1aa30c393cd2ef5ca55f0cec99e745f3d68c52e4a0d80be0a -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 8671fcdbb6720dc09bd3b4c81ddced55a4409a1d6f4df8de6347a118f4b77b4f -->
 
 # Entity enrichment
 
@@ -21,6 +21,10 @@ Before selecting a role holder, corroborate the exact person, current title,
 and target company with independent current evidence. Reject stale roles,
 subsidiary executives, and same-name companies; if the evidence conflicts or
 cannot distinguish them, return unknown instead of ranking title text alone.
+Preserve the row's strongest stable identifier. If it supplies a provider
+person ID, pass that value to the maintained recipe as `personId`; do not
+discard it, add a redundant provider-enrichment leg, or downgrade the identity
+to an obfuscated or first name.
 
 For a narrow request, pass only the exact fields needed in the contract's
 `requestedFields` argument and omit a broad `profile`. Do not fetch a full

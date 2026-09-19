@@ -4,7 +4,7 @@ description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.10"
+  version: "1.3.11"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -44,6 +44,15 @@ install still needs the selected adapter's own setup.
 When a bootstrap led here, this installed skill is the operating procedure.
 The live compatibility record remains authoritative for environment and
 adapter availability; the bootstrap only locates and pins this released tree.
+Fetch that record from the current environment's exact endpoint before adapter
+selection or repair:
+
+```text
+https://api.paywithlocus.com/api/agent/compatibility.json
+```
+
+It is the JSON document that declares `environment`, `mcp`, `cli`, `plugin`,
+`agent_skills`, and `guides`. Do not reconstruct those fields from prose.
 
 The account flow is separate from adapter selection. A person with browser or
 device consent uses a human-owned account by default. Use an agent-owned
@@ -115,6 +124,12 @@ bundled with this skill (mirrored from
 https://paywithlocus.com/agent/credentials.md) before persisting any secret.
 
 ## Choose the path
+
+For the common human-owned path: fetch compatibility, select one eligible MCP
+or CLI adapter, install all three released skill trees, authenticate through
+that adapter's normal browser/device flow, then run readiness and fresh-session
+checks. Do not enter the AgentMail, AgentID, registration, or funding sections
+unless the rules below actually select an agent-owned account.
 
 Decide the account owner before any API call, in this order:
 

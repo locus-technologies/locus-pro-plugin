@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: b4ae45f63ce08e97035c8fc39dba4117a90668ff30e6cf8875c62aeea6bacf88 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 9346767b0994c86c01d24d19c82f9c671b5c4bcb808d603c16cd51ce245b7b0f -->
 
 # Host adapters and readiness
 
@@ -48,7 +48,9 @@ the first supported tier:
 
 1. **Native registration.** Prefer the verified official plugin or the host's
    approved persistent or virtual skill registry. Verify discovery in a fresh
-   session; installation alone is not activation.
+   session; installation alone is not activation. In this tier the active,
+   isolated host profile is authoritative. Do not update unrelated shared
+   `current` files or another host/profile's older tree.
 2. **Persistent filesystem.** When native registration is unavailable but the
    agent can persist and reopen files, use one of the two verified sources the
    compatibility record actually declares available:
@@ -102,6 +104,9 @@ fresh-session activation pending and verify it at the start of the next
 ordinary task; do not repeat installation merely to manufacture that evidence.
 If browser approval, a required host restart, or a user choice is still
 outstanding, say that the install is waiting rather than calling it complete.
+If the host records install status or memory, replace its pending OAuth marker
+with the verified ready state after authentication and the readiness call; do
+not leave a stale pending record beside a working connection.
 
 Verify instruction discovery and execution readiness separately. Test skill
 discovery in a fresh session, then make the live readiness call in the same

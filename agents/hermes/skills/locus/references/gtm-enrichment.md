@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-18 for the versioned Locus guide bundle. content-sha256: 0146d923762c1b96b57e7a16a96789674b67c42e256bbe23fbd1cd1e46fb8bf1 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: a1cc18fb31abcf45b4efc7ae1b15e5f5cb15de72fdb28aabc13468d1b81d530f -->
 
 # GTM waterfall enrichment
 
@@ -14,6 +14,11 @@ name paired with a company name/domain/profile. A phone number is not a
 supported sole enrichment seed because the recipe has no reliable reverse-phone
 identity resolver. Supported company seeds are a domain, name, LinkedIn URL,
 or provider ID.
+
+When a discovery result supplies a stable provider person ID, send it as
+`entity.identifiers.personId`. Prefer that exact seed over an obfuscated name
+or first name, and do not call a second provider-specific enrichment endpoint
+merely to turn the ID into a display name.
 
 Choose a named `profile` for a broad common case. For an exact or narrow data
 contract, omit `profile` and set `requestedFields` to only the fields the task

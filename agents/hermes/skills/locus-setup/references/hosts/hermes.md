@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 3a4f30be1a1a3cfffe7e3c2c4fd5aa1602ed230fd05cdb9d54dad8bc17b34527 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 8609ded044530dadae3a61b05f6e128397afc5c2b8151a2a798d744fc4aba035 -->
 
 # Hermes Agent adapter
 
@@ -74,3 +74,9 @@ If the authenticated server is not immediately visible, start a fresh Hermes
 session, then run `hermes mcp test locus` and verify the live tool list, a free
 readiness call, and automatic skill discovery. Do not infer readiness from
 configuration text alone.
+
+From a one-shot installer, do not spawn a nested Hermes agent merely to make
+the free readiness call: model credentials and tool policy may not propagate
+to that child. Use `hermes mcp test locus` for the transport check, then make
+the free call in the next fresh ordinary agent session and report that boundary
+honestly until it succeeds.

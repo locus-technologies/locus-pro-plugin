@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.10"
+  version: "1.1.11"
   environment: "production"
 ---
 
@@ -50,8 +50,11 @@ candidate. Do not broaden the requested role, relabel a narrower business-unit
 role as the company-wide role, or enrich the candidate until independent
 current evidence corroborates the exact person, company, title, and scope.
 For example, “Vice President, Head of Merchant Sales” does not establish the
-company-wide “VP of Sales.” If the exact role remains ambiguous, return it as
-unverified instead of choosing the closest title.
+company-wide “VP of Sales,” and “Head of Sales” is not the same requested
+title. If no exact candidate survives this gate, do not enrich the closest
+match: return the requested role as unverified. Preserve a surviving
+directory row's provider person ID and pass it to `locus-gtm/enrich` as
+`personId`; never downgrade it to an obfuscated or first name.
 
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,

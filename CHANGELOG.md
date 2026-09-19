@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.24 (2026-09-19)
+
+- Preserved stable provider person IDs through role discovery and enrichment
+  instead of degrading them to partial names or redundant provider calls.
+- Made exact role gates and per-row provider failure handling explicit for
+  reusable prospecting Workflows.
+- Defined the compatibility record for installed setup skills and simplified
+  the common human-owned path and fresh-session verification boundary.
+- Kept requested source URLs and the canonical compact MCP query spelling.
+
 ## 0.3.23 (2026-09-19)
 
 - Preserved complete released skill entrypoints during Hermes activation and
