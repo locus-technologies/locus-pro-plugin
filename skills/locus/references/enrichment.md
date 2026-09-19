@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-18 for the versioned Locus guide bundle. content-sha256: 91b82d8d6cd5f599788ef5c6a07b5ccb0d101124cf3d41759079dd7a6705e97e -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-18 for the versioned Locus guide bundle. content-sha256: f39d4f654d1815a1aa30c393cd2ef5ca55f0cec99e745f3d68c52e4a0d80be0a -->
 
 # Entity enrichment
 
@@ -15,6 +15,12 @@ For a person-and-work-email request, use this provider-neutral sequence:
 3. Enrich only the selected identity, then verify each candidate work email.
 4. Return source details and verification state; withhold rejected or
    ambiguous candidates instead of guessing.
+
+A people-directory row is a discovery candidate, not proof of a current role.
+Before selecting a role holder, corroborate the exact person, current title,
+and target company with independent current evidence. Reject stale roles,
+subsidiary executives, and same-name companies; if the evidence conflicts or
+cannot distinguish them, return unknown instead of ranking title text alone.
 
 For a narrow request, pass only the exact fields needed in the contract's
 `requestedFields` argument and omit a broad `profile`. Do not fetch a full

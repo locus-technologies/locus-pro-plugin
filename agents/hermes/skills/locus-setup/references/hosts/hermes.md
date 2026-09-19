@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 5732b42d8e70fb6b105984916696a8b1f3cc35f0e64cc64aed5ab4a7952458fb -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-18 for the versioned Locus guide bundle. content-sha256: 6a46ae46105195d5612ee6d51dac78f4072fc539d65f20c9f49310fa4f686879 -->
 
 # Hermes Agent adapter
 
@@ -25,9 +25,13 @@ an unauthenticated discovery probe cannot discard the server:
 ```bash
 hermes config set mcp_servers.locus.url '<MCP transport URL>'
 hermes config set mcp_servers.locus.auth oauth
-hermes config set mcp_servers.locus.connect_timeout 30
+hermes config set mcp_servers.locus.connect_timeout 315
 hermes mcp login locus
 ```
+
+Keep the timeout at 315 seconds or longer. Hermes reuses this value inside the
+MCP transport, so a shorter value can cancel the PKCE session while the outer
+login command is still waiting for browser approval.
 
 Do not patch or reinstall Hermes when an interactive `hermes mcp add` probe
 fails before OAuth. The declarative commands above register the same native

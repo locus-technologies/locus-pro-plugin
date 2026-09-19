@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.22 (2026-09-18)
+
+- Kept Hermes OAuth alive for its full browser-approval window.
+- Required current-role corroboration before enriching directory candidates.
+- Prevented interactive OAuth calls from inventing `external_user_id` values.
+
 ## 0.3.21 (2026-09-18)
 
 - Made the shared skill tree the editable source for every host adapter and
