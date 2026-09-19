@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-19 for the versioned Locus Workflow guide bundle. content-sha256: 9bb850923da40bbe1a8f9d3ca416d0bb602d634d8e7441ec22fbb903b1fe1d39 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-19 for the versioned Locus Workflow guide bundle. content-sha256: 29a5843884ae9fda6b30252e9f60c68f445170f7eb4e765321163677e4b815d0 -->
 
 # Authoring
 
@@ -28,8 +28,18 @@ person.
 Make the requested role an exact output gate, not a search hint. A narrower
 business-unit title, “Head of Sales,” or text that merely contains the role
 does not establish company-wide “VP of Sales.” When no candidate passes, emit
-an unverified role with no person or email instead of enriching the nearest
-title. When a passing directory row supplies a provider person ID, preserve its
+an unverified role with all person, title, email, and profile fields null instead
+of enriching the nearest title. Put the exact gate in one exported pure
+selector or predicate and call it from both the runtime path and
+`tests/fixtures.ts`. Fixture the qualifying forms and the misleading forms
+relevant to the requested role; for VP of Sales this includes rejecting
+“Head of Sales” and business-unit/geography-qualified VP titles, and for CEO it
+includes accepting company-level CEO titles with founder/president modifiers
+while rejecting Office-of-CEO and support roles. A parser-only fixture or a
+fixture that merely contains an expected null row does not exercise the gate.
+Do not save the Workflow unless the fixture calls the production selector and
+proves every rejected candidate becomes null before any enrichment call.
+When a passing directory row supplies a provider person ID, preserve its
 provenance and seed `locus-gtm/enrich` with `entity.identifiers.personId` only
 while restricting `providers` to the one exact matching adapter ID advertised
 by the live contract. Never send an unqualified provider ID or fall back to an

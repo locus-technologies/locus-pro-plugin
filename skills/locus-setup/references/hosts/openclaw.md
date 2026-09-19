@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: cc700afd6bb1e1d13680edebe2ffb1d7f2131a6deeefab252b94760cb133e9e3 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: ed1564812b45039e737d7ca295b3df28f23a0d965785914c44ec68fec2863761 -->
 
 # OpenClaw adapter
 
@@ -48,15 +48,23 @@ secure port-forwarding path or browser on the OpenClaw host is available, stop
 and report that current OpenClaw cannot complete this OAuth flow remotely; do
 not present copy-back parameters it cannot consume.
 
-Install the three released skill trees through OpenClaw's native skill registry
-when available. Its installer accepts a local skill directory, not an archive
-URL: download each compatibility-index archive, verify its digest, extract it,
-then run `openclaw skills install <absolute-extracted-skill-directory> --force`
-for each of `locus`, `locus-setup`, and `locus-workflows`. Use an absolute path:
-current releases can parse a relative path as a registry slug. Otherwise use the shared
-persistent-filesystem tier beneath the selected profile's state directory. A
-direct URL install of only the bootstrap `SKILL.md` is not complete skill
-delivery.
+Make the selected OpenClaw profile's state directory the durable source before
+native registration. Download and verify the three compatibility-index
+archives in an owner-only staging directory, then move the complete released
+trees beneath
+`<OPENCLAW_STATE_DIR>/locus-agent-skills/<environment>/<version>/` and
+atomically update that environment's `current` pointer. Preserve an instruction
+index there with the release/digest/path metadata and no credentials. Never
+register from `/tmp`, an extraction directory, or a project workspace: native
+metadata and provenance must resolve to the durable tree after cleanup.
+
+OpenClaw's installer accepts a local skill directory, not an archive URL. Run
+`openclaw skills install <absolute-durable-skill-directory> --force` for each
+of `locus`, `locus-setup`, and `locus-workflows`; current releases can parse a
+relative path as a registry slug. If this release creates a workspace copy,
+treat it as a generated activation mirror of the versioned profile tree and do
+not make it the only installed artifact. A direct URL install of only the
+bootstrap `SKILL.md` is not complete skill delivery.
 
 Prefer an external vault injected into the Gateway process for a native
 `lcac_` setup credential. When none exists, use the selected profile's trusted

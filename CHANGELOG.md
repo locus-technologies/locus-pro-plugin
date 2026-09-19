@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.28 (2026-09-19)
+
+- Kept OpenClaw skill trees and provenance in its durable profile before
+  native registration.
+- Required role gates to run through fixture-tested production selectors
+  before enrichment and added recovery for interrupted Workflow tooling.
+- Clarified the compact transport query versus the bare OAuth resource.
+
 ## 0.3.27 (2026-09-19)
 
 - Required literal HTTPS source links and fail-closed identity conflicts in
