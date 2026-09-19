@@ -50,6 +50,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
           HEAD_BRANCH: ${{ github.head_ref }}
         run: |
+          node scripts/sync-hermes-skills.mjs
+          git diff --exit-code -- agents/hermes/skills
           node scripts/version.mjs check
           node scripts/check-manifests.mjs
           if [[ "$BASE_BRANCH" == "main" ]]; then

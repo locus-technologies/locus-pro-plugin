@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.21 (2026-09-18)
+
+- Made the shared skill tree the editable source for every host adapter and
+  generated the Hermes-compatible view from it.
+- Moved the GTM waterfall guide into the canonical plugin bundle so MCP, HTTP,
+  Agent Skills archives, plugins, and downstream importers serve one copy.
+
 ## 0.3.20 (2026-09-17)
 
 - Kept Workflow execution ceilings autonomous by default instead of exposing

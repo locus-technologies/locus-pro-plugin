@@ -106,6 +106,7 @@ added to CI.
 Run these from the repository root before requesting review:
 
 ```bash
+node scripts/sync-hermes-skills.mjs
 node scripts/version.mjs check
 node scripts/check-manifests.mjs
 npx -y @anthropic-ai/claude-code@2.1.259 plugin validate . --strict
