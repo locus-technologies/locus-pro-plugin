@@ -1,10 +1,10 @@
 ---
 name: locus-workflows
-description: Author, validate, pilot, save, and run versioned Locus Workflows through an existing authorized Locus connection.
+description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.9"
+  version: "1.1.10"
   environment: "production"
 ---
 
@@ -45,6 +45,14 @@ For people, company, or verified-contact enrichment, adapt the reviewed
 [GTM enrichment asset](assets/gtm-enrichment/README.md) and its maintained
 recipe instead of rebuilding a provider waterfall.
 
+For a requested role holder, a directory row or title match is only a
+candidate. Do not broaden the requested role, relabel a narrower business-unit
+role as the company-wide role, or enrich the candidate until independent
+current evidence corroborates the exact person, company, title, and scope.
+For example, “Vice President, Head of Merchant Sales” does not establish the
+company-wide “VP of Sales.” If the exact role remains ambiguous, return it as
+unverified instead of choosing the closest title.
+
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,
 fixtures, generated launchers, or logs. Do not rely on arbitrary npm installs,
@@ -54,10 +62,14 @@ networking in hosted execution.
 ## Lifecycle
 
 Prioritize completing inline check, one draft, minimal relevant fixtures,
-immutable save, and a bounded pilot in the current task. Adapt the closest
-reviewed asset and keep an ordinary single-row Workflow minimal. Do not build
-generic parsers, ranking frameworks, or exhaustive edge-case suites unless the
-user's business rules require them.
+immutable save, and a bounded pilot in the current task. A request to create
+and test a Workflow remains authorization for that entire lifecycle: do not
+stop after discovery or draft creation to ask the user to say “go” or
+“continue.” Treat “test” as fixtures plus a bounded live pilot unless the user
+explicitly limits testing to local fixtures. Adapt the closest reviewed asset
+and keep an ordinary single-row Workflow minimal. Do not build generic
+parsers, ranking frameworks, or exhaustive edge-case suites unless the user's
+business rules require them.
 
 1. Start with the smallest complete template and validate the inline source
    candidate before persistence when the
@@ -124,10 +136,10 @@ use `input` together with `input_artifact_id`, pass `latest` instead of an
 integer version, or change arguments while reusing an idempotency key.
 
 When the user asked to create, validate, test, or save a Workflow, continue
-through those requested non-provider steps without asking them to say “go.”
-Send source directly to the tools instead of narrating every file. Pause only
-when the task itself needs missing business input or an external action outside
-the requested Workflow lifecycle.
+through the requested lifecycle without asking again. Send source directly to
+the tools instead of narrating every file. Pause only when the task itself
+needs missing business input or an external action outside the requested
+Workflow lifecycle.
 
 Read [authoring](references/authoring.md) before sending source, [testing](references/testing.md)
 before validation or a pilot, and [hosted execution](references/hosted-execution.md)

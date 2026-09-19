@@ -1,10 +1,10 @@
 ---
 name: locus
-description: Find people, verified work emails, companies, current web research, market data, and other pay-per-use APIs through one Locus connection.
+description: Find people, verified work emails, companies, and live data.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.10"
+  version: "1.1.11"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com

@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-18 for the versioned Locus guide bundle. content-sha256: 6a46ae46105195d5612ee6d51dac78f4072fc539d65f20c9f49310fa4f686879 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 3a4f30be1a1a3cfffe7e3c2c4fd5aa1602ed230fd05cdb9d54dad8bc17b34527 -->
 
 # Hermes Agent adapter
 
@@ -10,8 +10,15 @@ Hermes can install a remote `SKILL.md`, but a direct URL is a single-file skill
 install. Treat it as bootstrap delivery only. Complete the installation with
 the compatibility record's digest-pinned Agent Skills archives or guide
 manifest so `locus`, `locus-setup`, and `locus-workflows` each retain their
-linked references and assets. Use a fresh session or Hermes' documented
-prompt-cache invalidation after installing the complete trees.
+linked references and assets.
+
+After verifying and extracting the archives, activate each exact released tree
+at `<HERMES_HOME>/skills/<skill>`, using a link to the versioned source when
+supported or a complete directory copy otherwise. Do not use `skill_manage` to
+replace the released `SKILL.md` with a summary or shortened entrypoint; the
+released descriptions already fit Hermes' registration limit. Start a fresh
+Hermes session after activating all three trees; current Hermes has no separate
+MCP reload command.
 
 Keep the versioned source and activation links inside the active Hermes
 profile: use `<HERMES_HOME>/locus-agent-skills/<environment>/<version>/...`
@@ -40,7 +47,8 @@ authentication. Confirm the saved URL before login and do not preserve an
 entry from another Locus environment.
 
 Hermes performs OAuth discovery, PKCE, client identification, token exchange,
-and refresh. Keep the login command alive through approval. From a one-shot
+and refresh. `hermes mcp login locus` is interactive and blocks until approval;
+keep that command alive through approval. From a one-shot
 Hermes agent turn, launch it in the host's managed interactive PTY with
 background, PTY, and completion notification enabled, then keep polling or let
 the completion notification resume the same turn until the command exits. When
@@ -62,6 +70,7 @@ reload MCP, and prove authentication with a live free Locus call before
 starting OAuth again. `hermes mcp list` labels such as `enabled` or `Tools: all`
 describe configuration and filtering, not authenticated reachability.
 
-Reload MCP if the authenticated server is not immediately visible, then verify
-the live tool list, a free readiness call, and automatic skill discovery in a
-fresh Hermes session. Do not infer readiness from configuration text alone.
+If the authenticated server is not immediately visible, start a fresh Hermes
+session, then run `hermes mcp test locus` and verify the live tool list, a free
+readiness call, and automatic skill discovery. Do not infer readiness from
+configuration text alone.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.23 (2026-09-19)
+
+- Preserved complete released skill entrypoints during Hermes activation and
+  kept canonical descriptions within its registration limit.
+- Kept requested Workflow creation and testing in one autonomous lifecycle.
+- Failed closed when a narrower sales title could not prove the requested
+  company-wide role.
+
 ## 0.3.22 (2026-09-18)
 
 - Kept Hermes OAuth alive for its full browser-approval window.
