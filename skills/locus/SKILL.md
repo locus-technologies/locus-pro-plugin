@@ -4,7 +4,7 @@ description: Find people, verified work emails, companies, and live data.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.11"
+  version: "1.1.12"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -42,7 +42,7 @@ keeps the tokens.
   `locus-setup` skill only when the user asks you to perform setup or
   funding, or the runtime is headless; its agent-owned path is not for a
   user who can open a browser.
-- Optional URL query switches: `?compact=1` returns compact text results;
+- Optional URL query switches: `?surface=compact` returns compact text results;
   `?tool=provider/endpoint` (repeatable, or `?tools=a,b`) pins up to 20
   typed direct tools.
 
@@ -84,7 +84,8 @@ execution; do not improvise a second connection or local credential.
   directly when it is listed (a server-provided tool on connections that
   enable it; absent otherwise). Locus selects the website capability, lookup
   chain, or search-provider plan itself. Do not search the catalog first
-  for these.
+  for these. When the user asks for source links, preserve the returned URLs
+  in the final result instead of replacing them with outlet names.
 - Everything else: `search_apis(query)` describing the outcome you need,
   `describe_api(slug)` for the exact contract, then `execute(slug, args)`.
   Search by outcome, not by a guessed provider name. Search ranks enabled
