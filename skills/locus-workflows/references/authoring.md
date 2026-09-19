@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 7f5f4e2769a3a1e10f11f06133f61d4daf54e0b9b92d284b8b7d979be4475a89 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-18 for the versioned Locus Workflow guide bundle. content-sha256: 8737fd38610e484e4fa75bed5fedb1b8a553fe633674ce8a92e672edfc497de1 -->
 
 # Authoring
 
@@ -17,6 +17,13 @@ a verified email, verified identity, or another quality gate, omission of an
 optional flag must keep that gate enabled and missing or rejected evidence must
 fail closed. Only an explicit caller input may request a documented best-effort
 mode. Fixture both the omitted-flag case and the rejected-evidence case.
+
+For a Workflow that finds a current role holder, treat directory search rows
+as candidates rather than proof. Corroborate the exact person, current title,
+and target company with independent current evidence before enrichment. Fail
+closed on stale roles, subsidiary executives, or conflicting identities, and
+fixture a misleading higher-scored title that must lose to the corroborated
+person.
 
 ## Source bundle
 

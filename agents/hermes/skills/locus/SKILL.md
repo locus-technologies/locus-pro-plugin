@@ -4,7 +4,7 @@ description: Find people, verified work emails, companies, current web research,
 license: MIT
 metadata:
   author: locus
-  version: "1.1.9"
+  version: "1.1.10"
   environment: "production"
 ---
 
@@ -98,6 +98,9 @@ execution; do not improvise a second connection or local credential.
   supplies a hard ceiling. Otherwise route routine work directly to execution.
 - Use the advertised balance or catalog read when it materially helps the
   task; these reads are not prerequisites for ordinary execution.
+- On an interactive OAuth connection, omit `external_user_id` from tool calls.
+  The grant already identifies the caller; never invent or reuse another
+  identity value unless the host explicitly supplies one for that call.
 - Omit `stream` in call args (or set it `false`); each call returns one
   bounded result, and streaming-only request shapes are rejected.
 
