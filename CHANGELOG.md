@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.34 (2026-09-20)
+
+- Kept every OpenClaw install command and durable skill artifact inside the
+  selected profile instead of guessing shared state paths.
+
 ## 0.3.33 (2026-09-19)
 
 - Prevented fail-closed null results from being reported as successful
