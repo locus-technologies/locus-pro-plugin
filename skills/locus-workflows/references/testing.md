@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 0f4741d97ae996be98ecb350124d7dfd8503ff72ed4407924a1116ed8e1ae7cd -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/testing.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 581627cacc6693f53ac6641ed9edc43372778dd035752e16520045fdf43e9963 -->
 
 # Testing and pilots
 
@@ -94,7 +94,11 @@ workspace activity may occur concurrently.
 The platform's pilot readiness records execution completion, not whether the
 customer's business output is useful. Treat `pilot_output_quality` as
 `not_evaluated` until the caller checks the expected fields and invariants in
-the result artifact. Do not promote an empty-but-successful run.
+the result artifact. A fail-closed null is valid runtime behavior but cannot
+satisfy a required live output. Try other available bindings or retrieval
+strategies; if none can establish the requested evidence, report the pilot as
+not meeting the requested outcome. Do not weaken a quality gate or promote an
+empty-but-successful run.
 
 Review every attempt. A changed source version, normalized input, mode, row
 cap, or credit cap is a different run request and needs a different
