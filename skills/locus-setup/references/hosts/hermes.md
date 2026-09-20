@@ -1,10 +1,16 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 655eca6706496c60d9b2651acc1eb9975ad6085defaba427a33a4d37a870fd32 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 45304596f668ed2a1c8f3279bf282edbd4a08c94a2b191b6fca21fc49f1253e4 -->
 
 # Hermes Agent adapter
 
 Use this reference only after the shared host-adapter guide selects MCP for a
 Hermes Agent installation. Resolve the active Hermes data directory from the
 host configuration; its default location is `~/.hermes`.
+
+Before creating any durable skill directory, use exactly
+`<HERMES_HOME>/locus-agent-skills` as the root. Do not create or retain
+`<HERMES_HOME>/locus-data`, `~/.locus`, or another alias. On symlink-capable
+systems, apply the shared relative, atomic `current` symlink contract beneath
+that root.
 
 Hermes can install a remote `SKILL.md`, but a direct URL is a single-file skill
 install. Treat it as bootstrap delivery only. Complete the installation with

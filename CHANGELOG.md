@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.36 (2026-09-20)
+
+- Required host adapters to select their profile-scoped durable root before
+  writing skills and standardized atomic relative `current` symlinks.
+
 ## 0.3.35 (2026-09-20)
 
 - Required bootstraps to fetch raw current release metadata, reject every
