@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: ed1564812b45039e737d7ca295b3df28f23a0d965785914c44ec68fec2863761 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: d454afd234dbf9a13509cda48d0c067bd586a64ac81ec6969b13d8fa5dc23dd8 -->
 
 # OpenClaw adapter
 
@@ -19,7 +19,8 @@ openclaw mcp login locus
 Keep `openclaw mcp login locus` and its loopback listener alive until consent
 finishes. If a managed agent shell cleans up child processes when a turn ends,
 start the same native login command in a foreground persistent terminal owned
-by the host before presenting its authorization URL. If the host has no such
+by the host before presenting its authorization URL. Do not return a final
+response while the only listener belongs to a per-turn child process. If the host has no such
 terminal but does have Python, detach only that native command with
 `subprocess.Popen(..., start_new_session=True)`, redirect its output to an
 owner-only temporary log, and verify that both the process and listener remain

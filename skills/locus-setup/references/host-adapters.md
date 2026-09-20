@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: e51cfe289d92d9d23fd86d53cb3fc6c197b4ed7179431fdec51a05f5ae285ec2 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: b0523e06188a1c1ee8be9184506799a38ab684ce243f7119f78cae4277833eed -->
 
 # Host adapters and readiness
 
@@ -11,7 +11,9 @@ second grant merely to change how instructions are stored.
 Select MCP or CLI as the execution interface independently from instruction
 delivery. Neither adapter is the default. Use this order:
 
-1. Read the compatibility record first. An adapter explicitly marked
+1. Read the compatibility record first with a raw HTTP client and cache bypass
+   or revalidation. Do not use a browser/page extractor or its cached result
+   for compatibility JSON or the Agent Skills index. An adapter explicitly marked
    `available: false` is ineligible in that environment; report its `reason`
    when the user requested it. Honor an explicit MCP or CLI request among the
    available adapters instead of silently switching.
@@ -54,7 +56,11 @@ the first supported tier:
 2. **Persistent filesystem.** When native registration is unavailable but the
    agent can persist and reopen files, use one of the two verified sources the
    compatibility record actually declares available:
-   - Prefer its Agent Skills index and exact per-skill archives. Use the host's
+   - Prefer its Agent Skills index and exact per-skill archives. Require the
+     archive URLs and release metadata to name the compatibility record's pinned
+     `agent_skills.bundle_version`. On any mismatch, discard both documents and
+     refetch the compatibility record and index as raw JSON with cache bypass or
+     revalidation before writing files. Use the host's
      native Agent Skills installer when available; otherwise download the
      three archives with a raw/binary HTTP client, not a browser or page
      extractor. Require an `application/zip` response or ZIP `PK` magic bytes,

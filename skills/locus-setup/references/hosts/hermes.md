@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 8609ded044530dadae3a61b05f6e128397afc5c2b8151a2a798d744fc4aba035 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 97d563e2cfe91e163250fcfcc8a4887696b29765edaaee286135239feb3eb522 -->
 
 # Hermes Agent adapter
 
@@ -48,10 +48,12 @@ entry from another Locus environment.
 
 Hermes performs OAuth discovery, PKCE, client identification, token exchange,
 and refresh. `hermes mcp login locus` is interactive and blocks until approval;
-keep that command alive through approval. From a one-shot
-Hermes agent turn, launch it in the host's managed interactive PTY with
-background, PTY, and completion notification enabled, then keep polling or let
-the completion notification resume the same turn until the command exits. When
+keep that command alive through approval. From a one-shot Hermes agent turn,
+run it in a foreground interactive PTY owned by the host and wait for it to
+exit. A background process is acceptable only after proving that both it and
+its loopback listener survive the agent turn; otherwise use a host-owned
+persistent terminal. Do not return a final response while the only listener
+belongs to a per-turn child process. When
 Hermes offers manual completion, paste the complete callback response
 containing `code`, `state`, and `iss` into its waiting prompt; do not reduce it
 to only the code or put it in command arguments. Use Hermes' documented DCR

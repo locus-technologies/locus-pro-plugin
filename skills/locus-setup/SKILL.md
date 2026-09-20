@@ -4,7 +4,7 @@ description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.13"
+  version: "1.3.14"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -45,7 +45,8 @@ When a bootstrap led here, this installed skill is the operating procedure.
 The live compatibility record remains authoritative for environment and
 adapter availability; the bootstrap only locates and pins this released tree.
 Fetch that record from the current environment's exact endpoint before adapter
-selection or repair:
+selection or repair. Use a raw HTTP client with cache bypass or revalidation,
+not a browser/page extractor or its cached page result:
 
 ```text
 https://api.paywithlocus.com/api/agent/compatibility.json
