@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.31 (2026-09-19)
+
+- Persisted resumable non-secret install checkpoints at human approval and
+  restart boundaries.
+- Clarified native OAuth token storage, fresh child-session evidence, and the
+  single bundle version to report as installation identity.
+
 ## 0.3.30 (2026-09-19)
 
 - Required raw, revalidated compatibility metadata and rejected mismatched
