@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.32 (2026-09-19)
+
+- Required live Workflow pilots to satisfy the user's requested output, not
+  merely finish execution, before agents report completion.
+
 ## 0.3.31 (2026-09-19)
 
 - Persisted resumable non-secret install checkpoints at human approval and

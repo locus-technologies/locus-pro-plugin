@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.16"
+  version: "1.1.17"
   environment: "production"
 ---
 
@@ -137,8 +137,12 @@ actual failed tool call or refreshed inventory.
    saved integer version; editing a draft is not changing a saved version.
 5. For a requested live test, run a bounded pilot and bind its source digest,
    inputs, destinations, credit ceiling, and expiry, then inspect its results
-   and receipts. Do not add a conversational confirmation step merely because
-   the pilot uses paid providers.
+   and receipts. Execution success is not task success: compare the result
+   artifact with every user-requested field and invariant. If a required value
+   is missing, null, unverified, or otherwise fails the requested outcome,
+   revise the draft, re-check it, save a new version, and pilot that version
+   before reporting completion. Do not add a conversational confirmation step
+   merely because the pilot uses paid providers.
 6. Start a production run only after successful fixtures and a successful
    pilot of that exact saved version, with a hard
    `max_charge_credits` budget. Return the run ID promptly and poll its bounded
