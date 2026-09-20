@@ -4,7 +4,7 @@ description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.17"
+  version: "1.3.18"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
