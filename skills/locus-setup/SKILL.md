@@ -4,7 +4,7 @@ description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.15"
+  version: "1.3.16"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -44,16 +44,26 @@ install still needs the selected adapter's own setup.
 When a bootstrap led here, this installed skill is the operating procedure.
 The live compatibility record remains authoritative for environment and
 adapter availability; the bootstrap only locates and pins this released tree.
-Fetch that record from the current environment's exact endpoint before adapter
-selection or repair. Use a raw HTTP client with cache bypass or revalidation,
-not a browser/page extractor or its cached page result:
+Fetch that record and any advertised Agent Skills index as raw JSON with cache
+bypass or revalidation before adapter selection or repair. Do not use a
+browser/page extractor or its cached page result. In a shell, fetch each exact
+URL like this; without a shell, use the runtime's native raw HTTP client with
+the same request headers and parse the response body directly:
 
-```text
-https://api.paywithlocus.com/api/agent/compatibility.json
+```bash
+curl --fail --silent --show-error --location \
+  --header 'Cache-Control: no-cache' --header 'Pragma: no-cache' \
+  'https://api.paywithlocus.com/api/agent/compatibility.json'
 ```
 
 It is the JSON document that declares `environment`, `mcp`, `cli`, `plugin`,
 `agent_skills`, and `guides`. Do not reconstruct those fields from prose.
+Before writing or extracting files, derive the release version independently
+from every advertised archive URL or filename and index version field. Require
+all of them to equal `agent_skills.bundle_version`; on any mismatch, discard
+the responses, refetch them as raw cache-bypassed or revalidated JSON, and stop
+if they still disagree. Never relabel an archive or install it beneath a
+version taken from a mismatched document.
 
 The account flow is separate from adapter selection. A person with browser or
 device consent uses a human-owned account by default. Use an agent-owned
