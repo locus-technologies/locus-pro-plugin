@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 86b17bfa622a72ac87e1dd2397aab4a377f6235e60511a6bf7dd1b9df0b6e923 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 5d3cae0a4366eb93aaf9cd5ad2dcb538d5f6984ad59d3cc8676b6a88785d4c68 -->
 
 # Host adapters and readiness
 
@@ -45,6 +45,17 @@ Do not count generic HTTP, a browser, or a shell as MCP support. Do not count a
 shell alone as an installable CLI. Install and authenticate only the selected
 adapter; add both only when the user explicitly requests both.
 
+Before selecting or creating any durable filesystem root, identify the active
+host and read its matching reference when one exists:
+
+- [OpenClaw](hosts/openclaw.md)
+- [Hermes Agent](hosts/hermes.md)
+
+The profile-scoped root declared by that reference is mandatory. Do not invent
+or preserve an alternate durable-root alias. For a host without a matching
+reference, resolve one stable root from its native profile configuration before
+writing files.
+
 Deliver the released `locus`, `locus-setup`, and `locus-workflows` trees through
 the first supported tier:
 
@@ -83,8 +94,11 @@ the first supported tier:
    Keep `SKILL.md`, `references/`, and `assets/` together in the active
    profile's stable agent-data directory outside project source control.
    Never share a `current` pointer between environments or isolated host
-   profiles. Install versions side by side below the environment directory and
-   switch its small `current` pointer atomically. Some
+   profiles. Install versions side by side below the environment directory. On
+   symlink-capable hosts, `<root>/<environment>/current` must be a relative
+   symlink whose target is exactly `<version>`; a regular file or directory at
+   that path is invalid. Switch it atomically by creating a sibling temporary
+   symlink to `<version>` and renaming that symlink over `current`. Some
    hosts require a native copy beneath a project workspace to discover skills;
    in that case the user-scoped tree remains the versioned source of truth,
    the workspace copy is a generated activation mirror, and it must be ignored
@@ -124,12 +138,6 @@ session class that will perform ordinary work. A delegated child or subagent
 may inherit skill files while its tool policy omits MCP or shell access; that
 proves fresh-session instruction discovery, but not execution readiness unless
 its adapter/tool policy matches the ordinary work session.
-
-After selecting the adapter, read a host-specific reference only when it
-matches the detected runtime:
-
-- [OpenClaw](hosts/openclaw.md)
-- [Hermes Agent](hosts/hermes.md)
 
 Those references adapt the same installation contract to native host commands.
 They do not change adapter selection, authentication authority, the requested
