@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.30 (2026-09-19)
+
+- Required raw, revalidated compatibility metadata and rejected mismatched
+  bundle metadata before installing files.
+- Kept Hermes OAuth in a host-owned foreground terminal through approval.
+
 ## 0.3.29 (2026-09-19)
 
 - Required hosted Workflow control-plane calls during the main tool-enabled
