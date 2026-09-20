@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.35 (2026-09-20)
+
+- Required bootstraps to fetch raw current release metadata, reject every
+  archive-version mismatch before writing files, and never relabel archives.
+- Prevented one-shot Hermes turns from leaving OAuth in turn-owned background
+  processes that disappear before approval.
+
 ## 0.3.34 (2026-09-20)
 
 - Kept every OpenClaw install command and durable skill artifact inside the
