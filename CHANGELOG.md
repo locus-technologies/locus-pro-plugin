@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.29 (2026-09-19)
+
+- Required hosted Workflow control-plane calls during the main tool-enabled
+  turn, before optional probes or host text-only finalization.
+- Required installers to leave a staging directory before removing it so the
+  remaining setup commands keep a valid working directory.
+
 ## 0.3.28 (2026-09-19)
 
 - Kept OpenClaw skill trees and provenance in its durable profile before
