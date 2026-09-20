@@ -4,7 +4,7 @@ description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.14"
+  version: "1.3.15"
   environment: "production"
 ---
 
@@ -331,10 +331,14 @@ Always confirm:
   installed instructions or has an explicit persistent reopen path. When the
   current host cannot open a second session inside the install turn, report
   setup ready and fresh-session activation pending, then verify it at the
-  start of the next ordinary task instead of blocking or repeating setup;
+  start of the next ordinary task instead of blocking or repeating setup. A
+  child session can prove instruction discovery, but proves execution readiness
+  only when it has the same adapter/tool policy as ordinary work;
 - OAuth tokens or CLI credentials are in the adapter's approved secret store,
   and any compatibility setup credential is in an approved secret location;
-  none appears in the workspace or version control.
+  none appears in the workspace or version control. For human-owned MCP OAuth,
+  an empty general secret store is expected when the host keeps tokens only in
+  its native connection store; use the live adapter probe as evidence.
 
 On an agent-owned account, additionally confirm that only the intended
 capabilities are enabled — and, when the user requested funding, that the
@@ -350,8 +354,6 @@ atomically; the old credential stops working immediately.
 
 Day-to-day usage after setup is covered by the `locus` skill.
 
-The guide bundle version is the installation identity to pin. The plugin
-version identifies a native package release, each skill's metadata version
-identifies its own instruction contract, and the Workflow runtime version
-identifies the hosted ABI; these values are independent and should not be
-compared as though one supersedes another.
+Report the guide bundle version as the installed release. Mention plugin,
+per-skill contract, or Workflow runtime versions only when diagnosing that
+component; they are independent and should not be compared for precedence.

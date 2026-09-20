@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: b0523e06188a1c1ee8be9184506799a38ab684ce243f7119f78cae4277833eed -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 86b17bfa622a72ac87e1dd2397aab4a377f6235e60511a6bf7dd1b9df0b6e923 -->
 
 # Host adapters and readiness
 
@@ -112,16 +112,18 @@ fresh-session activation pending and verify it at the start of the next
 ordinary task; do not repeat installation merely to manufacture that evidence.
 If browser approval, a required host restart, or a user choice is still
 outstanding, say that the install is waiting rather than calling it complete.
-If the host records install status or memory, replace its pending OAuth marker
-with the verified ready state after authentication and the readiness call; do
-not leave a stale pending record beside a working connection.
+Before yielding at such a boundary, record environment, bundle version,
+selected adapter, completed checks, and the one pending action in the host's
+normal non-secret install status or durable memory. Replace that checkpoint
+with verified ready state after authentication and readiness; do not leave a
+stale pending marker beside a working connection.
 
 Verify instruction discovery and execution readiness separately. Test skill
 discovery in a fresh session, then make the live readiness call in the same
 session class that will perform ordinary work. A delegated child or subagent
 may inherit skill files while its tool policy omits MCP or shell access; that
-does not prove the main connection is missing or prove that the child can call
-it.
+proves fresh-session instruction discovery, but not execution readiness unless
+its adapter/tool policy matches the ordinary work session.
 
 After selecting the adapter, read a host-specific reference only when it
 matches the detected runtime:
@@ -134,8 +136,9 @@ They do not change adapter selection, authentication authority, the requested
 environment, or what counts as complete.
 
 Report execution adapter and authentication, instruction-delivery tier and
-version, fresh-session activation, local authoring, and hosted execution
-separately. Tool counts shown by a plugin bridge may describe only the bridge;
+guide bundle version, fresh-session activation, local authoring, and hosted
+execution separately. Do not enumerate component versions unless diagnosing
+them. Tool counts shown by a plugin bridge may describe only the bridge;
 use the selected adapter's live tool listing as the authority. For a local
 gateway, a successful RPC probe is stronger evidence than a service-manager
 label such as loaded or unloaded. If a structured ask-user channel is down,
