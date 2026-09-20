@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.33 (2026-09-19)
+
+- Prevented fail-closed null results from being reported as successful
+  required Workflow pilot outputs.
+
 ## 0.3.32 (2026-09-19)
 
 - Required live Workflow pilots to satisfy the user's requested output, not

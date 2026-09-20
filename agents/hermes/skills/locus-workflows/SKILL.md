@@ -141,8 +141,13 @@ actual failed tool call or refreshed inventory.
    artifact with every user-requested field and invariant. If a required value
    is missing, null, unverified, or otherwise fails the requested outcome,
    revise the draft, re-check it, save a new version, and pilot that version
-   before reporting completion. Do not add a conversational confirmation step
-   merely because the pilot uses paid providers.
+   before reporting completion. A fail-closed null can be correct row behavior,
+   but it does not satisfy a required live outcome. Try other available
+   bindings or retrieval strategies; if none can produce valid evidence, report
+   that the pilot did not meet the requested outcome instead of calling the
+   Workflow pilot-proven. Never weaken a requested quality gate to make a pilot
+   pass. Do not add a conversational confirmation step merely because the pilot
+   uses paid providers.
 6. Start a production run only after successful fixtures and a successful
    pilot of that exact saved version, with a hard
    `max_charge_credits` budget. Return the run ID promptly and poll its bounded
