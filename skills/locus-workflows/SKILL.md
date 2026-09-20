@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.14"
+  version: "1.1.15"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -58,11 +58,16 @@ standalone title “CEO” or “Chief Executive Officer” still qualifies when
 also contains modifiers such as “Co-Founder” or “President”; “Office of the
 CEO,” assistant, partner, and support roles do not. If no exact candidate
 survives this gate, do not enrich the closest match: return the requested role
-as unverified. Preserve a surviving
-directory row's provider person ID and pass it to `locus-gtm/enrich` as
-`personId` only while restricting `providers` to the one exact matching adapter
-ID advertised by the live contract. Never send an unqualified provider ID or
-downgrade it to an obfuscated or first name.
+as unverified with every person, title, email, and profile field null. Implement
+this gate as an exported pure selector or predicate and call that exact function
+from both the runtime path and fixtures. A fixture that tests only input/output
+parsers does not test the business gate. Include a qualifying company-level CEO
+title and misleading narrower/support titles relevant to the request, and do
+not save while any rejected title still produces an enrichment candidate.
+Preserve a surviving directory row's provider person ID and pass it to
+`locus-gtm/enrich` as `personId` only while restricting `providers` to the one
+exact matching adapter ID advertised by the live contract. Never send an
+unqualified provider ID or downgrade it to an obfuscated or first name.
 
 Treat provider-side title and seniority filters as recall hints, not the exact
 role gate. Start with the company/domain and requested title variants. A role
@@ -91,6 +96,15 @@ and keep an ordinary single-row Workflow minimal. Do not build generic
 parsers, ranking frameworks, or exhaustive edge-case suites unless the user's
 business rules require them.
 
+Once the binding contracts are resolved, author and inline-check the smallest
+complete source before optional manual live-data probes; the saved pilot is the
+live test. If a hosted Workflow tool that was present at session start cannot
+be dispatched, refresh the live tool inventory and reload the existing
+connection once when the host supports it, then resume the same lifecycle in a
+fresh ordinary session. Do not replace the requested saved Workflow with a
+design-only answer or claim that a listed tool is unavailable without an
+actual failed tool call or refreshed inventory.
+
 1. Start with the smallest complete template and validate the inline source
    candidate before persistence when the
    server supports it. This catches syntax, path, manifest, and binding errors
@@ -110,7 +124,9 @@ business rules require them.
    only when current readiness is not already `checked`.
 3. Run fixture tests in an isolated no-network environment. For a simple
    Workflow, one small runnable happy path plus its fail-closed quality gate is
-   sufficient. Add other edge cases only when the customer logic needs them.
+   sufficient. Call the same exported business-rule selectors used before
+   provider calls; parser-only fixtures are insufficient. Add other edge cases
+   only when the customer logic needs them.
 4. Save the exact checked source as an immutable version. A pilot requires a
    saved integer version; editing a draft is not changing a saved version.
 5. For a requested live test, run a bounded pilot and bind its source digest,

@@ -4,7 +4,7 @@ description: Find people, verified work emails, companies, and live data.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.15"
+  version: "1.1.16"
   environment: "production"
 ---
 
@@ -28,6 +28,10 @@ https://api.paywithlocus.com/api/credits/mcp
 Auth is OAuth, discovered from that URL through the client's standard MCP
 authentication flow. The URL is the entire durable configuration; the runtime
 keeps the tokens.
+
+A host may append `?surface=compact` to this transport URL to select compact
+tool names. That is the same server, while OAuth still uses the bare URL above
+as its protected resource; do not copy the transport query into `resource`.
 
 - Never place secret keys (`lcr_` or `lcac_` values) in MCP configuration,
   headers, or environment for this server. Those are headless service
