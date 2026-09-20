@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.15"
+  version: "1.1.16"
   environment: "production"
 ---
 
@@ -93,6 +93,14 @@ explicitly limits testing to local fixtures. Adapt the closest reviewed asset
 and keep an ordinary single-row Workflow minimal. Do not build generic
 parsers, ranking frameworks, or exhaustive edge-case suites unless the user's
 business rules require them.
+
+When `workflow_validate`, `workflow_definition`, `workflow_run`, and
+`workflow_runs` are present in the current tool inventory, make the first
+hosted control-plane call before optional live-data probes and before producing
+any final answer. Some hosts add a text-only finalization pass after the main
+tool-enabled turn; reaching that pass with no saved Workflow is a failed task,
+not evidence that the tools were unavailable. Do not defer authoring to a
+follow-up turn merely because discovery or probes consumed the current plan.
 
 Once the binding contracts are resolved, author and inline-check the smallest
 complete source before optional manual live-data probes; the saved pilot is the

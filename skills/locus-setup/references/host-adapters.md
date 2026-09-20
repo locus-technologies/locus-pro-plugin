@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 9346767b0994c86c01d24d19c82f9c671b5c4bcb808d603c16cd51ce245b7b0f -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: e51cfe289d92d9d23fd86d53cb3fc6c197b4ed7179431fdec51a05f5ae285ec2 -->
 
 # Host adapters and readiness
 
@@ -70,7 +70,9 @@ the first supported tier:
    If files must be staged first, hydrate them in a new owner-only temporary
    directory, never a shared `~/.locus` tree. Validate the complete tree, then
    move it into the resolved profile and activate it; remove the temporary
-   directory afterward.
+   directory afterward. Before removing it, change every shell whose current
+   directory is inside that staging tree to a stable directory outside it;
+   deleting an active working directory can break the rest of the install.
 
    Keep `SKILL.md`, `references/`, and `assets/` together in the active
    profile's stable agent-data directory outside project source control.
