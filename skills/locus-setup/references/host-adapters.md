@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 5d3cae0a4366eb93aaf9cd5ad2dcb538d5f6984ad59d3cc8676b6a88785d4c68 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 3aa642de217225158e9101b52e589c3565c152623b0d6d908b2037528ae45c4a -->
 
 # Host adapters and readiness
 
@@ -75,7 +75,11 @@ the first supported tier:
      native Agent Skills installer when available; otherwise download the
      three archives with a raw/binary HTTP client, not a browser or page
      extractor. Require an `application/zip` response or ZIP `PK` magic bytes,
-     then verify each index digest before extracting; or
+     then verify each index digest before extracting. Before extracting any
+     archive, create a distinct new owner-only staging directory for that
+     advertised skill/archive and extract only that archive there; each archive
+     root is its skill root, so never merge multiple skill-root archives into
+     one directory; or
    - Hydrate the tree from the returned guide manifest. Require its environment
      to match the selected adapter. For every entry, reject absolute paths,
      traversal, duplicate `skill/install_path` pairs, unknown skill names, and

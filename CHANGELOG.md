@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.37 (2026-09-20)
+
+- Isolated every skill-root archive in its own owner-only staging directory
+  so extraction cannot merge or overwrite sibling skills.
+
 ## 0.3.36 (2026-09-20)
 
 - Required host adapters to select their profile-scoped durable root before

@@ -389,9 +389,10 @@ if (
 const hostAdapters = read("skills/locus-setup/references/host-adapters.md");
 if (
   !hostAdapters.includes("Before selecting or creating any durable filesystem root") ||
-  !hostAdapters.includes("a relative\n   symlink whose target is exactly `<version>`")
+  !hostAdapters.includes("a relative\n   symlink whose target is exactly `<version>`") ||
+  !hostAdapters.includes("never merge multiple skill-root archives")
 ) {
-  errors.push("host-adapters.md: durable roots must be host-selected before writes and current must be a relative version symlink");
+  errors.push("host-adapters.md: durable roots, current symlinks, and per-skill archive staging must stay explicit");
 }
 const hermesAdapter = read("skills/locus-setup/references/hosts/hermes.md");
 if (!hermesAdapter.includes("use exactly\n`<HERMES_HOME>/locus-agent-skills` as the root")) {
