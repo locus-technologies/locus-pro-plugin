@@ -28,6 +28,12 @@
       "source": "skills/locus/references/enrichment.md"
     },
     {
+      "id": "gtm-enrichment",
+      "title": "Run GTM waterfall enrichment",
+      "activation": "Use for the locus-gtm/enrich waterfall, provider routing, budget gates, provenance, or GTM BYOK composition.",
+      "source": "skills/locus/references/gtm-enrichment.md"
+    },
+    {
       "id": "travel",
       "title": "Travel research",
       "activation": "Use for current travel options, quote interpretation, and booking boundaries.",
@@ -153,35 +159,35 @@
     },
     {
       "id": "gtm-enrichment-template-readme",
-      "title": "GTM enrichment Workflow instructions",
-      "activation": "Use when adapting the maintained GTM enrichment recipe Workflow.",
+      "title": "GTM Workflow template instructions",
+      "activation": "Use when adapting the maintained GTM recipe for a single-record first pilot or a repeatable batch.",
       "source": "skills/locus-workflows/assets/gtm-enrichment/README.md"
     },
     {
       "id": "gtm-enrichment-template-manifest",
-      "title": "GTM enrichment Workflow manifest",
-      "activation": "Copy as workflow.json and pin the live inspected recipe contract.",
+      "title": "GTM Workflow manifest",
+      "activation": "Copy as workflow.json after replacing the inspected recipe contract placeholders.",
       "source": "skills/locus-workflows/assets/gtm-enrichment/workflow.json",
       "content_type": "application/json"
     },
     {
       "id": "gtm-enrichment-template-source",
-      "title": "GTM enrichment Workflow source",
-      "activation": "Adapt as workflow.ts without rebuilding the maintained provider waterfall.",
+      "title": "GTM Workflow source",
+      "activation": "Copy as workflow.ts; prune batch scaffolding for a single-record first pilot or retain it for a bounded stable-row batch.",
       "source": "skills/locus-workflows/assets/gtm-enrichment/workflow.ts",
       "content_type": "application/typescript"
     },
     {
       "id": "gtm-enrichment-template-lock",
-      "title": "GTM enrichment binding lock",
-      "activation": "Use as the review record for the inspected maintained recipe binding.",
+      "title": "GTM Workflow binding lock",
+      "activation": "Copy as locus.lock.json after replacing the inspected recipe contract placeholders.",
       "source": "skills/locus-workflows/assets/gtm-enrichment/locus.lock.json",
       "content_type": "application/json"
     },
     {
       "id": "gtm-enrichment-template-fixtures",
-      "title": "GTM enrichment fixture tests",
-      "activation": "Adapt as tests/fixtures.ts for the customer's enrichment boundary and gates.",
+      "title": "GTM Workflow fixtures",
+      "activation": "Copy as tests/fixtures.ts and keep only the relevant executable assertions before the first pilot.",
       "source": "skills/locus-workflows/assets/gtm-enrichment/tests/fixtures.ts",
       "content_type": "application/typescript"
     }

@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-17 for the versioned Locus Workflow guide bundle. content-sha256: 7f5f4e2769a3a1e10f11f06133f61d4daf54e0b9b92d284b8b7d979be4475a89 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-workflows/references/authoring.md, mirrored 2026-09-19 for the versioned Locus Workflow guide bundle. content-sha256: 29a5843884ae9fda6b30252e9f60c68f445170f7eb4e765321163677e4b815d0 -->
 
 # Authoring
 
@@ -17,6 +17,35 @@ a verified email, verified identity, or another quality gate, omission of an
 optional flag must keep that gate enabled and missing or rejected evidence must
 fail closed. Only an explicit caller input may request a documented best-effort
 mode. Fixture both the omitted-flag case and the rejected-evidence case.
+
+For a Workflow that finds a current role holder, treat directory search rows
+as candidates rather than proof. Corroborate the exact person, current title,
+and target company with independent current evidence before enrichment. Fail
+closed on stale roles, subsidiary executives, or conflicting identities, and
+fixture a misleading higher-scored title that must lose to the corroborated
+person.
+
+Make the requested role an exact output gate, not a search hint. A narrower
+business-unit title, “Head of Sales,” or text that merely contains the role
+does not establish company-wide “VP of Sales.” When no candidate passes, emit
+an unverified role with all person, title, email, and profile fields null instead
+of enriching the nearest title. Put the exact gate in one exported pure
+selector or predicate and call it from both the runtime path and
+`tests/fixtures.ts`. Fixture the qualifying forms and the misleading forms
+relevant to the requested role; for VP of Sales this includes rejecting
+“Head of Sales” and business-unit/geography-qualified VP titles, and for CEO it
+includes accepting company-level CEO titles with founder/president modifiers
+while rejecting Office-of-CEO and support roles. A parser-only fixture or a
+fixture that merely contains an expected null row does not exercise the gate.
+Do not save the Workflow unless the fixture calls the production selector and
+proves every rejected candidate becomes null before any enrichment call.
+When a passing directory row supplies a provider person ID, preserve its
+provenance and seed `locus-gtm/enrich` with `entity.identifiers.personId` only
+while restricting `providers` to the one exact matching adapter ID advertised
+by the live contract. Never send an unqualified provider ID or fall back to an
+obfuscated or first name. Handle a binding-call failure as a bounded
+unknown/failed row when the Workflow promises partial results instead of
+letting one provider error crash the whole run.
 
 ## Source bundle
 
@@ -164,7 +193,10 @@ parse.
 
 Pass a successful inline check's `source_digest` to definition creation as
 `validated_source_digest`. The server verifies the digest against the submitted
-source and records the carried structural check on revision 1. For later edits,
+source and records the carried structural check on revision 1. A successful
+inline check also returns `source_artifact_id`; use
+`source:{artifact_id: source_artifact_id}` for creation so the checked bytes are
+reused exactly instead of being transcribed or sent again. For later edits,
 prefer `source_patch.edits` with exact `old_string`/`new_string` replacements
 for small changes, or `source_patch.files` when a complete file changed;
 `content: null` deletes a path. Send one patch form at a time. The expected

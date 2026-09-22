@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: b4ae45f63ce08e97035c8fc39dba4117a90668ff30e6cf8875c62aeea6bacf88 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 3aa642de217225158e9101b52e589c3565c152623b0d6d908b2037528ae45c4a -->
 
 # Host adapters and readiness
 
@@ -11,7 +11,9 @@ second grant merely to change how instructions are stored.
 Select MCP or CLI as the execution interface independently from instruction
 delivery. Neither adapter is the default. Use this order:
 
-1. Read the compatibility record first. An adapter explicitly marked
+1. Read the compatibility record first with a raw HTTP client and cache bypass
+   or revalidation. Do not use a browser/page extractor or its cached result
+   for compatibility JSON or the Agent Skills index. An adapter explicitly marked
    `available: false` is ineligible in that environment; report its `reason`
    when the user requested it. Honor an explicit MCP or CLI request among the
    available adapters instead of silently switching.
@@ -43,20 +45,41 @@ Do not count generic HTTP, a browser, or a shell as MCP support. Do not count a
 shell alone as an installable CLI. Install and authenticate only the selected
 adapter; add both only when the user explicitly requests both.
 
+Before selecting or creating any durable filesystem root, identify the active
+host and read its matching reference when one exists:
+
+- [OpenClaw](hosts/openclaw.md)
+- [Hermes Agent](hosts/hermes.md)
+
+The profile-scoped root declared by that reference is mandatory. Do not invent
+or preserve an alternate durable-root alias. For a host without a matching
+reference, resolve one stable root from its native profile configuration before
+writing files.
+
 Deliver the released `locus`, `locus-setup`, and `locus-workflows` trees through
 the first supported tier:
 
 1. **Native registration.** Prefer the verified official plugin or the host's
    approved persistent or virtual skill registry. Verify discovery in a fresh
-   session; installation alone is not activation.
+   session; installation alone is not activation. In this tier the active,
+   isolated host profile is authoritative. Do not update unrelated shared
+   `current` files or another host/profile's older tree.
 2. **Persistent filesystem.** When native registration is unavailable but the
    agent can persist and reopen files, use one of the two verified sources the
    compatibility record actually declares available:
-   - Prefer its Agent Skills index and exact per-skill archives. Use the host's
+   - Prefer its Agent Skills index and exact per-skill archives. Require the
+     archive URLs and release metadata to name the compatibility record's pinned
+     `agent_skills.bundle_version`. On any mismatch, discard both documents and
+     refetch the compatibility record and index as raw JSON with cache bypass or
+     revalidation before writing files. Use the host's
      native Agent Skills installer when available; otherwise download the
      three archives with a raw/binary HTTP client, not a browser or page
      extractor. Require an `application/zip` response or ZIP `PK` magic bytes,
-     then verify each index digest before extracting; or
+     then verify each index digest before extracting. Before extracting any
+     archive, create a distinct new owner-only staging directory for that
+     advertised skill/archive and extract only that archive there; each archive
+     root is its skill root, so never merge multiple skill-root archives into
+     one directory; or
    - Hydrate the tree from the returned guide manifest. Require its environment
      to match the selected adapter. For every entry, reject absolute paths,
      traversal, duplicate `skill/install_path` pairs, unknown skill names, and
@@ -68,13 +91,18 @@ the first supported tier:
    If files must be staged first, hydrate them in a new owner-only temporary
    directory, never a shared `~/.locus` tree. Validate the complete tree, then
    move it into the resolved profile and activate it; remove the temporary
-   directory afterward.
+   directory afterward. Before removing it, change every shell whose current
+   directory is inside that staging tree to a stable directory outside it;
+   deleting an active working directory can break the rest of the install.
 
    Keep `SKILL.md`, `references/`, and `assets/` together in the active
    profile's stable agent-data directory outside project source control.
    Never share a `current` pointer between environments or isolated host
-   profiles. Install versions side by side below the environment directory and
-   switch its small `current` pointer atomically. Some
+   profiles. Install versions side by side below the environment directory. On
+   symlink-capable hosts, `<root>/<environment>/current` must be a relative
+   symlink whose target is exactly `<version>`; a regular file or directory at
+   that path is invalid. Switch it atomically by creating a sibling temporary
+   symlink to `<version>` and renaming that symlink over `current`. Some
    hosts require a native copy beneath a project workspace to discover skills;
    in that case the user-scoped tree remains the versioned source of truth,
    the workspace copy is a generated activation mirror, and it must be ignored
@@ -102,27 +130,27 @@ fresh-session activation pending and verify it at the start of the next
 ordinary task; do not repeat installation merely to manufacture that evidence.
 If browser approval, a required host restart, or a user choice is still
 outstanding, say that the install is waiting rather than calling it complete.
+Before yielding at such a boundary, record environment, bundle version,
+selected adapter, completed checks, and the one pending action in the host's
+normal non-secret install status or durable memory. Replace that checkpoint
+with verified ready state after authentication and readiness; do not leave a
+stale pending marker beside a working connection.
 
 Verify instruction discovery and execution readiness separately. Test skill
 discovery in a fresh session, then make the live readiness call in the same
 session class that will perform ordinary work. A delegated child or subagent
 may inherit skill files while its tool policy omits MCP or shell access; that
-does not prove the main connection is missing or prove that the child can call
-it.
-
-After selecting the adapter, read a host-specific reference only when it
-matches the detected runtime:
-
-- [OpenClaw](hosts/openclaw.md)
-- [Hermes Agent](hosts/hermes.md)
+proves fresh-session instruction discovery, but not execution readiness unless
+its adapter/tool policy matches the ordinary work session.
 
 Those references adapt the same installation contract to native host commands.
 They do not change adapter selection, authentication authority, the requested
 environment, or what counts as complete.
 
 Report execution adapter and authentication, instruction-delivery tier and
-version, fresh-session activation, local authoring, and hosted execution
-separately. Tool counts shown by a plugin bridge may describe only the bridge;
+guide bundle version, fresh-session activation, local authoring, and hosted
+execution separately. Do not enumerate component versions unless diagnosing
+them. Tool counts shown by a plugin bridge may describe only the bridge;
 use the selected adapter's live tool listing as the authority. For a local
 gateway, a successful RPC probe is stronger evidence than a service-manager
 label such as loaded or unloaded. If a structured ask-user channel is down,

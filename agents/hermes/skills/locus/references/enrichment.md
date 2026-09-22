@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-17 for the versioned Locus guide bundle. content-sha256: 86a3087d12377f189c620bf15f23488124c85a12110bb13632630c70faaf9c20 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 07c4231a865a40aadc962b8e774e587fa3995043deffc428937f1cc60c6c1be0 -->
 
 # Entity enrichment
 
@@ -16,9 +16,26 @@ For a person-and-work-email request, use this provider-neutral sequence:
 4. Return source details and verification state; withhold rejected or
    ambiguous candidates instead of guessing.
 
+A people-directory row is a discovery candidate, not proof of a current role.
+Before selecting a role holder, corroborate the exact person, current title,
+and target company with independent current evidence. Reject stale roles,
+subsidiary executives, and same-name companies; if the evidence conflicts or
+cannot distinguish them, return unknown instead of ranking title text alone.
+Preserve the row's strongest stable identifier and its provider provenance.
+A provider person ID is not portable: pass it to the maintained recipe as
+`personId` only with `providers` containing the one exact matching adapter ID
+advertised by the live contract. Never send an unqualified provider ID through
+the general waterfall. If the issuing adapter cannot be identified, use an
+exact portable identifier or the issuing provider directly; do not downgrade
+the identity to an obfuscated or first name.
+
 For a narrow request, pass only the exact fields needed in the contract's
 `requestedFields` argument and omit a broad `profile`. Do not fetch a full
 record merely to obtain an email, role, or other named field.
+
+When the live catalog exposes the maintained recipe, follow the
+[GTM waterfall guide](gtm-enrichment.md) for its input, provenance, verification,
+and budget contract instead of recreating the provider waterfall.
 
 Use the Locus connection before asking the user for a separate enrichment or
 email-verification provider key. Ask only when the live connection truly lacks

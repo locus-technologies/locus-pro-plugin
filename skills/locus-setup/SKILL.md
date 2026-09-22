@@ -1,10 +1,10 @@
 ---
 name: locus-setup
-description: Install or repair Locus through a host-selected MCP or CLI adapter, complete skill delivery, authentication, and fresh-session readiness.
+description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.8"
+  version: "1.3.18"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -44,6 +44,26 @@ install still needs the selected adapter's own setup.
 When a bootstrap led here, this installed skill is the operating procedure.
 The live compatibility record remains authoritative for environment and
 adapter availability; the bootstrap only locates and pins this released tree.
+Fetch that record and any advertised Agent Skills index as raw JSON with cache
+bypass or revalidation before adapter selection or repair. Do not use a
+browser/page extractor or its cached page result. In a shell, fetch each exact
+URL like this; without a shell, use the runtime's native raw HTTP client with
+the same request headers and parse the response body directly:
+
+```bash
+curl --fail --silent --show-error --location \
+  --header 'Cache-Control: no-cache' --header 'Pragma: no-cache' \
+  'https://api.paywithlocus.com/api/agent/compatibility.json'
+```
+
+It is the JSON document that declares `environment`, `mcp`, `cli`, `plugin`,
+`agent_skills`, and `guides`. Do not reconstruct those fields from prose.
+Before writing or extracting files, derive the release version independently
+from every advertised archive URL or filename and index version field. Require
+all of them to equal `agent_skills.bundle_version`; on any mismatch, discard
+the responses, refetch them as raw cache-bypassed or revalidated JSON, and stop
+if they still disagree. Never relabel an archive or install it beneath a
+version taken from a mismatched document.
 
 The account flow is separate from adapter selection. A person with browser or
 device consent uses a human-owned account by default. Use an agent-owned
@@ -115,6 +135,12 @@ bundled with this skill (mirrored from
 https://paywithlocus.com/agent/credentials.md) before persisting any secret.
 
 ## Choose the path
+
+For the common human-owned path: fetch compatibility, select one eligible MCP
+or CLI adapter, install all three released skill trees, authenticate through
+that adapter's normal browser/device flow, then run readiness and fresh-session
+checks. Do not enter the AgentMail, AgentID, registration, or funding sections
+unless the rules below actually select an agent-owned account.
 
 Decide the account owner before any API call, in this order:
 
@@ -337,10 +363,14 @@ Always confirm:
   installed instructions or has an explicit persistent reopen path. When the
   current host cannot open a second session inside the install turn, report
   setup ready and fresh-session activation pending, then verify it at the
-  start of the next ordinary task instead of blocking or repeating setup;
+  start of the next ordinary task instead of blocking or repeating setup. A
+  child session can prove instruction discovery, but proves execution readiness
+  only when it has the same adapter/tool policy as ordinary work;
 - OAuth tokens or CLI credentials are in the adapter's approved secret store,
   and any compatibility setup credential is in an approved secret location;
-  none appears in the workspace or version control.
+  none appears in the workspace or version control. For human-owned MCP OAuth,
+  an empty general secret store is expected when the host keeps tokens only in
+  its native connection store; use the live adapter probe as evidence.
 
 On an agent-owned account, additionally confirm that only the intended
 capabilities are enabled — and, when the user requested funding, that the
@@ -356,8 +386,6 @@ atomically; the old credential stops working immediately.
 
 Day-to-day usage after setup is covered by the `locus` skill.
 
-The guide bundle version is the installation identity to pin. The plugin
-version identifies a native package release, each skill's metadata version
-identifies its own instruction contract, and the Workflow runtime version
-identifies the hosted ABI; these values are independent and should not be
-compared as though one supersedes another.
+Report the guide bundle version as the installed release. Mention plugin,
+per-skill contract, or Workflow runtime versions only when diagnosing that
+component; they are independent and should not be compared for precedence.

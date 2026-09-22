@@ -7,10 +7,9 @@ MCP server and teaches your agent how to use it well: cited web research, paid
 data and API lookups, and thousands of metered provider endpoints billed to one
 prepaid workspace credit balance.
 
-One repo, one plugin, many agents. The same plugin installs into Claude Code,
-Codex, Cursor, Grok, OpenClaw, and any client that speaks the
-[Agent Plugins](https://agent-plugins.org) or
-[Agent Skills](https://agentskills.io) open standards.
+One repo, many agents. Claude Code, Codex, and Grok can install the plugin
+directly today. Other clients can use the same repository's MCP configuration,
+three [Agent Skills](https://agentskills.io), or the one-URL bootstrap below.
 
 ## What you get
 
@@ -35,7 +34,7 @@ Tools are enabled and credits added in the dashboard at
 
 ## Install
 
-### Claude Code
+### Claude Code CLI
 
 ```
 /plugin marketplace add locus-technologies/locus-pro-plugin
@@ -48,6 +47,37 @@ Then run `/mcp`, select `locus`, and authenticate.
 > it first (`claude mcp remove locus-pro`) so you don't carry two connections
 > to the same server.
 
+### Claude Code app
+
+In Code, open **Customize → Plugins → Add plugin → Add marketplace → Add from
+a repository**. Choose `locus-technologies/locus-pro-plugin`, select **Sync**,
+then **Add Locus**. Authenticate the plugin from Terminal:
+
+```bash
+claude mcp login plugin:locus:locus
+```
+
+Complete browser consent, then start a new Code session. The plugin loads all
+three skills and the Locus MCP connection together.
+
+### Claude Cowork and claude.ai
+
+Open **Customize → Connectors → Yours → Add connector → Add custom connector**.
+Name it `Locus`, use
+`https://api.paywithlocus.com/api/credits/mcp`, then connect through browser
+OAuth. Under **Customize → Skills → Yours → Add skill**, upload all three:
+
+- [locus.zip](https://paywithlocus.com/.well-known/agent-skills/locus.zip)
+- [locus-setup.zip](https://paywithlocus.com/.well-known/agent-skills/locus-setup.zip)
+- [locus-workflows.zip](https://paywithlocus.com/.well-known/agent-skills/locus-workflows.zip)
+
+### ChatGPT.com
+
+Enable Developer mode under **Settings → Apps → Advanced settings**, then open
+**Plugins → Create app**. Use the production MCP URL above and OAuth. If the
+current custom-skill picker rejects the production archives, keep the MCP app
+and use `get_locus_guide` for the same versioned operating guides.
+
 ### Codex
 
 ```
@@ -58,14 +88,15 @@ codex mcp login locus
 
 ### Hermes
 
-```bash
-hermes plugins install locus
-hermes plugins enable locus
-hermes mcp login agent-plugin-locus-0b597595__locus
+Send this prompt to Hermes:
+
+```text
+Install Locus Pro by following https://paywithlocus.com/SKILL.md. Use production.
 ```
 
-Complete browser OAuth, then start a new Hermes session. The plugin includes
-the usage, setup, and Workflow skills; no separate skill install is needed.
+The bootstrap installs a supported adapter and all three released skill trees,
+then guides browser or device authentication. The official Hermes plugin
+listing is still pending; `hermes plugins install locus` is not live yet.
 
 ### Cline
 
@@ -76,7 +107,13 @@ cline mcp install locus --transport http \
 
 Keep **Remote (HTTP)**, choose **OAuth**, leave the client ID blank for dynamic
 registration, and complete sign-in in the browser. No clone, build, API key,
-or environment variable is required.
+or environment variable is required. Then install all three skills:
+
+```bash
+npx skills add locus-technologies/locus-pro-plugin
+```
+
+Select `locus`, `locus-setup`, and `locus-workflows`, then start a new session.
 
 ### Cursor
 
@@ -96,7 +133,8 @@ Add the MCP server directly in `~/.cursor/mcp.json`:
 Cursor's OAuth flow completes in the browser on first use. Once the Locus
 listing clears Cursor Marketplace review, you will also be able to install
 it from **Customize → Plugins** (search "Locus") or with `/add-plugin locus`
-in chat.
+in chat. Until then, install the three skills separately with
+`npx skills add locus-technologies/locus-pro-plugin` and select all three.
 
 ### Grok
 
@@ -110,18 +148,23 @@ server's OAuth automatically and opens the browser flow on first use.
 
 ### OpenClaw
 
-Install the plugin from this repo as a marketplace source; the bundle
-already maps the MCP server, so no manual server configuration is needed:
+Send this prompt to OpenClaw:
 
-```
-openclaw plugins install locus --marketplace locus-technologies/locus-pro-plugin
-openclaw gateway restart
-openclaw mcp login locus
+```text
+Install Locus Pro by following https://paywithlocus.com/SKILL.md. Use production.
 ```
 
-A new marketplace source triggers a one-time trust prompt (pass `--force`
-for non-interactive installs), and the gateway restart applies plugin
-changes.
+The bootstrap installs a supported adapter and all three released skill trees.
+Current OpenClaw can unpack the marketplace bundle but does not import its MCP
+server, so do not use the marketplace route until that host behavior changes.
+
+### Muse and Instinct
+
+Send either agent the same tested prompt:
+
+```text
+Install Locus Pro by following https://paywithlocus.com/SKILL.md. Use production.
+```
 
 ### Skill only (77+ agents)
 
@@ -147,9 +190,12 @@ claude mcp add --transport http locus https://api.paywithlocus.com/api/credits/m
 codex mcp add locus --url https://api.paywithlocus.com/api/credits/mcp
 ```
 
+On file-capable clients, pair this with the **Skill only** install above. On an
+MCP-only host, call `get_locus_guide` after connecting.
+
 ### One-URL bootstrap and remote guides
 
-Ask a capable agent to read `https://paywithlocus.com/skill.md` and set up
+Ask a capable agent to read `https://paywithlocus.com/SKILL.md` and set up
 Locus. The bootstrap probes the actual host, preserves a healthy existing
 connection, selects a supported adapter, and reports any browser consent,
 restart, or runtime limitation still outstanding.
@@ -233,8 +279,8 @@ in the [dashboard](https://platform.paywithlocus.com).
 | `.mcp.json`, `skills/` | Effective Grok components while the root `plugin.json` is present (Grok prefers the root manifest) |
 | `.grok-plugin/`, `agents/grok/` | Grok marketplace extraction and fallback configuration when no root manifest exists |
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |
-| `agents/<client>/` | Per-client MCP server config |
-| `skills/` | Shared Agent Skills-format instructions; `metadata.openclaw` is an intentional host extension for credential declarations |
+| `agents/<client>/` | Per-client MCP server config; the Hermes skill view is generated from `skills/` |
+| `skills/` | Canonical Agent Skills-format instructions; `metadata.openclaw` is an intentional host extension for credential declarations |
 
 ## Development and releases
 

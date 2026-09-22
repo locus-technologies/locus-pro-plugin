@@ -1,5 +1,117 @@
 # Changelog
 
+## 0.3.37 (2026-09-20)
+
+- Isolated every skill-root archive in its own owner-only staging directory
+  so extraction cannot merge or overwrite sibling skills.
+
+## 0.3.36 (2026-09-20)
+
+- Required host adapters to select their profile-scoped durable root before
+  writing skills and standardized atomic relative `current` symlinks.
+
+## 0.3.35 (2026-09-20)
+
+- Required bootstraps to fetch raw current release metadata, reject every
+  archive-version mismatch before writing files, and never relabel archives.
+- Prevented one-shot Hermes turns from leaving OAuth in turn-owned background
+  processes that disappear before approval.
+
+## 0.3.34 (2026-09-20)
+
+- Kept every OpenClaw install command and durable skill artifact inside the
+  selected profile instead of guessing shared state paths.
+
+## 0.3.33 (2026-09-19)
+
+- Prevented fail-closed null results from being reported as successful
+  required Workflow pilot outputs.
+
+## 0.3.32 (2026-09-19)
+
+- Required live Workflow pilots to satisfy the user's requested output, not
+  merely finish execution, before agents report completion.
+
+## 0.3.31 (2026-09-19)
+
+- Persisted resumable non-secret install checkpoints at human approval and
+  restart boundaries.
+- Clarified native OAuth token storage, fresh child-session evidence, and the
+  single bundle version to report as installation identity.
+
+## 0.3.30 (2026-09-19)
+
+- Required raw, revalidated compatibility metadata and rejected mismatched
+  bundle metadata before installing files.
+- Kept Hermes OAuth in a host-owned foreground terminal through approval.
+
+## 0.3.29 (2026-09-19)
+
+- Required hosted Workflow control-plane calls during the main tool-enabled
+  turn, before optional probes or host text-only finalization.
+- Required installers to leave a staging directory before removing it so the
+  remaining setup commands keep a valid working directory.
+
+## 0.3.28 (2026-09-19)
+
+- Kept OpenClaw skill trees and provenance in its durable profile before
+  native registration.
+- Required role gates to run through fixture-tested production selectors
+  before enrichment and added recovery for interrupted Workflow tooling.
+- Clarified the compact transport query versus the bare OAuth resource.
+
+## 0.3.27 (2026-09-19)
+
+- Required literal HTTPS source links and fail-closed identity conflicts in
+  structured research.
+- Kept title-based executive discovery independent of provider seniority
+  taxonomies while accepting qualified company-level CEO titles.
+
+## 0.3.26 (2026-09-19)
+
+- Reused validated Workflow source artifacts instead of retransmitting large
+  inline bundles between check and creation.
+- Documented the normalized GTM field and verification shape, plus directory
+  filter behavior that can otherwise hide exact role matches.
+- Made final structured research fail closed on requested constraints and
+  conflicting identity evidence.
+
+## 0.3.25 (2026-09-19)
+
+- Qualified vendor person IDs with the exact matching enrichment adapter so
+  IDs cannot cross provider boundaries inside the generic waterfall.
+
+## 0.3.24 (2026-09-19)
+
+- Preserved stable provider person IDs through role discovery and enrichment
+  instead of degrading them to partial names or redundant provider calls.
+- Made exact role gates and per-row provider failure handling explicit for
+  reusable prospecting Workflows.
+- Defined the compatibility record for installed setup skills and simplified
+  the common human-owned path and fresh-session verification boundary.
+- Kept requested source URLs and the canonical compact MCP query spelling.
+
+## 0.3.23 (2026-09-19)
+
+- Preserved complete released skill entrypoints during Hermes activation and
+  kept canonical descriptions within its registration limit.
+- Kept requested Workflow creation and testing in one autonomous lifecycle.
+- Failed closed when a narrower sales title could not prove the requested
+  company-wide role.
+
+## 0.3.22 (2026-09-18)
+
+- Kept Hermes OAuth alive for its full browser-approval window.
+- Required current-role corroboration before enriching directory candidates.
+- Prevented interactive OAuth calls from inventing `external_user_id` values.
+
+## 0.3.21 (2026-09-18)
+
+- Made the shared skill tree the editable source for every host adapter and
+  generated the Hermes-compatible view from it.
+- Moved the GTM waterfall guide into the canonical plugin bundle so MCP, HTTP,
+  Agent Skills archives, plugins, and downstream importers serve one copy.
+
 ## 0.3.20 (2026-09-17)
 
 - Kept Workflow execution ceilings autonomous by default instead of exposing

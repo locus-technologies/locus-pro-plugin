@@ -1,10 +1,10 @@
 ---
 name: locus-workflows
-description: Author, validate, pilot, save, and run versioned Locus Workflows through an existing authorized Locus connection.
+description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.7"
+  version: "1.1.17"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -47,6 +47,37 @@ For people, company, or verified-contact enrichment, adapt the reviewed
 [GTM enrichment asset](assets/gtm-enrichment/README.md) and its maintained
 recipe instead of rebuilding a provider waterfall.
 
+For a requested role holder, a directory row or title match is only a
+candidate. Do not broaden the requested role, relabel a narrower business-unit
+role as the company-wide role, or enrich the candidate until independent
+current evidence corroborates the exact person, company, title, and scope.
+For example, “Vice President, Head of Merchant Sales” does not establish the
+company-wide “VP of Sales,” and “Head of Sales” is not the same requested
+title. For a CEO request, a current company-level title containing the
+standalone title “CEO” or “Chief Executive Officer” still qualifies when it
+also contains modifiers such as “Co-Founder” or “President”; “Office of the
+CEO,” assistant, partner, and support roles do not. If no exact candidate
+survives this gate, do not enrich the closest match: return the requested role
+as unverified with every person, title, email, and profile field null. Implement
+this gate as an exported pure selector or predicate and call that exact function
+from both the runtime path and fixtures. A fixture that tests only input/output
+parsers does not test the business gate. Include a qualifying company-level CEO
+title and misleading narrower/support titles relevant to the request, and do
+not save while any rejected title still produces an enrichment candidate.
+Preserve a surviving directory row's provider person ID and pass it to
+`locus-gtm/enrich` as `personId` only while restricting `providers` to the one
+exact matching adapter ID advertised by the live contract. Never send an
+unqualified provider ID or downgrade it to an obfuscated or first name.
+
+Treat provider-side title and seniority filters as recall hints, not the exact
+role gate. Start with the company/domain and requested title variants. A role
+request such as CEO or VP of Sales is not a seniority-filter request; omit
+provider seniority filters unless the user explicitly adds a seniority rule,
+because provider taxonomies can suppress a correct title match. Expect
+directory results to omit a combined name or return an obfuscated last name.
+Preserve the stable provider ID and apply the exact role gate to the returned
+title instead of inventing a full name.
+
 For the source bundle, use inline UTF-8 files when the client has no filesystem
 or an authorized artifact upload when it does. Never put secrets in source,
 fixtures, generated launchers, or logs. Do not rely on arbitrary npm installs,
@@ -56,10 +87,31 @@ networking in hosted execution.
 ## Lifecycle
 
 Prioritize completing inline check, one draft, minimal relevant fixtures,
-immutable save, and a bounded pilot in the current task. Adapt the closest
-reviewed asset and keep an ordinary single-row Workflow minimal. Do not build
-generic parsers, ranking frameworks, or exhaustive edge-case suites unless the
-user's business rules require them.
+immutable save, and a bounded pilot in the current task. A request to create
+and test a Workflow remains authorization for that entire lifecycle: do not
+stop after discovery or draft creation to ask the user to say “go” or
+“continue.” Treat “test” as fixtures plus a bounded live pilot unless the user
+explicitly limits testing to local fixtures. Adapt the closest reviewed asset
+and keep an ordinary single-row Workflow minimal. Do not build generic
+parsers, ranking frameworks, or exhaustive edge-case suites unless the user's
+business rules require them.
+
+When `workflow_validate`, `workflow_definition`, `workflow_run`, and
+`workflow_runs` are present in the current tool inventory, make the first
+hosted control-plane call before optional live-data probes and before producing
+any final answer. Some hosts add a text-only finalization pass after the main
+tool-enabled turn; reaching that pass with no saved Workflow is a failed task,
+not evidence that the tools were unavailable. Do not defer authoring to a
+follow-up turn merely because discovery or probes consumed the current plan.
+
+Once the binding contracts are resolved, author and inline-check the smallest
+complete source before optional manual live-data probes; the saved pilot is the
+live test. If a hosted Workflow tool that was present at session start cannot
+be dispatched, refresh the live tool inventory and reload the existing
+connection once when the host supports it, then resume the same lifecycle in a
+fresh ordinary session. Do not replace the requested saved Workflow with a
+design-only answer or claim that a listed tool is unavailable without an
+actual failed tool call or refreshed inventory.
 
 1. Start with the smallest complete template and validate the inline source
    candidate before persistence when the
@@ -69,7 +121,9 @@ user's business rules require them.
    trial-and-error syntax.
 2. Create one draft with a stable idempotency key. Pass the successful inline
    check's `source_digest` as `validated_source_digest` so creation carries a
-   durable check for the identical source. Update with `revision` and either a
+   durable check for the identical source. When that check returns a
+   `source_artifact_id`, create from that artifact instead of retransmitting or
+   reconstructing the inline files. Update with `revision` and either a
    complete `source` or a small `source_patch`; prefer exact text edits over
    whole-file replacement for narrow changes. Give each logical update a
    stable `idempotency_key` and reuse it unchanged after a timeout; Locus
@@ -78,13 +132,24 @@ user's business rules require them.
    only when current readiness is not already `checked`.
 3. Run fixture tests in an isolated no-network environment. For a simple
    Workflow, one small runnable happy path plus its fail-closed quality gate is
-   sufficient. Add other edge cases only when the customer logic needs them.
+   sufficient. Call the same exported business-rule selectors used before
+   provider calls; parser-only fixtures are insufficient. Add other edge cases
+   only when the customer logic needs them.
 4. Save the exact checked source as an immutable version. A pilot requires a
    saved integer version; editing a draft is not changing a saved version.
 5. For a requested live test, run a bounded pilot and bind its source digest,
    inputs, destinations, credit ceiling, and expiry, then inspect its results
-   and receipts. Do not add a conversational confirmation step merely because
-   the pilot uses paid providers.
+   and receipts. Execution success is not task success: compare the result
+   artifact with every user-requested field and invariant. If a required value
+   is missing, null, unverified, or otherwise fails the requested outcome,
+   revise the draft, re-check it, save a new version, and pilot that version
+   before reporting completion. A fail-closed null can be correct row behavior,
+   but it does not satisfy a required live outcome. Try other available
+   bindings or retrieval strategies; if none can produce valid evidence, report
+   that the pilot did not meet the requested outcome instead of calling the
+   Workflow pilot-proven. Never weaken a requested quality gate to make a pilot
+   pass. Do not add a conversational confirmation step merely because the pilot
+   uses paid providers.
 6. Start a production run only after successful fixtures and a successful
    pilot of that exact saved version, with a hard
    `max_charge_credits` budget. Return the run ID promptly and poll its bounded
@@ -126,10 +191,10 @@ use `input` together with `input_artifact_id`, pass `latest` instead of an
 integer version, or change arguments while reusing an idempotency key.
 
 When the user asked to create, validate, test, or save a Workflow, continue
-through those requested non-provider steps without asking them to say “go.”
-Send source directly to the tools instead of narrating every file. Pause only
-when the task itself needs missing business input or an external action outside
-the requested Workflow lifecycle.
+through the requested lifecycle without asking again. Send source directly to
+the tools instead of narrating every file. Pause only when the task itself
+needs missing business input or an external action outside the requested
+Workflow lifecycle.
 
 Read [authoring](references/authoring.md) before sending source, [testing](references/testing.md)
 before validation or a pilot, and [hosted execution](references/hosted-execution.md)

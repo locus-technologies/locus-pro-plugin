@@ -1,10 +1,10 @@
 ---
 name: locus
-description: Find people, verified work emails, companies, current web research, market data, and other pay-per-use APIs through one Locus connection.
+description: Find people, verified work emails, companies, and live data.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.8"
+  version: "1.1.16"
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
@@ -31,6 +31,10 @@ Auth is OAuth, discovered from that URL through the client's standard MCP
 authentication flow. The URL is the entire durable configuration; the runtime
 keeps the tokens.
 
+A host may append `?surface=compact` to this transport URL to select compact
+tool names. That is the same server, while OAuth still uses the bare URL above
+as its protected resource; do not copy the transport query into `resource`.
+
 - Never place secret keys (`lcr_` or `lcac_` values) in MCP configuration,
   headers, or environment for this server. Those are headless service
   credentials with different accounting. The MCP connection must use OAuth.
@@ -42,7 +46,7 @@ keeps the tokens.
   `locus-setup` skill only when the user asks you to perform setup or
   funding, or the runtime is headless; its agent-owned path is not for a
   user who can open a browser.
-- Optional URL query switches: `?compact=1` returns compact text results;
+- Optional URL query switches: `?surface=compact` returns compact text results;
   `?tool=provider/endpoint` (repeatable, or `?tools=a,b`) pins up to 20
   typed direct tools.
 
@@ -84,7 +88,14 @@ execution; do not improvise a second connection or local credential.
   directly when it is listed (a server-provided tool on connections that
   enable it; absent otherwise). Locus selects the website capability, lookup
   chain, or search-provider plan itself. Do not search the catalog first
-  for these.
+  for these. When the user asks for source links, preserve the returned URLs
+  as literal absolute `https://` links in the final result; do not replace them
+  with outlet names, bare domains, or unlabeled paths.
+- Before returning structured research, check every requested constraint
+  against the collected evidence, including dates, geography, identity,
+  company/domain, and current title. Exclude a row or mark the disputed field
+  unknown when sources conflict; never reconcile incompatible person-company
+  or current-role records by deciding that one source merely looks fresher.
 - Everything else: `search_apis(query)` describing the outcome you need,
   `describe_api(slug)` for the exact contract, then `execute(slug, args)`.
   Search by outcome, not by a guessed provider name. Search ranks enabled
@@ -100,6 +111,9 @@ execution; do not improvise a second connection or local credential.
   supplies a hard ceiling. Otherwise route routine work directly to execution.
 - Use the advertised balance or catalog read when it materially helps the
   task; these reads are not prerequisites for ordinary execution.
+- On an interactive OAuth connection, omit `external_user_id` from tool calls.
+  The grant already identifies the caller; never invent or reuse another
+  identity value unless the host explicitly supplies one for that call.
 - Omit `stream` in call args (or set it `false`); each call returns one
   bounded result, and streaming-only request shapes are rejected.
 

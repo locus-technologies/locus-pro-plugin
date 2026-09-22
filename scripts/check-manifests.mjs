@@ -386,6 +386,19 @@ if (
   errors.push("skills/locus/SKILL.md: must keep execute idempotency outside endpoint args");
 }
 
+const hostAdapters = read("skills/locus-setup/references/host-adapters.md");
+if (
+  !hostAdapters.includes("Before selecting or creating any durable filesystem root") ||
+  !hostAdapters.includes("a relative\n   symlink whose target is exactly `<version>`") ||
+  !hostAdapters.includes("never merge multiple skill-root archives")
+) {
+  errors.push("host-adapters.md: durable roots, current symlinks, and per-skill archive staging must stay explicit");
+}
+const hermesAdapter = read("skills/locus-setup/references/hosts/hermes.md");
+if (!hermesAdapter.includes("use exactly\n`<HERMES_HOME>/locus-agent-skills` as the root")) {
+  errors.push("hosts/hermes.md: must require the profile-scoped locus-agent-skills root");
+}
+
 // --- Secret scan over every checked file ------------------------------------
 const skillFiles = readdirSync(resolve(root, "skills"), { recursive: true, withFileTypes: true })
   .filter((entry) => entry.isFile())
