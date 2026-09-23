@@ -60,6 +60,10 @@ claude mcp login plugin:locus:locus
 Complete browser consent, then start a new Code session. The plugin loads all
 three skills and the Locus MCP connection together.
 
+If the login command says `plugin:locus:locus` is missing and
+`claude mcp get locus` reports a legacy **Local config**, remove the shadowing
+project entry with `claude mcp remove locus -s local`, restart Code, and retry.
+
 ### Claude Cowork and claude.ai
 
 Open **Customize → Connectors → Yours → Add connector → Add custom connector**.
@@ -74,17 +78,22 @@ OAuth. Under **Customize → Skills → Yours → Add skill**, upload all three:
 ### ChatGPT.com
 
 Enable Developer mode under **Settings → Apps → Advanced settings**, then open
-**Plugins → Create app**. Use the production MCP URL above and OAuth. If the
-current custom-skill picker rejects the production archives, keep the MCP app
-and use `get_locus_guide` for the same versioned operating guides.
+**Plugins → Create app**. Use the production MCP URL above and OAuth. Start a
+**Work** task and select **Locus Pro** from **Plugins**. This custom-app path
+provides MCP tools. If the current Skills picker leaves the production
+archives ineligible, keep the MCP app and use `get_locus_guide` for the same
+versioned operating guides.
 
-### Codex
+### Codex CLI and app
 
 ```
 codex plugin marketplace add locus-technologies/locus-pro-plugin
 codex plugin add locus@locus
-codex mcp login locus
+codex mcp login locus --scopes mcp:read,mcp:execute,offline_access
 ```
+
+Start a new CLI or desktop session after installation. The plugin loads all
+three Locus skills with the MCP connection.
 
 ### Hermes
 
