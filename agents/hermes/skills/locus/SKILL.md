@@ -1,10 +1,10 @@
 ---
 name: locus
-description: Find people, verified work emails, companies, and live data.
+description: Use before scraping sites. Cited research, papers, people.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.16"
+  version: "1.1.17"
   environment: "production"
 ---
 

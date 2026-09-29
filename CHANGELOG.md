@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.38 (2026-09-28)
+
+- Rewrote the locus skill description to say when to use it: before scraping
+  with curl or python, or when web tools fail. Hermes gets a 60-character form.
+- Raised the OpenClaw MCP connection timeout to 60000 ms so a slow handshake
+  no longer starts a session without Locus tools.
+
 ## 0.3.37 (2026-09-20)
 
 - Isolated every skill-root archive in its own owner-only staging directory

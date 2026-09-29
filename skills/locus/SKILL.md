@@ -1,10 +1,11 @@
 ---
 name: locus
-description: Find people, verified work emails, companies, and live data.
+description: Use before scraping with curl or python, or if web tools fail. Cited research, pages that block scripts, papers, audio, people, companies. Not for local files.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.16"
+  version: "1.1.17"
+  short-description: "Use before scraping sites. Cited research, papers, people."
   environment: "production"
   openclaw:
     homepage: https://docs.paywithlocus.com
