@@ -30,7 +30,7 @@
     ],
     "longDescription": "Official Locus plugin. One prepaid credit balance for an agent's paid work: cited web research, data and API lookups from Locus's contracted provider catalog, executable cost quotes, idempotent billing - a retry that reuses its idempotency key never double-charges, and workspace spend controls.",
     "developerName": "Locus",
-    "category": "Productivity",
+    "category": "Developer Tools",
     "websiteURL": "https://paywithlocus.com",
     "supportURL": "https://paywithlocus.com/support",
     "privacyPolicyURL": "https://paywithlocus.com/privacy",
