@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 8f18bd6d9ddbb401d1d994fb9e1f7374a431a05e42d32a7a20ce8b0dad51c4d6 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/openclaw.md, mirrored 2026-09-28 for the versioned Locus guide bundle. content-sha256: bcacd80072281656c893f4eec6672899663c65196654360b77f72460d8a905ec -->
 
 # OpenClaw adapter
 
@@ -12,9 +12,13 @@ login in a persistent terminal and prove its loopback listener will survive
 the agent turn. Current releases accept this shape:
 
 ```bash
-openclaw --profile "<selected-profile>" mcp set locus '{"url":"<MCP transport URL>","transport":"streamable-http","auth":"oauth","requestTimeoutMs":120000,"connectionTimeoutMs":15000}'
+openclaw --profile "<selected-profile>" mcp set locus '{"url":"<MCP transport URL>","transport":"streamable-http","auth":"oauth","requestTimeoutMs":120000,"connectionTimeoutMs":60000}'
 openclaw --profile "<selected-profile>" mcp login locus
 ```
+
+Keep both timeouts. If `connectionTimeoutMs` expires during the MCP handshake,
+OpenClaw silently starts without Locus tools. `requestTimeoutMs` also bounds
+`tools/list`, which gets only 1500 ms when it is unset.
 
 Keep that profile-scoped login command and its loopback listener alive until
 consent finishes. If a managed agent shell cleans up child processes when a

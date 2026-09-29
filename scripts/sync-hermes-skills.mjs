@@ -23,9 +23,15 @@ for (const entry of readdirSync(outputRoot, { withFileTypes: true })) {
     if (!value) throw new Error(`${path}: missing ${field}`);
     return value;
   };
-  const descriptionLine = line("description");
-  const description = descriptionLine.slice("description:".length).trim().replace(/^['"]|['"]$/g, "");
-  if (description.length > 60) throw new Error(`${path}: Hermes description exceeds 60 characters`);
+  // Hermes clips skill descriptions to 60 characters in its system prompt, so
+  // a longer shared description supplies its own metadata.short-description.
+  const unquote = (value) => value.trim().replace(/^['"]|['"]$/g, "");
+  const shortDescription = frontmatter.match(/^ {2}short-description:(.*)$/m)?.[1];
+  const description = unquote(shortDescription ?? line("description").slice("description:".length));
+  if (description.length > 60) {
+    throw new Error(`${path}: Hermes description exceeds 60 characters; add metadata.short-description`);
+  }
+  const descriptionLine = `description: ${/[:#]/.test(description) ? JSON.stringify(description) : description}`;
   writeFileSync(
     path,
     [
