@@ -4,7 +4,7 @@ description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.19"
+  version: "1.3.20"
   environment: "production"
 ---
 
@@ -15,7 +15,7 @@ The request is not complete merely because `SKILL.md` was saved. Select one
 execution adapter from the actual host capabilities and the user's explicit
 choice, install and authenticate it, deliver all three released skill trees,
 verify a free readiness operation, and check discovery in a fresh session.
-MCP and the official generated CLI are peer adapters; never prefer one without
+MCP and the official Locus CLI are peer adapters; never prefer one without
 host evidence. The full plugin may preconfigure an adapter, while a skill-only
 install still needs the selected adapter's own setup.
 
@@ -63,14 +63,23 @@ When that guide links a reference for the detected host, read only that
 host-specific reference. Do not project one host's commands, storage paths,
 or lifecycle quirks onto another runtime.
 
-If host inspection selects the generated CLI, use the compatibility record's
-exact `cli.base_url` on discovery, authentication, and readiness commands only
-when `cli.available` is true (or absent on an older production record). Use
-only its returned `install_url`; do not construct one for another environment.
-If `cli.available` is false, its `reason` is authoritative and the CLI is not
-an eligible adapter. Never let an installed CLI's production default replace
-the requested environment. The account-management and OAuth steps below apply
-to an MCP selection; do not run them in addition to a CLI setup.
+If host inspection selects the Locus CLI, require `cli.available: true` (or
+absent on an older production record). Install only from its returned
+`install_url`; do not construct one for another environment. If
+`cli.available` is false, its `reason` is authoritative and the CLI is not an
+eligible adapter. The installer puts `locus` in `~/.local/bin` and the
+`locus-cli` skill in `~/.agents/skills/locus-cli`, linked into the agent
+folders it finds.
+
+Sign in with the record's `auth_command` (`locus auth login`). It carries
+`--base-url` when the environment is not production; the saved login keeps
+that base URL. Add `--device` on a headless machine and relay the printed URL
+and code to the user verbatim. With an existing key, pipe it on stdin with
+`headless_auth_command` (`locus auth login --with-token`); never pass a key as
+an argument. The CLI is ready when `locus auth status --json` reports
+`authenticated: true` and an `api_base` matching `cli.base_url`. The
+account-management and OAuth steps below apply to an MCP selection; do not run
+them in addition to a CLI setup.
 
 ## Safety rules
 

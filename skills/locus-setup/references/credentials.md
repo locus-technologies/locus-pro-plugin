@@ -1,26 +1,24 @@
-<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-09-17 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: d07ee12b52c50097b3c8e3955408c97e866a46f160ce1eda6af44f18f6f723ea -->
+<!-- Scoped excerpt of https://paywithlocus.com/agent/credentials.md, mirrored 2026-10-07 so registry scanners can review the exact contract this skill uses in-repo. Runtime-specific guidance lives in optional host references. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: 7f73fbc3284d92887195e8b4e52fed816d7c174a4670170480e5c9c05ad0dea3 -->
 
 # Store Locus agent authentication
 
 There are three separate credential classes:
 
-- **Okibi Identity capabilities** belong only in the generated Locus CLI's
-  identity runtime. They are short-lived and scoped. Never extract, print,
-  persist, or copy one into an environment file, chat, or MCP configuration.
+- **Locus CLI logins** belong only in the CLI's own owner-only credentials
+  file. Never extract, print, or copy one into an environment file, chat, or
+  MCP configuration.
 - **MCP OAuth tokens** belong in the MCP runtime's native OAuth token store.
   Never copy an access or refresh token into an environment file, chat, or MCP
   configuration. The client rotates refresh tokens automatically.
 - **Native `lcac_` credentials** authorize only their persisted execution
   allowlist plus any explicitly documented setup surface. AgentID signup stores
-  one as `LOCUS_AGENT_CREDENTIAL`. Okibi bootstrap injects one into the
-  generated API CLI as `LOCUS_SECRET_KEY`. Both can spend prepaid balance and
-  must remain secret; neither belongs in an MCP Authorization header.
+  one as `LOCUS_AGENT_CREDENTIAL`. Pipe one into `locus auth login
+  --with-token` to sign the CLI in with it. It can spend prepaid balance and
+  must remain secret; it never belongs in an MCP Authorization header.
 
 Use the most secure credential store already available in the runtime. Store
 the value under the environment name required by the selected flow. Never
-print it after capture, and never put it in a project-local `.env` file. The
-Okibi bootstrap registration token is recovery-grade secret material and must
-live in the same class of store.
+print it after capture, and never put it in a project-local `.env` file.
 
 Never dump, enumerate, grep, or search the whole process environment. Inspect
 only whether the exact named variable needed by the current step is present,
@@ -45,12 +43,9 @@ Create `~/.config/locus` with mode `0700` and `credentials.env` with mode
 `0600`. Load it only for Locus setup and account-management calls. Never source
 it into unrelated tools or commit it.
 
-The generated CLI does not silently fall back to a secret file. When no OS
-keychain is available, file storage is an explicit owner choice: pass
-`--allow-file-storage` to `locus auth login`, or set
-`OKIBI_AUTH_ALLOW_FILE_STORAGE=1`. `OKIBI_AUTH_STORAGE` selects the supported
-storage backend. Keep any selected file in the owner-only location above; do
-not invent a project-local fallback.
+The Locus CLI keeps its own login in `credentials.json` under its config
+directory with mode `0600`. Do not copy that file, and do not invent a
+project-local fallback.
 
 ## Rotation
 

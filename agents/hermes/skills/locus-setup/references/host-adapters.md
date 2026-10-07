@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 3aa642de217225158e9101b52e589c3565c152623b0d6d908b2037528ae45c4a -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/host-adapters.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 7c4916de2e992be47e82a3d478d4356a01c8a16644491d12fd54696ddcb5ae7c -->
 
 # Host adapters and readiness
 
@@ -25,20 +25,20 @@ delivery. Neither adapter is the default. Use this order:
 4. Otherwise select MCP only when the host natively registers Streamable HTTP
    servers, completes OAuth, securely persists refresh tokens, and exposes the
    tools to the agent. Select CLI only when the host can install the official
-   generated CLI, securely persist its credential, and invoke it as a durable
+   Locus CLI, keep its owner-only login file, and invoke it as a durable
    tool. If exactly one set of requirements is met, use it. If both or neither
    are met and no stronger host signal resolves the choice, ask the user once.
 
 The mere presence of a `locus` executable is not a healthy or eligible CLI
-signal. Its authenticated grant, base URL, signed release, and environment must
+signal. Its authenticated grant, base URL, and environment must
 all pass the compatibility record's readiness contract. Likewise, probing a
 different system Python or shell than the active host runtime does not prove a
 native MCP dependency is missing.
 
-For a CLI selection, pass the compatibility record's exact `cli.base_url` to
-every command with `--base-url`, or save it in a dedicated profile for that
-environment. A globally installed CLI may default to production; output from a
-command that omitted the requested base URL is not evidence about stage or any
+For a CLI selection, pass the compatibility record's exact `cli.base_url` with
+`--base-url` once at login; later commands follow the saved login. The CLI
+defaults to production, so check that `locus auth status --json` reports the
+requested `api_base` before trusting any output as evidence about stage or any
 other environment.
 
 Do not count generic HTTP, a browser, or a shell as MCP support. Do not count a

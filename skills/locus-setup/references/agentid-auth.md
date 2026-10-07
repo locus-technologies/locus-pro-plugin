@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://paywithlocus.com/agent/auth.md, mirrored 2026-09-02 so registry scanners can review the exact contract this skill uses in-repo. Only the Browserless AgentID approval contract is mirrored; unrelated sections of the source (Okibi Identity, signup walkthroughs, funding boundary) are intentionally omitted. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: e6e5fb21896f16e56952edf3c988a133ffdbae0ba58c85b35ea06fff49da8d68 -->
+<!-- Scoped excerpt of https://paywithlocus.com/agent/auth.md, mirrored 2026-09-02 so registry scanners can review the exact contract this skill uses in-repo. Only the Browserless AgentID approval contract is mirrored; unrelated sections of the source (CLI sign-in, signup walkthroughs, funding boundary) are intentionally omitted. This committed snapshot is authoritative for this release; refresh deliberately and update the digest below. content-sha256: e6e5fb21896f16e56952edf3c988a133ffdbae0ba58c85b35ea06fff49da8d68 -->
 
 # Locus agent authentication discovery
 ## Browserless AgentID approval
