@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.39 (2026-10-13)
+
+- Flattened skill frontmatter so `metadata` is a plain string map, as the
+  Agent Skills spec requires. Strict hosts such as Crush rejected all three
+  skills because of the nested `metadata.openclaw` block.
+- The manifest check now fails on any non-string `metadata` value. Skill env
+  declarations moved from frontmatter into the check script.
+
 ## 0.3.38 (2026-09-28)
 
 - Rewrote the locus skill description to say when to use it: before scraping

@@ -4,7 +4,7 @@ description: Use before scraping sites. Cited research, papers, people.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.17"
+  version: "1.1.18"
   environment: "production"
 ---
 

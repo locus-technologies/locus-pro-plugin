@@ -220,7 +220,27 @@ const skillPaths = readdirSync(resolve(root, "skills"), { withFileTypes: true })
   .filter((d) => d.isDirectory())
   .map((d) => ({ name: d.name, path: `skills/${d.name}/SKILL.md` }));
 if (skillPaths.length === 0) errors.push("skills/: no skills found");
-const declaredEnvVars = new Map();
+// Env-style names each skill may mention. Declared here, not in SKILL.md,
+// because metadata must stay a flat string map for strict hosts.
+const SKILL_ENV_VARS = {
+  "locus-setup": [
+    "LOCUS_AGENT_CREDENTIAL",
+    "AGENTMAIL_API_KEY",
+    "LOCUS_SECRET_KEY",
+    "OKIBI_AUTH_ALLOW_FILE_STORAGE",
+    "OKIBI_AUTH_STORAGE",
+    "HERMES_HOME",
+  ],
+};
+const declaredEnvVars = new Map(Object.entries(SKILL_ENV_VARS).map(([skill, names]) => [skill, new Set(names)]));
+// A YAML scalar that every parser reads as a string: quoted, or plain text
+// that cannot resolve to a bool, null, number, date, or collection.
+const isYamlString = (value) => {
+  if (/^(?:"(?:[^"\\]|\\.)*"|'(?:[^']|'')*')\s*(?:#.*)?$/.test(value.trim())) return true;
+  const text = value.replace(/\s+#.*$/, "").trim();
+  if (/^[-?:,[\]{}#&*!|>'"%@`]/.test(text) || /:\s|\s#/.test(text)) return false;
+  return !/^(?:y|n|yes|no|true|false|on|off|null|~|[-+]?(?:\d[\d_]*(?:\.[\d_]*)?|\.\d+)(?:[eE][-+]?\d+)?|0x[\da-fA-F_]+|0o?[0-7_]+|[-+]?\.inf|\.nan|\d{4}-\d\d?-\d\d?(?:[Tt\s].*)?)$/i.test(text);
+};
 
 const hermesSkillsRoot = resolve(root, "agents/hermes/skills");
 const relativeFiles = (directory) => readdirSync(directory, { recursive: true, withFileTypes: true })
@@ -266,11 +286,11 @@ for (const { name, path } of skillPaths) {
     else if (descLine[1].trim().length > 160) {
       errors.push(`${path}: description is ${descLine[1].trim().length} chars (max 160 for registry portability)`);
     }
-    // Agent Skills does not allow a top-level version. Keep it as a string in
-    // metadata instead. Metadata otherwise stays a flat string map, with one
-    // sanctioned extension: the `openclaw:` object required by OpenClaw for
-    // env/runtime declarations. Strip that object before applying the portable
-    // flat-string rules below.
+    // Agent Skills defines metadata as a string-to-string map, and strict
+    // hosts (Crush) unmarshal it into map[string]string and drop the whole
+    // skill on any other shape. Every metadata entry must be a single-line
+    // string scalar: no nested blocks, sequences, or typed values. Agent
+    // Skills has no top-level version, so it lives in metadata as a string.
     if (/^version:\s*/m.test(fm[1])) {
       errors.push(`${path}: top-level version is unsupported; use metadata.version`);
     }
@@ -280,9 +300,6 @@ for (const { name, path } of skillPaths) {
     if (fmLines.filter((line) => /^metadata:\s*$/.test(line)).length > 1) {
       errors.push(`${path}: duplicate metadata keys in frontmatter`);
     }
-    if (fmLines.filter((line) => /^ {2}openclaw:\s*$/.test(line)).length > 1) {
-      errors.push(`${path}: duplicate openclaw blocks in metadata`);
-    }
     const metaStart = fmLines.findIndex((line) => /^metadata:\s*$/.test(line));
     if (metaStart === -1) {
       errors.push(`${path}: metadata.version must be a quoted semver string`);
@@ -290,86 +307,30 @@ for (const { name, path } of skillPaths) {
       const metaLines = [];
       for (let i = metaStart + 1; i < fmLines.length; i++) {
         const line = fmLines[i];
-        if (/^ {2,}/.test(line) || line.trim() === "" || /^\s*#/.test(line)) {
+        if (/^\s+/.test(line) || line.trim() === "" || /^\s*#/.test(line)) {
           metaLines.push(line);
           continue;
         }
         break;
       }
-      const kept = [];
-      const openclawLines = [];
-      let inOpenclaw = false;
+      const metaKeys = new Set();
       for (const line of metaLines) {
-        if (/^ {2}openclaw:\s*$/.test(line)) {
-          inOpenclaw = true;
+        if (line.trim() === "" || /^\s*#/.test(line)) continue;
+        const entry = line.match(/^ {2}([A-Za-z0-9][A-Za-z0-9_.-]*):[ \t]+(\S.*)$/);
+        if (!entry) {
+          errors.push(`${path}: metadata must be a flat string map; "${line.trim()}" is nested, a sequence, or empty`);
           continue;
         }
-        if (inOpenclaw && (/^ {4,}/.test(line) || line.trim() === "" || /^\s*#/.test(line))) {
-          openclawLines.push(line);
-          continue;
+        const [, key, value] = entry;
+        if (metaKeys.has(key)) errors.push(`${path}: duplicate metadata.${key}`);
+        metaKeys.add(key);
+        if (!isYamlString(value)) {
+          errors.push(`${path}: metadata.${key} must be a string; quote it`);
         }
-        inOpenclaw = false;
-        kept.push(line);
       }
-      const flat = kept.filter((line) => line.trim() !== "" && !/^\s*#/.test(line)).join("\n");
-      const versionLine = flat.match(/^ {2}version:\s*["'](\d+\.\d+\.\d+)["']\s*$/m);
-      if (!versionLine) {
+      if (!metaLines.some((line) => /^ {2}version:\s*["'](\d+\.\d+\.\d+)["']\s*$/.test(line))) {
         errors.push(`${path}: metadata.version must be a quoted semver string`);
       }
-      if (/^\s*- /m.test(flat)) {
-        errors.push(`${path}: metadata top level must be a mapping — sequences belong under openclaw.envVars only`);
-      }
-      if (/^\s{2,}\S[^:\n]*:\s*$/m.test(flat)) {
-        errors.push(`${path}: metadata values must be flat strings outside the openclaw block — no other nested blocks`);
-      }
-      if (/^\s{2,}\S[^:\n]*:\s+(?:[\[{]|(?:true|false|null|-?\d+(?:\.\d+)?)\s*$)/m.test(flat)) {
-        errors.push(`${path}: metadata values must be strings — no inline objects, arrays, booleans, or numbers`);
-      }
-      if (openclawLines.filter((line) => /^ {4}envVars:\s*$/.test(line)).length > 1) {
-        errors.push(`${path}: duplicate envVars blocks under openclaw`);
-      }
-      const OPENCLAW_KEYS = new Set([
-        "homepage",
-        "emoji",
-        "primaryEnv",
-        "envVars",
-        "requires",
-        "anyBins",
-        "os",
-        "always",
-        "install",
-        "skillKey",
-      ]);
-      let inEnvVars = false;
-      const declaredEnvNames = [];
-      let primaryEnv;
-      for (const line of openclawLines) {
-        if (line.trim() === "" || /^\s*#/.test(line)) continue;
-        const topKey = line.match(/^ {4}([A-Za-z][A-Za-z0-9]*):\s*(.*)$/);
-        if (topKey) {
-          if (!OPENCLAW_KEYS.has(topKey[1])) {
-            errors.push(`${path}: unexpected openclaw key "${topKey[1]}"`);
-          }
-          inEnvVars = topKey[1] === "envVars";
-          if (topKey[1] === "primaryEnv") primaryEnv = topKey[2].trim();
-          continue;
-        }
-        const item = line.match(/^ {6,}- name:\s*(\S+)\s*$/);
-        if (item && inEnvVars) {
-          declaredEnvNames.push(item[1]);
-          continue;
-        }
-        if (/^\s*- /.test(line) && !inEnvVars) {
-          errors.push(`${path}: sequence items in openclaw are only allowed under envVars`);
-        }
-      }
-      if (primaryEnv && !declaredEnvNames.includes(primaryEnv)) {
-        errors.push(`${path}: openclaw.primaryEnv "${primaryEnv}" is not declared under envVars`);
-      }
-      const skillDeclared = declaredEnvVars.get(name) ?? new Set();
-      for (const envName of declaredEnvNames) skillDeclared.add(envName);
-      if (primaryEnv) skillDeclared.add(primaryEnv);
-      declaredEnvVars.set(name, skillDeclared);
     }
   }
   if (OTHER_VENDOR_WORDS.test(skill)) {
@@ -446,7 +407,7 @@ for (const path of scanned) {
     }
     for (const match of referenced) {
       if (!skillDeclared.has(match)) {
-        errors.push(`${path}: env-style token ${match} is not declared under this skill's openclaw.envVars`);
+        errors.push(`${path}: env-style token ${match} is not declared for this skill in SKILL_ENV_VARS`);
       }
     }
   }

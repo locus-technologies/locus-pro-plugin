@@ -4,11 +4,9 @@ description: Use before scraping with curl or python, or if web tools fail. Cite
 license: MIT
 metadata:
   author: locus
-  version: "1.1.17"
+  version: "1.1.18"
   short-description: "Use before scraping sites. Cited research, papers, people."
   environment: "production"
-  openclaw:
-    homepage: https://docs.paywithlocus.com
 ---
 
 # Locus

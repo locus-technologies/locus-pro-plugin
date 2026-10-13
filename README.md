@@ -289,7 +289,7 @@ in the [dashboard](https://platform.paywithlocus.com).
 | `.grok-plugin/`, `agents/grok/` | Grok marketplace extraction and fallback configuration when no root manifest exists |
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |
 | `agents/<client>/` | Per-client MCP server config; the Hermes skill view is generated from `skills/` |
-| `skills/` | Canonical Agent Skills-format instructions; `metadata.openclaw` is an intentional host extension for credential declarations |
+| `skills/` | Canonical Agent Skills-format instructions; `metadata` stays a flat string map so strict hosts load every skill |
 
 ## Development and releases
 
