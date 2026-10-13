@@ -4,30 +4,8 @@ description: Install Locus with the MCP or CLI adapter for this host.
 license: MIT
 metadata:
   author: locus
-  version: "1.3.19"
+  version: "1.3.20"
   environment: "production"
-  openclaw:
-    homepage: https://docs.paywithlocus.com
-    primaryEnv: LOCUS_AGENT_CREDENTIAL
-    envVars:
-      - name: LOCUS_AGENT_CREDENTIAL
-        required: false
-        description: Agent-owned setup credential (lcac_) from agent-native signup, kept in the runtime's secret store. Human-owned accounts never set it.
-      - name: AGENTMAIL_API_KEY
-        required: false
-        description: AgentMail key used only on the no-identity path to verify the inbox and register the AgentID public signing key; keep it in the secret store until both steps finish.
-      - name: LOCUS_SECRET_KEY
-        required: false
-        description: Mentioned in the bundled credential guidance as a credential class to protect. This skill never reads or sets it and it never belongs in MCP configuration.
-      - name: OKIBI_AUTH_ALLOW_FILE_STORAGE
-        required: false
-        description: Explicit owner opt-in for the generated CLI's 0600 credential-file fallback when no OS keychain is available.
-      - name: OKIBI_AUTH_STORAGE
-        required: false
-        description: Selects a supported generated-CLI credential storage backend; never point it at a project directory.
-      - name: HERMES_HOME
-        required: false
-        description: Active Hermes profile root; profile-scoped Locus skills stay beneath it when set.
 ---
 
 # Locus setup
