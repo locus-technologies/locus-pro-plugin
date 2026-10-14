@@ -7,6 +7,9 @@
   skills because of the nested `metadata.openclaw` block.
 - The manifest check now fails on any non-string `metadata` value. Skill env
   declarations moved from frontmatter into the check script.
+- The locus skill description now names what it does: verify emails, find
+  people and companies, site traffic, images, speech, transcripts, flights,
+  products, cited research and blocked pages. Hosts match skills on this text.
 
 ## 0.3.38 (2026-09-28)
 

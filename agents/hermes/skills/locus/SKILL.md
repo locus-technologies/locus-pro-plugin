@@ -1,6 +1,6 @@
 ---
 name: locus
-description: Use before scraping sites. Cited research, papers, people.
+description: Verify emails, contacts, images, speech, flights, research
 license: MIT
 metadata:
   author: locus
