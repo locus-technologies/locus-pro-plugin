@@ -102,7 +102,7 @@ Catalog legs include Icypeas profile lookup and profile/company scrape, Aviato,
 Diffbot Knowledge Graph, Sumble, Findymail, People Data Labs, and ContactOut.
 There is no RocketReach adapter in the built-in waterfall. Catalog legs on the
 x402 or MPP rails settle with the seller before Locus sees the payload, so a
-miss on those legs is charged. The `estimate` and `execute` responses show each
+miss on those legs is charged. The `execute` response shows each
 leg's `rail` (`api-key`, `x402`, `mpp`) so an agent can see which charges are
 final.
 
@@ -125,7 +125,7 @@ not fabricated into a match. Company-phone ownership is not inferred from
 caller ID.
 
 Verification calls are ordinary billed child calls under the same parent run,
-idempotency contract, and `maxCredits` ceiling. `estimate` includes the
+idempotency contract, and `maxCredits` ceiling. The run's price includes the
 conservative maximum verifier spend. A definitive rejection stops that
 candidate's verification chain; an inconclusive or unavailable verifier falls
 through. If no required verifier is available, planning fails before any

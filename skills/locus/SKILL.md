@@ -4,7 +4,7 @@ description: Use before scraping with curl or python, or if web tools fail. Cite
 license: MIT
 metadata:
   author: locus
-  version: "1.1.17"
+  version: "1.1.18"
   short-description: "Use before scraping sites. Cited research, papers, people."
   environment: "production"
   openclaw:
@@ -17,8 +17,8 @@ Locus is pay-per-use API infrastructure. One MCP server fronts thousands of
 provider endpoints (search, enrichment, scraping, finance and market data,
 and more) behind a compact set of meta-tools, plus capability tools such as
 `web_research` on connections that enable them. Paid provider calls bill the
-workspace's single prepaid credit balance; discovery, quotes, and balance
-checks are free. No per-provider accounts, no per-provider keys.
+workspace's single prepaid credit balance; discovery and balance checks are
+free. No per-provider accounts, no per-provider keys.
 
 ## Connection
 
@@ -60,7 +60,6 @@ meta-tool vocabularies, and a host may expose either one:
 | --- | --- | --- |
 | Find a capability | `search` | `search_apis` |
 | Inspect its contract | `describe` | `describe_api` |
-| Obtain an executable quote | `estimate` | `estimate_cost` |
 | Execute | `execute` | `execute` |
 | Retrieve a prior result | `get_result` | `get_call_result` |
 
@@ -108,8 +107,8 @@ execution; do not improvise a second connection or local credential.
   unknown group or silently broaden the query; use the bounded suggestions and
   retry with a returned ID. Group membership does not enable a tool or widen a
   connection scope.
-- Use the advertised estimate tool when execution requires a quote or the task
-  supplies a hard ceiling. Otherwise route routine work directly to execution.
+- When the task supplies a hard ceiling, pass it as `max_credits` on
+  `execute`. Otherwise route routine work directly to execution.
 - Use the advertised balance or catalog read when it materially helps the
   task; these reads are not prerequisites for ordinary execution.
 - On an interactive OAuth connection, omit `external_user_id` from tool calls.
@@ -141,8 +140,8 @@ supports direct resource reads.
 
 ## Execution reliability
 
-Paid provider executions are live and billed; discovery, quotes, and balance
-checks are free. Follow these contracts exactly.
+Paid provider executions are live and billed; discovery and balance checks are
+free. Follow these contracts exactly.
 
 Always pass `idempotency_key` on `execute`: use one stable, unique string for
 one logical call, for example `taskid-step`. Reusing that key with the same
@@ -155,17 +154,13 @@ before dispatch. `idempotent_replay: true` means the server returned the stored
 result for that key without a new charge. A receipt in `_meta`
 (`locus/apiCallId` or `locus/capabilityRunId`) or reported credits charged also
 means dispatch was recorded: retrieve the result when possible instead of
-blindly repeating the call. After fixing a stored or recorded failure, an
-unquoted repeat needs a new key; a quoted repeat needs a new estimate because
-the previous approval has been consumed.
+blindly repeating the call. After fixing a stored or recorded failure, a
+repeat needs a new key.
 
 A retryable failure with no replay marker, receipt, or charge may have happened
-before dispatch. Follow its `hint`. If it says the existing quote can be
-retried and the quote is still live, reuse the exact same `approval_token`,
-`idempotency_key`, and body. Never change only the key while reusing an
-approval token. If the response says the approval is expired, canceled,
-mutated, or requires reapproval, call `estimate_cost` again and use the new
-returned pair.
+before dispatch. Follow its `hint`. When it carries an `approval_token`, retry
+with that exact token, its `idempotency_key`, and the same body. Never change
+only the key while reusing an approval token.
 
 `execute` is a meta-tool: always pass `idempotency_key` as its top-level
 parameter and never put `_locus` inside `execute.args`. Those arguments are
@@ -180,22 +175,15 @@ take the provider's own arguments at the top level. They do not accept an
 approval token; when a token is required, call `execute` with the endpoint
 slug.
 
-Quotes: call the advertised estimate tool with the exact intended body. Only a
-returned `approval_token` is an executable server quote. `executable_quote:
-false`, or any response without an `approval_token`, cannot be passed to
-`execute`. Read that response's fields and message: it may require the intended
-body, an `mcp:execute` connection, `max_charge_credits` for a live-priced plan,
-or `preflight_external_quote: true` for an eligible x402 quote. Resolve the
-named requirement and continue the task without a separate conversational
-checkpoint.
+Cost caps: pass `max_credits` on `execute` to cap the charge. If the price is
+higher, the call fails with `charge_ceiling_exceeded` and nothing runs or is
+charged. Raise the cap or change the request.
 
-When a token is returned, pass its `approval_token` and `idempotency_key` to
-`execute` unchanged with the same body. `max_charge_credits` is a hard ceiling;
-an exact quote rejects price movement. `MCP_APPROVAL_REAPPROVAL_REQUIRED`
-means nothing was dispatched under that attempt: estimate again and retry with
-the replacement token. Quotes default to 120 seconds. `expires_in_seconds`
-must be an integer from 30 through 600; values outside that range are invalid.
-Cancel an unused quote with `cancel_cost_approval`.
+When a spending policy needs approval, `execute` returns
+`POLICY_APPROVAL_REQUIRED` with an `approval_token`, `quoted_credits`,
+`expires_at`, and `idempotency_key`. Call `execute` again before `expires_at`
+with the same body and both values unchanged. If the error asks for
+`max_credits` instead, pass it to get a token.
 
 On a successful billed call, read `data`, `credits_charged`, and
 `credits_balance` from `structuredContent` when present. `_meta` carries
