@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 090d5b827f26f6b6284f693ecbb4e78c5d7c693d0275eef745a2588c12d842c0 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 60d6e8ed3e9d1a9af1a7cd582724c4ab8bb2df174608f0ba3aea1d973baeba50 -->
 
 # GTM waterfall enrichment
 
@@ -102,7 +102,7 @@ Catalog legs include Icypeas profile lookup and profile/company scrape, Aviato,
 Diffbot Knowledge Graph, Sumble, Findymail, People Data Labs, and ContactOut.
 There is no RocketReach adapter in the built-in waterfall. Catalog legs on the
 x402 or MPP rails settle with the seller before Locus sees the payload, so a
-miss on those legs is charged. The `estimate` and `execute` responses show each
+miss on those legs is charged. The `execute` response shows each
 leg's `rail` (`api-key`, `x402`, `mpp`) so an agent can see which charges are
 final.
 
@@ -125,7 +125,7 @@ not fabricated into a match. Company-phone ownership is not inferred from
 caller ID.
 
 Verification calls are ordinary billed child calls under the same parent run,
-idempotency contract, and `maxCredits` ceiling. `estimate` includes the
+idempotency contract, and `maxCredits` ceiling. The run's price includes the
 conservative maximum verifier spend. A definitive rejection stops that
 candidate's verification chain; an inconclusive or unavailable verifier falls
 through. If no required verifier is available, planning fails before any

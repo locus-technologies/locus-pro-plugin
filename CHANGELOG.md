@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.39 (2026-10-13)
+
+- The locus skill (1.1.18) drops the estimate step. Agents cap a call with
+  `max_credits` on `execute`, and a policy approval comes back from `execute`
+  as an `approval_token` to send again.
+- Pointed the locus-setup CLI adapter at the new Locus CLI.
+
 ## 0.3.38 (2026-09-28)
 
 - Rewrote the locus skill description to say when to use it: before scraping

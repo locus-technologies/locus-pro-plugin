@@ -516,8 +516,6 @@ if (submission) {
     list_apis: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     get_balance: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     get_call_result: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
-    estimate_cost: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
-    cancel_cost_approval: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     execute: { readOnlyHint: false, openWorldHint: true, destructiveHint: true },
     workflow_definition: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
     workflow_validate: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },

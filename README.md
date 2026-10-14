@@ -271,11 +271,10 @@ a credential class to protect; the skills never read or set it, and neither
 ## Costs and safety
 
 Paid provider calls are live and billed to your workspace credit balance;
-catalog discovery, quotes, and balance checks are free. The skill instructs
-agents to pass idempotency keys so a retry reusing its key never
-double-charges, to quote
-significant calls with `estimate_cost` first, and to confirm with you before
-unusually large spends. Spend limits and approvals are configured per workspace
+catalog discovery and balance checks are free. The skill instructs agents to
+pass idempotency keys so a retry reusing its key never double-charges, to cap
+significant calls with `max_credits`, and to confirm with you before unusually
+large spends. Spend limits and approvals are configured per workspace
 in the [dashboard](https://platform.paywithlocus.com).
 
 ## Repository layout
