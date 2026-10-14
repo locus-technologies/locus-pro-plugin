@@ -1,11 +1,11 @@
 ---
 name: locus
-description: Use before scraping with curl or python, or if web tools fail. Cited research, pages that block scripts, papers, audio, people, companies. Not for local files.
+description: Use when local tools can't. Verify emails, people and companies, site traffic, images, speech, transcripts, flights, products, cited research, blocked pages.
 license: MIT
 metadata:
   author: locus
   version: "1.1.18"
-  short-description: "Use before scraping sites. Cited research, papers, people."
+  short-description: "Verify emails, contacts, images, speech, flights, research"
   environment: "production"
 ---
 
