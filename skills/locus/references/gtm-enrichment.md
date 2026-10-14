@@ -1,4 +1,4 @@
-<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 090d5b827f26f6b6284f693ecbb4e78c5d7c693d0275eef745a2588c12d842c0 -->
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus/references/gtm-enrichment.md, mirrored 2026-09-19 for the versioned Locus guide bundle. content-sha256: 60d6e8ed3e9d1a9af1a7cd582724c4ab8bb2df174608f0ba3aea1d973baeba50 -->
 
 # GTM waterfall enrichment
 

@@ -92,30 +92,6 @@
         "destructive_justification": "Reads a stored result and never creates a new charge."
       }
     },
-    "estimate_cost": {
-      "annotations": {
-        "readOnlyHint": false,
-        "openWorldHint": true,
-        "destructiveHint": false
-      },
-      "justifications": {
-        "read_only_justification": "Creates a short-lived executable price approval on the server, so it is not purely a read, but it never charges credits.",
-        "open_world_justification": "May probe a live upstream quote to price a variable-cost endpoint exactly, without paying it.",
-        "destructive_justification": "Never charges or removes anything; an unused approval simply expires."
-      }
-    },
-    "cancel_cost_approval": {
-      "annotations": {
-        "readOnlyHint": false,
-        "openWorldHint": false,
-        "destructiveHint": true
-      },
-      "justifications": {
-        "read_only_justification": "Invalidates a stored price approval, which is a state change rather than a read.",
-        "open_world_justification": "Acts on Locus-stored approvals only; no external calls.",
-        "destructive_justification": "Permanently invalidates the referenced unused approval so it can no longer authorize an execution; no credits are involved."
-      }
-    },
     "execute": {
       "annotations": {
         "readOnlyHint": false,
@@ -227,11 +203,11 @@
       "expected_output_url": null
     },
     {
-      "description": "Quote without spending: the user names the endpoint and the exact request body, wants a binding price, explicitly does not want the call executed, and asks for the quote to be released. The app reads the schema, quotes those arguments, and cancels the unused approval. Fixture: the provided demo workspace reached through the app's OAuth sign-in with the demo credentials - funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled, capability routing on.",
-      "user_prompt": "On Locus, look up the exa/answer endpoint's schema, then quote exactly what a call with the body {\"query\": \"what is the x402 payment protocol\"} would cost. Do not run it, and cancel the quote when you have the number.",
+      "description": "Check a price without spending: the user names the endpoint and explicitly does not want the call run. The app reads the endpoint's listed price and schema and makes no charge. Fixture: the provided demo workspace reached through the app's OAuth sign-in with the demo credentials - funded prepaid balance, default 1,000-credits-per-dollar denomination, exa/answer and brave/answers enabled, capability routing on.",
+      "user_prompt": "On Locus, how much does one exa/answer call cost? Do not run it.",
       "file_attachment_urls": null,
-      "tools_triggered": "describe_api, estimate_cost, cancel_cost_approval",
-      "expected_output": "A binding quote of 8 credits with an approval reference, followed by confirmation the approval was cancelled; the balance is unchanged.",
+      "tools_triggered": "describe_api",
+      "expected_output": "The listed price of 8 credits per call, with no charge made; the balance is unchanged.",
       "expected_output_url": null
     },
     {
