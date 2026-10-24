@@ -1,0 +1,11 @@
+{
+  "schema_version": "1",
+  "runtime": "locus-typescript-1",
+  "bindings": {
+    "gtmEnrich": {
+      "slug": "locus-gtm/enrich",
+      "contract_digest": "<replace with the 64-character digest from describe_api>",
+      "contract_revision": "<replace with the revision from describe_api>"
+    }
+  }
+}
