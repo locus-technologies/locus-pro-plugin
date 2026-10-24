@@ -145,6 +145,20 @@ it from **Customize → Plugins** (search "Locus") or with `/add-plugin locus`
 in chat. Until then, install the three skills separately with
 `npx skills add locus-technologies/locus-pro-plugin` and select all three.
 
+### Devin
+
+In Devin, open **Customize → Plugins → Add plugin → From repository** and use
+`locus-technologies/locus-pro-plugin` with subdirectory `agents/devin`. From the
+Devin CLI:
+
+```
+devin plugins install locus-technologies/locus-pro-plugin/agents/devin
+devin mcp login locus
+```
+
+Cloud sessions connect the server from the plugin's MCP under
+**Customize → MCPs → Connect**, which runs the same browser OAuth.
+
 ### Grok
 
 ```
@@ -285,6 +299,7 @@ in the [dashboard](https://platform.paywithlocus.com).
 | `.claude-plugin/` | Claude Code (plugin + marketplace manifest) |
 | `.codex-plugin/`, `agents/codex/.mcp.json`, `.agents/plugins/` | Native Codex plugin, MCP configuration, and marketplace manifest |
 | `.cursor-plugin/` | Cursor |
+| `agents/devin/` | Devin plugin root; its skills and logo are generated from the root so the contributor `AGENTS.md` is not loaded as a Devin rule |
 | `.mcp.json`, `skills/` | Effective Grok components while the root `plugin.json` is present (Grok prefers the root manifest) |
 | `.grok-plugin/`, `agents/grok/` | Grok marketplace extraction and fallback configuration when no root manifest exists |
 | `plugin.json`, `mcp.json` | Agent Plugins (open standard) |

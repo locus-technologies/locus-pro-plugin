@@ -27,6 +27,7 @@ const OTHER_VENDOR_WORDS = /\b(Claude|Codex|Cursor|ChatGPT|OpenClaw|Gemini|Copil
 // --- Plugin manifests: same name, same version everywhere -------------------
 const manifests = {
   ".claude-plugin/plugin.json": json(".claude-plugin/plugin.json"),
+  "agents/devin/.devin-plugin/plugin.json": json("agents/devin/.devin-plugin/plugin.json"),
   ".cursor-plugin/plugin.json": json(".cursor-plugin/plugin.json"),
   ".codex-plugin/plugin.json": json(".codex-plugin/plugin.json"),
   ".grok-plugin/plugin.json": json(".grok-plugin/plugin.json"),
@@ -46,9 +47,13 @@ for (const [path, m] of Object.entries(manifests)) {
   if ("repository" in m && m.repository !== REPO_URL) {
     errors.push(`${path}: repository "${m.repository}" != "${REPO_URL}"`);
   }
+  // Paths are relative to the plugin root: the manifest's directory, or its
+  // parent when the manifest sits in a dot-directory such as .claude-plugin/.
+  const manifestDir = dirname(path);
+  const pluginRoot = manifestDir.split("/").at(-1).startsWith(".") ? dirname(manifestDir) : manifestDir;
   for (const ref of [m.skills, m.mcpServers, m.logo, m.interface?.logo].flat().filter((v) => typeof v === "string")) {
     if (ref.startsWith("http")) continue;
-    if (!existsSync(resolve(root, ref))) errors.push(`${path}: referenced path "${ref}" does not exist`);
+    if (!existsSync(resolve(root, pluginRoot, ref))) errors.push(`${path}: referenced path "${ref}" does not exist`);
   }
 }
 const manifestVersion = [...versions][0];
@@ -116,6 +121,7 @@ const mcpConfigs = [
   { path: "agents/codex/.mcp.json", wrapped: true, type: "http", source: "codex-plugin", headerField: "http_headers" },
   { path: "agents/claude/.mcp.json", wrapped: true, type: "http", source: "claude-code-plugin" },
   { path: "agents/cursor/mcp.json", wrapped: true, type: "http", source: "cursor-plugin" },
+  { path: "agents/devin/.devin-plugin/plugin.json", wrapped: true, source: "devin-plugin" },
   { path: "agents/grok/mcp.json", wrapped: true, type: "http", source: "grok-plugin" },
   { path: "agents/hermes/mcp.json", wrapped: true, type: "streamable-http", source: "hermes-plugin" },
   { path: "mcp.json", wrapped: true, type: "streamable-http", source: "open-plugin" },

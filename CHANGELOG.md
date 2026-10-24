@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.40 (2026-10-24)
+
+- Added a Devin plugin at `agents/devin`: the hosted MCP server and all three
+  skills. It lives in a subdirectory because Devin loads a plugin root's
+  `AGENTS.md` as an always-on rule. `scripts/sync-devin-plugin.mjs` generates
+  its skills and logo from the root, and CI fails if the copy drifts.
+- The manifest check resolves each manifest's referenced paths from its own
+  plugin root.
+
 ## 0.3.39 (2026-10-13)
 
 - Flattened skill frontmatter so `metadata` is a plain string map, as the
