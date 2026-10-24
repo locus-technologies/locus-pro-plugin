@@ -74,6 +74,7 @@ for (const path of [
   "agents/claude/.mcp.json",
   "agents/codex/.mcp.json",
   "agents/cursor/mcp.json",
+  "agents/devin/.devin-plugin/plugin.json",
   "agents/grok/mcp.json",
   "agents/hermes/mcp.json",
 ]) {

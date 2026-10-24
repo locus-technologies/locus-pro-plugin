@@ -11,6 +11,7 @@ const jsonVersionFiles = [
   ".claude-plugin/plugin.json",
   ".cursor-plugin/plugin.json",
   ".codex-plugin/plugin.json",
+  "agents/devin/.devin-plugin/plugin.json",
   ".grok-plugin/plugin.json",
   "agents/hermes/plugin.json",
   "plugin.json",

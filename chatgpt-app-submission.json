@@ -1,11 +1,11 @@
 {
-  "$schema": "https://developers.openai.com/apps-sdk/schemas/chatgpt-app-submission.v1.json",
+  "$schema": "https://developers.openai.com/plugins/schemas/chatgpt-app-submission.v1.json",
   "schema_version": 1,
   "app_info": {
     "display_name": "Locus",
     "subtitle": "Pay-per-use APIs for agents",
     "description": "Locus gives an agent one prepaid credit balance for its paid work: cited web research, data and API lookups from a contracted provider catalog, executable cost quotes, and idempotent billing - a retry that reuses its idempotency key replays the stored outcome instead of charging again. The agent searches the catalog in plain English, inspects one endpoint's schema and price, optionally locks an exact quote, and executes by slug; every charge returns the exact credits debited and the remaining balance, and workspace owners control spend limits and approvals from the Locus dashboard.",
-    "category": "PRODUCTIVITY"
+    "category": "DEVELOPER_TOOLS"
   },
   "tools": {
     "search_apis": {
