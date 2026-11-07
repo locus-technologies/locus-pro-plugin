@@ -171,7 +171,7 @@ jobs:
       - name: Install Grok CLI
         run: |
           curl -fsSL https://x.ai/cli/install.sh -o grok-install.sh
-          sha256sum -c - <<< "7fd6fdc75d9418b2e58356726fcbf1ae849416f773925da07d0ccc7a60d3e791  grok-install.sh"
+          sha256sum -c - <<< "bdd23859b10bd0c1492ffc3443e8413b73a9b09966d48d4d3fa32121043956fc  grok-install.sh"
           bash grok-install.sh 1.0.13
           echo "$GROK_BIN_DIR" >> "$GITHUB_PATH"
 
