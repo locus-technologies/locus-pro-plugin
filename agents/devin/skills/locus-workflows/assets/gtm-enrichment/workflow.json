@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "name": "gtm-enrichment-waterfall",
+  "entrypoint": "workflow.ts",
+  "runtime": "locus-typescript-1",
+  "bindings": [
+    {
+      "name": "gtmEnrich",
+      "slug": "locus-gtm/enrich",
+      "kind": "recipe",
+      "contract_digest": "<replace with the 64-character digest from describe_api>",
+      "contract_revision": "<replace with the revision from describe_api>",
+      "input_schema": { "type": "object" },
+      "output_schema": { "type": "object" },
+      "effects": ["locus.read"]
+    }
+  ],
+  "effects": ["locus.read"]
+}

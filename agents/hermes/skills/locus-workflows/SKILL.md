@@ -4,7 +4,7 @@ description: Create, test, save, and run reusable Locus workflows.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.17"
+  version: "1.1.18"
   environment: "production"
 ---
 

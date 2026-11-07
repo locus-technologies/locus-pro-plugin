@@ -1,13 +1,12 @@
 ---
 name: locus
-description: Find people, verified work emails, companies, and live data.
+description: Use when local tools can't. Verify emails, people and companies, site traffic, images, speech, transcripts, flights, products, cited research, blocked pages.
 license: MIT
 metadata:
   author: locus
-  version: "1.1.16"
+  version: "1.1.18"
+  short-description: "Verify emails, contacts, images, speech, flights, research"
   environment: "production"
-  openclaw:
-    homepage: https://docs.paywithlocus.com
 ---
 
 # Locus

@@ -1,0 +1,90 @@
+<!-- Scoped excerpt of https://github.com/locus-technologies/locus-pro-plugin/blob/main/skills/locus-setup/references/hosts/hermes.md, mirrored 2026-09-20 for the versioned Locus guide bundle. content-sha256: 45304596f668ed2a1c8f3279bf282edbd4a08c94a2b191b6fca21fc49f1253e4 -->
+
+# Hermes Agent adapter
+
+Use this reference only after the shared host-adapter guide selects MCP for a
+Hermes Agent installation. Resolve the active Hermes data directory from the
+host configuration; its default location is `~/.hermes`.
+
+Before creating any durable skill directory, use exactly
+`<HERMES_HOME>/locus-agent-skills` as the root. Do not create or retain
+`<HERMES_HOME>/locus-data`, `~/.locus`, or another alias. On symlink-capable
+systems, apply the shared relative, atomic `current` symlink contract beneath
+that root.
+
+Hermes can install a remote `SKILL.md`, but a direct URL is a single-file skill
+install. Treat it as bootstrap delivery only. Complete the installation with
+the compatibility record's digest-pinned Agent Skills archives or guide
+manifest so `locus`, `locus-setup`, and `locus-workflows` each retain their
+linked references and assets.
+
+After verifying and extracting the archives, activate each exact released tree
+at `<HERMES_HOME>/skills/<skill>`, using a link to the versioned source when
+supported or a complete directory copy otherwise. Do not use `skill_manage` to
+replace the released `SKILL.md` with a summary or shortened entrypoint; the
+released descriptions already fit Hermes' registration limit. Start a fresh
+Hermes session after activating all three trees; current Hermes has no separate
+MCP reload command.
+
+Keep the versioned source and activation links inside the active Hermes
+profile: use `<HERMES_HOME>/locus-agent-skills/<environment>/<version>/...`
+and `<HERMES_HOME>/skills`. When `HERMES_HOME` is overridden, do not link that
+profile to a shared `~/.locus` tree or another Hermes profile.
+
+Register one OAuth server named `locus` at the exact environment URL returned
+by the compatibility record. Write the native configuration before login so
+an unauthenticated discovery probe cannot discard the server:
+
+```bash
+hermes config set mcp_servers.locus.url '<MCP transport URL>'
+hermes config set mcp_servers.locus.auth oauth
+hermes config set mcp_servers.locus.connect_timeout 315
+hermes mcp login locus
+```
+
+Keep the timeout at 315 seconds or longer. Hermes reuses this value inside the
+MCP transport, so a shorter value can cancel the PKCE session while the outer
+login command is still waiting for browser approval.
+
+Do not patch or reinstall Hermes when an interactive `hermes mcp add` probe
+fails before OAuth. The declarative commands above register the same native
+server without that probe; `hermes mcp login locus` then owns discovery and
+authentication. Confirm the saved URL before login and do not preserve an
+entry from another Locus environment.
+
+Hermes performs OAuth discovery, PKCE, client identification, token exchange,
+and refresh. `hermes mcp login locus` is interactive and blocks until approval;
+keep that command alive through approval. From a one-shot Hermes agent turn,
+do not start it as a background child: that process remains turn-owned even if
+detached or its loopback listener is briefly visible, and can die when the turn
+exits. Keep it in the foreground and wait, or transfer the login to a genuinely
+host-owned persistent terminal before yielding. Do not return a final response
+while the only listener belongs to a per-turn child process. When
+Hermes offers manual completion, paste the complete callback response
+containing `code`, `state`, and `iss` into its waiting prompt; do not reduce it
+to only the code or put it in command arguments. Use Hermes' documented DCR
+fallback only when the installed release rejects Client ID Metadata Documents.
+
+OAuth tokens belong in Hermes' owner-only MCP token store. For a native `lcac_`
+setup credential, prefer an injected vault; otherwise use
+the active Hermes data directory's `.env`, never a project or workspace
+`.env`, with the directory mode `0700` and file mode `0600`. Do not add the
+credential to the MCP entry.
+
+The login process normally exits after saving credentials, so process absence
+is not authentication failure. After it exits or a host turn times out, confirm
+the active profile has a native token record without reading or printing it,
+reload MCP, and prove authentication with a live free Locus call before
+starting OAuth again. `hermes mcp list` labels such as `enabled` or `Tools: all`
+describe configuration and filtering, not authenticated reachability.
+
+If the authenticated server is not immediately visible, start a fresh Hermes
+session, then run `hermes mcp test locus` and verify the live tool list, a free
+readiness call, and automatic skill discovery. Do not infer readiness from
+configuration text alone.
+
+From a one-shot installer, do not spawn a nested Hermes agent merely to make
+the free readiness call: model credentials and tool policy may not propagate
+to that child. Use `hermes mcp test locus` for the transport check, then make
+the free call in the next fresh ordinary agent session and report that boundary
+honestly until it succeeds.

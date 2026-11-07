@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.3.40 (2026-10-24)
+
+- Added a Devin plugin at `agents/devin`: the hosted MCP server and all three
+  skills. It lives in a subdirectory because Devin loads a plugin root's
+  `AGENTS.md` as an always-on rule. `scripts/sync-devin-plugin.mjs` generates
+  its skills and logo from the root, and CI fails if the copy drifts.
+- The manifest check resolves each manifest's referenced paths from its own
+  plugin root.
+
+## 0.3.39 (2026-10-13)
+
+- Flattened skill frontmatter so `metadata` is a plain string map, as the
+  Agent Skills spec requires. Strict hosts such as Crush rejected all three
+  skills because of the nested `metadata.openclaw` block.
+- The manifest check now fails on any non-string `metadata` value. Skill env
+  declarations moved from frontmatter into the check script.
+- The locus skill description now names what it does: verify emails, find
+  people and companies, site traffic, images, speech, transcripts, flights,
+  products, cited research and blocked pages. Hosts match skills on this text.
+
+## 0.3.38 (2026-09-28)
+
+- Rewrote the locus skill description to say when to use it: before scraping
+  with curl or python, or when web tools fail. Hermes gets a 60-character form.
+- Raised the OpenClaw MCP connection timeout to 60000 ms so a slow handshake
+  no longer starts a session without Locus tools.
+
 ## 0.3.37 (2026-09-20)
 
 - Isolated every skill-root archive in its own owner-only staging directory

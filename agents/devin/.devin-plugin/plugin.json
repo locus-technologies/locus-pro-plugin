@@ -1,0 +1,27 @@
+{
+  "name": "locus",
+  "displayName": "Locus",
+  "version": "0.3.40",
+  "description": "Pay-per-use APIs for agents: cited web research, paid data lookups, and metered provider endpoints billed to workspace credits via the Locus MCP server.",
+  "shortDescription": "Pay-per-use APIs for agents",
+  "author": {
+    "name": "Locus",
+    "url": "https://paywithlocus.com"
+  },
+  "homepage": "https://docs.paywithlocus.com",
+  "repository": "https://github.com/locus-technologies/locus-pro-plugin",
+  "license": "MIT",
+  "logo": "assets/logo.svg",
+  "keywords": [
+    "AI & Machine Learning",
+    "Development Tools"
+  ],
+  "mcpServers": {
+    "locus": {
+      "url": "https://api.paywithlocus.com/api/credits/mcp",
+      "headers": {
+        "X-Source-Name": "devin-plugin"
+      }
+    }
+  }
+}

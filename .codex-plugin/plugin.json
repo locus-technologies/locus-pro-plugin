@@ -1,6 +1,6 @@
 {
   "name": "locus",
-  "version": "0.3.37",
+  "version": "0.3.40",
   "description": "Pay-per-use APIs for agents: cited web research, paid data lookups, and metered provider endpoints billed to workspace credits via the Locus MCP server.",
   "author": {
     "name": "Locus",
@@ -30,7 +30,7 @@
     ],
     "longDescription": "Official Locus plugin. One prepaid credit balance for an agent's paid work: cited web research, data and API lookups from Locus's contracted provider catalog, executable cost quotes, idempotent billing - a retry that reuses its idempotency key never double-charges, and workspace spend controls.",
     "developerName": "Locus",
-    "category": "Productivity",
+    "category": "Developer Tools",
     "websiteURL": "https://paywithlocus.com",
     "supportURL": "https://paywithlocus.com/support",
     "privacyPolicyURL": "https://paywithlocus.com/privacy",

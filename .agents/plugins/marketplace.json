@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "locus",
-      "category": "Productivity",
+      "category": "Developer Tools",
       "source": {
         "source": "local",
         "path": "./"

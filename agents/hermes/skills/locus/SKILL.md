@@ -1,10 +1,10 @@
 ---
 name: locus
-description: Find people, verified work emails, companies, and live data.
+description: Verify emails, contacts, images, speech, flights, research
 license: MIT
 metadata:
   author: locus
-  version: "1.1.16"
+  version: "1.1.18"
   environment: "production"
 ---
 

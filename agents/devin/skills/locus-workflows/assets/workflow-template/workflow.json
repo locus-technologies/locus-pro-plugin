@@ -1,0 +1,8 @@
+{
+  "schema_version": "1",
+  "name": "customer-workflow",
+  "entrypoint": "workflow.ts",
+  "runtime": "locus-typescript-1",
+  "bindings": [],
+  "effects": ["locus.read"]
+}

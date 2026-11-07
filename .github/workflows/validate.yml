@@ -51,7 +51,8 @@ jobs:
           HEAD_BRANCH: ${{ github.head_ref }}
         run: |
           node scripts/sync-hermes-skills.mjs
-          git diff --exit-code -- agents/hermes/skills
+          node scripts/sync-devin-plugin.mjs
+          git diff --exit-code -- agents/hermes/skills agents/devin
           node scripts/version.mjs check
           node scripts/check-manifests.mjs
           if [[ "$BASE_BRANCH" == "main" ]]; then
@@ -100,6 +101,7 @@ jobs:
             "$RUNNER_TEMP/locus-stage/agents/claude/.mcp.json" \
             "$RUNNER_TEMP/locus-stage/agents/codex/.mcp.json" \
             "$RUNNER_TEMP/locus-stage/agents/cursor/mcp.json" \
+            "$RUNNER_TEMP/locus-stage/agents/devin/.devin-plugin/plugin.json" \
             "$RUNNER_TEMP/locus-stage/agents/grok/mcp.json" \
             "$RUNNER_TEMP/locus-stage/agents/hermes/mcp.json"
 
